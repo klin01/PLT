@@ -2,21 +2,21 @@
 
 rule token = parse
 [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
-| "/*" { dcomment lexbuf } (* Double Comments *)
-| "//" { scomment lexbuf } (* Single Comments *)
+| "/*" { multicomment lexbuf } (* Double Comments *)
+| "//" { singlecomment lexbuf } (* Single Comments *)
 | '(' { LPAREN } | ')' { RPAREN } (* punctuation *)
 | '{' { LBRACE } | '}' { RBRACE }
 | '[' { LBRACK } | ']' { RBRACK }
-| ';' { SEMI } | ','' { COMMA } | '.' { REF }
-| '+'' { PLUS } | '-'' { MINUS }
-| '*' { TIMES } | '/'' { DIVIDE }
+| ';' { SEMI } | ',' { COMMA } | '.' { REF }
+| '+' { PLUS } | '-' { MINUS }
+| '*' { TIMES } | '/' { DIVIDE }
 | ':' { ASSIGN } | '=' { EQ }
 | "+:" { SHORTADD } | "-:" { SHORTMINUS }
 | "*:" { SHORTTIMES } | "/:" { SHORTDIVIDE }
 | '%' { MOD } | '^' { EXP }
-| '\'' { singlequote lexbuf } | '\"' { doublequote lexbuf }
-| "!=" { NEQ } | '<'' { LT }
-| "<=" { LEQ } | ">" { GT }
+| '\"' { doublequote lexbuf }
+| "!=" { NEQ } | '<' { LT }
+| "<=" { LEQ } | '>' { GT }
 | ">=" { GEQ } | "if" { IF } (* keywords *)
 | "&&" { AND } | "||" { OR } | '!' { NOT }
 | "else" { ELSE } | "for" { FOR }
@@ -31,16 +31,24 @@ rule token = parse
 | "true" { TRUE } | "false" { FALSE }
 | eof { EOF } (* End-of-file *)
 | ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) } (* integers *)
-| '$'['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
+| '$'['a'-'z' 'A'-'Z']+['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
-and singlequote = parse
-'\'' { token lexbuf } (* End-of-single quote *)
+and multicomment = parse
+"*/" { token lexbuf } (* End-of-comment *)
+| eof { raise (Failure("eof reached before multicomment completion") }
+| _ { comment lexbuf } (* Eat everything else *)
+
+and singlecomment = parse
+'\n' { token lexbuf } (* End-of-comment *)
+| _ { comment lexbuf } (* Eat everything else *)
 
 and doublequote = parse
-'\"' { token lexbuf } (* End-of-double quote *)
-|''
+'\"' { token lexbuf }
+| '\\' { escaped lexbuf } 
+| eof { raise (Failure("eof reached before string completion") }
+| _ { doublequote lexbuf }
 
-and comment = parse
-"*/" { token lexbuf } (* End-of-comment *)
-| _ { comment lexbuf } (* Eat everything else *)
+and escaped = parse
+['\'' '\"' 'n' 't' 'r' '\\'] { doublequote lexbuf }
+| _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
