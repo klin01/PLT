@@ -1,5 +1,8 @@
 { open Parser }
 
+let escape = '\\'['\'' '\"' 'n' 't' 'r' '\\']
+let character = [^'\\' '\"']
+
 rule token = parse
 [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "/*" { multicomment lexbuf } (* Double Comments *)
@@ -36,19 +39,14 @@ rule token = parse
 
 and multicomment = parse
 "*/" { token lexbuf } (* End-of-comment *)
-| eof { raise (Failure("eof reached before multicomment completion") }
-| _ { comment lexbuf } (* Eat everything else *)
+| eof { raise ( Failure("eof reached before multicomment completion")) }
+| _ { multicomment lexbuf } (* Eat everything else *)
 
 and singlecomment = parse
 '\n' { token lexbuf } (* End-of-comment *)
-| _ { comment lexbuf } (* Eat everything else *)
+| _ { singlecomment lexbuf } (* Eat everything else *)
 
 and doublequote = parse
-'\"' { token lexbuf }
-| '\\' { escaped lexbuf } 
-| eof { raise (Failure("eof reached before string completion") }
-| _ { doublequote lexbuf }
-
-and escaped = parse
-['\'' '\"' 'n' 't' 'r' '\\'] { doublequote lexbuf }
-| _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
+(escape | character)* as lxm { QUOTE(lxm) }
+| '\"' { token lexbuf }
+| eof { raise (Failure("eof reached before string completion")) }

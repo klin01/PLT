@@ -22,8 +22,8 @@ let __ocaml_lex_tables = {
     \017\000\141\000\134\000\206\255\131\000\126\000\001\000\146\000\
     \134\000\148\000\143\000\146\000\134\000\204\255\132\000\149\000\
     \203\255\209\000\028\001\209\000\253\255\254\255\024\000\255\255\
-    \011\000\254\255\255\255\085\001\252\255\253\255\254\255\255\255\
-    \118\001\254\255\255\255";
+    \011\000\254\255\255\255\085\001\253\255\254\255\086\001\118\001\
+    ";
   Lexing.lex_backtrk = 
    "\255\255\255\255\057\000\055\000\255\255\057\000\057\000\057\000\
     \057\000\057\000\057\000\057\000\057\000\057\000\057\000\057\000\
@@ -44,8 +44,8 @@ let __ocaml_lex_tables = {
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\056\000\056\000\255\255\255\255\255\255\002\000\255\255\
-    \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
-    \255\255\255\255\255\255";
+    \255\255\255\255\255\255\000\000\255\255\255\255\000\000\255\255\
+    ";
   Lexing.lex_default = 
    "\001\000\000\000\255\255\255\255\000\000\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
@@ -66,8 +66,8 @@ let __ocaml_lex_tables = {
     \255\255\255\255\255\255\000\000\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\000\000\255\255\255\255\
     \000\000\255\255\255\255\148\000\000\000\000\000\255\255\000\000\
-    \153\000\000\000\000\000\156\000\000\000\000\000\000\000\000\000\
-    \161\000\000\000\000\000";
+    \153\000\000\000\000\000\158\000\000\000\000\000\158\000\255\255\
+    ";
   Lexing.lex_trans = 
    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\043\000\043\000\000\000\000\000\043\000\000\000\000\000\
@@ -115,25 +115,22 @@ let __ocaml_lex_tables = {
     \000\000\000\000\000\000\000\000\000\000\146\000\146\000\146\000\
     \146\000\146\000\146\000\146\000\146\000\146\000\146\000\146\000\
     \146\000\146\000\146\000\146\000\146\000\146\000\146\000\146\000\
-    \146\000\146\000\146\000\146\000\146\000\146\000\146\000\159\000\
-    \000\000\000\000\000\000\146\000\000\000\146\000\146\000\146\000\
+    \146\000\146\000\146\000\146\000\146\000\146\000\146\000\157\000\
+    \255\255\000\000\000\000\146\000\000\000\146\000\146\000\146\000\
     \146\000\146\000\146\000\146\000\146\000\146\000\146\000\146\000\
     \146\000\146\000\146\000\146\000\146\000\146\000\146\000\146\000\
     \146\000\146\000\146\000\146\000\146\000\146\000\146\000\000\000\
-    \162\000\000\000\000\000\000\000\000\000\162\000\000\000\000\000\
+    \158\000\000\000\000\000\000\000\000\000\158\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
-    \000\000\158\000\000\000\000\000\000\000\000\000\000\000\000\000\
-    \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
-    \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
-    \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
-    \000\000\149\000\162\000\000\000\000\000\000\000\000\000\000\000\
-    \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
-    \000\000\000\000\000\000\000\000\162\000\000\000\000\000\000\000\
-    \162\000\000\000\162\000\000\000\000\000\000\000\000\000\000\000\
+    \000\000\159\000\159\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
+    \000\000\149\000\158\000\000\000\000\000\000\000\000\000\000\000\
+    \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
+    \000\000\000\000\000\000\000\000\158\000\000\000\000\000\000\000\
+    \158\000\000\000\158\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
@@ -143,11 +140,14 @@ let __ocaml_lex_tables = {
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
-    \000\000\000\000\000\000\000\000\000\000\157\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
     \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
-    \000\000\000\000\000\000\000\000\000\000\000\000\255\255";
+    \000\000\000\000\000\000\000\000\000\000\156\000\255\255\000\000\
+    \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
+    \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
+    \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
+    \000\000\000\000\000\000\000\000\000\000\000\000\000\000";
   Lexing.lex_check = 
    "\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\000\000\000\000\255\255\255\255\000\000\255\255\255\255\
@@ -196,24 +196,21 @@ let __ocaml_lex_tables = {
     \146\000\146\000\146\000\146\000\146\000\146\000\146\000\146\000\
     \146\000\146\000\146\000\146\000\146\000\146\000\146\000\146\000\
     \146\000\146\000\146\000\146\000\146\000\146\000\146\000\155\000\
-    \255\255\255\255\255\255\146\000\255\255\146\000\146\000\146\000\
+    \158\000\255\255\255\255\146\000\255\255\146\000\146\000\146\000\
     \146\000\146\000\146\000\146\000\146\000\146\000\146\000\146\000\
     \146\000\146\000\146\000\146\000\146\000\146\000\146\000\146\000\
     \146\000\146\000\146\000\146\000\146\000\146\000\146\000\255\255\
-    \160\000\255\255\255\255\255\255\255\255\160\000\255\255\255\255\
+    \159\000\255\255\255\255\255\255\255\255\159\000\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
-    \255\255\155\000\255\255\255\255\255\255\255\255\255\255\255\255\
-    \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
-    \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
-    \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
-    \255\255\147\000\160\000\255\255\255\255\255\255\255\255\255\255\
-    \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
-    \255\255\255\255\255\255\255\255\160\000\255\255\255\255\255\255\
-    \160\000\255\255\160\000\255\255\255\255\255\255\255\255\255\255\
+    \255\255\155\000\158\000\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
+    \255\255\147\000\159\000\255\255\255\255\255\255\255\255\255\255\
+    \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
+    \255\255\255\255\255\255\255\255\159\000\255\255\255\255\255\255\
+    \159\000\255\255\159\000\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
@@ -223,11 +220,14 @@ let __ocaml_lex_tables = {
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
-    \255\255\255\255\255\255\255\255\255\255\155\000\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
     \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
-    \255\255\255\255\255\255\255\255\255\255\255\255\160\000";
+    \255\255\255\255\255\255\255\255\255\255\155\000\158\000\255\255\
+    \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
+    \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
+    \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
+    \255\255\255\255\255\255\255\255\255\255\255\255\255\255";
   Lexing.lex_base_code = 
    "";
   Lexing.lex_backtrk_code = 
@@ -247,307 +247,307 @@ let rec token lexbuf =
 and __ocaml_lex_token_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 4 "scanner.mll"
+# 7 "scanner.mll"
                      ( token lexbuf )
 # 253 "scanner.ml"
 
   | 1 ->
-# 5 "scanner.mll"
+# 8 "scanner.mll"
        ( multicomment lexbuf )
 # 258 "scanner.ml"
 
   | 2 ->
-# 6 "scanner.mll"
+# 9 "scanner.mll"
        ( singlecomment lexbuf )
 # 263 "scanner.ml"
 
   | 3 ->
-# 7 "scanner.mll"
+# 10 "scanner.mll"
       ( LPAREN )
 # 268 "scanner.ml"
 
   | 4 ->
-# 7 "scanner.mll"
+# 10 "scanner.mll"
                        ( RPAREN )
 # 273 "scanner.ml"
 
   | 5 ->
-# 8 "scanner.mll"
+# 11 "scanner.mll"
       ( LBRACE )
 # 278 "scanner.ml"
 
   | 6 ->
-# 8 "scanner.mll"
+# 11 "scanner.mll"
                        ( RBRACE )
 # 283 "scanner.ml"
 
   | 7 ->
-# 9 "scanner.mll"
+# 12 "scanner.mll"
       ( LBRACK )
 # 288 "scanner.ml"
 
   | 8 ->
-# 9 "scanner.mll"
+# 12 "scanner.mll"
                        ( RBRACK )
 # 293 "scanner.ml"
 
   | 9 ->
-# 10 "scanner.mll"
+# 13 "scanner.mll"
       ( SEMI )
 # 298 "scanner.ml"
 
   | 10 ->
-# 10 "scanner.mll"
+# 13 "scanner.mll"
                      ( COMMA )
 # 303 "scanner.ml"
 
   | 11 ->
-# 10 "scanner.mll"
+# 13 "scanner.mll"
                                      ( REF )
 # 308 "scanner.ml"
 
   | 12 ->
-# 11 "scanner.mll"
+# 14 "scanner.mll"
       ( PLUS )
 # 313 "scanner.ml"
 
   | 13 ->
-# 11 "scanner.mll"
+# 14 "scanner.mll"
                      ( MINUS )
 # 318 "scanner.ml"
 
   | 14 ->
-# 12 "scanner.mll"
+# 15 "scanner.mll"
       ( TIMES )
 # 323 "scanner.ml"
 
   | 15 ->
-# 12 "scanner.mll"
+# 15 "scanner.mll"
                       ( DIVIDE )
 # 328 "scanner.ml"
 
   | 16 ->
-# 13 "scanner.mll"
+# 16 "scanner.mll"
       ( ASSIGN )
 # 333 "scanner.ml"
 
   | 17 ->
-# 13 "scanner.mll"
+# 16 "scanner.mll"
                        ( EQ )
 # 338 "scanner.ml"
 
   | 18 ->
-# 14 "scanner.mll"
+# 17 "scanner.mll"
        ( SHORTADD )
 # 343 "scanner.ml"
 
   | 19 ->
-# 14 "scanner.mll"
+# 17 "scanner.mll"
                            ( SHORTMINUS )
 # 348 "scanner.ml"
 
   | 20 ->
-# 15 "scanner.mll"
+# 18 "scanner.mll"
        ( SHORTTIMES )
 # 353 "scanner.ml"
 
   | 21 ->
-# 15 "scanner.mll"
+# 18 "scanner.mll"
                              ( SHORTDIVIDE )
 # 358 "scanner.ml"
 
   | 22 ->
-# 16 "scanner.mll"
+# 19 "scanner.mll"
       ( MOD )
 # 363 "scanner.ml"
 
   | 23 ->
-# 16 "scanner.mll"
+# 19 "scanner.mll"
                     ( EXP )
 # 368 "scanner.ml"
 
   | 24 ->
-# 17 "scanner.mll"
+# 20 "scanner.mll"
        ( doublequote lexbuf )
 # 373 "scanner.ml"
 
   | 25 ->
-# 18 "scanner.mll"
+# 21 "scanner.mll"
        ( NEQ )
 # 378 "scanner.ml"
 
   | 26 ->
-# 18 "scanner.mll"
+# 21 "scanner.mll"
                      ( LT )
 # 383 "scanner.ml"
 
   | 27 ->
-# 19 "scanner.mll"
+# 22 "scanner.mll"
        ( LEQ )
 # 388 "scanner.ml"
 
   | 28 ->
-# 19 "scanner.mll"
+# 22 "scanner.mll"
                      ( GT )
 # 393 "scanner.ml"
 
   | 29 ->
-# 20 "scanner.mll"
+# 23 "scanner.mll"
        ( GEQ )
 # 398 "scanner.ml"
 
   | 30 ->
-# 20 "scanner.mll"
+# 23 "scanner.mll"
                       ( IF )
 # 403 "scanner.ml"
 
   | 31 ->
-# 21 "scanner.mll"
+# 24 "scanner.mll"
        ( AND )
 # 408 "scanner.ml"
 
   | 32 ->
-# 21 "scanner.mll"
+# 24 "scanner.mll"
                       ( OR )
 # 413 "scanner.ml"
 
   | 33 ->
-# 21 "scanner.mll"
+# 24 "scanner.mll"
                                    ( NOT )
 # 418 "scanner.ml"
 
   | 34 ->
-# 22 "scanner.mll"
+# 25 "scanner.mll"
          ( ELSE )
 # 423 "scanner.ml"
 
   | 35 ->
-# 22 "scanner.mll"
+# 25 "scanner.mll"
                           ( FOR )
 # 428 "scanner.ml"
 
   | 36 ->
-# 23 "scanner.mll"
+# 26 "scanner.mll"
           ( WHILE )
 # 433 "scanner.ml"
 
   | 37 ->
-# 23 "scanner.mll"
+# 26 "scanner.mll"
                                ( RETURN )
 # 438 "scanner.ml"
 
   | 38 ->
-# 24 "scanner.mll"
+# 27 "scanner.mll"
         ( INT )
 # 443 "scanner.ml"
 
   | 39 ->
-# 24 "scanner.mll"
+# 27 "scanner.mll"
                           ( FLOAT )
 # 448 "scanner.ml"
 
   | 40 ->
-# 25 "scanner.mll"
+# 28 "scanner.mll"
          ( CHAR )
 # 453 "scanner.ml"
 
   | 41 ->
-# 25 "scanner.mll"
+# 28 "scanner.mll"
                              ( STRING )
 # 458 "scanner.ml"
 
   | 42 ->
-# 26 "scanner.mll"
+# 29 "scanner.mll"
          ( BOOL )
 # 463 "scanner.ml"
 
   | 43 ->
-# 26 "scanner.mll"
+# 29 "scanner.mll"
                                ( FUNC )
 # 468 "scanner.ml"
 
   | 44 ->
-# 27 "scanner.mll"
+# 30 "scanner.mll"
           ( ARRAY )
 # 473 "scanner.ml"
 
   | 45 ->
-# 27 "scanner.mll"
+# 30 "scanner.mll"
                               ( IMG )
 # 478 "scanner.ml"
 
   | 46 ->
-# 28 "scanner.mll"
+# 31 "scanner.mll"
         ( MAP )
 # 483 "scanner.ml"
 
   | 47 ->
-# 28 "scanner.mll"
+# 31 "scanner.mll"
                               ( PLAYEROBJ )
 # 488 "scanner.ml"
 
   | 48 ->
-# 29 "scanner.mll"
+# 32 "scanner.mll"
            ( OBJ )
 # 493 "scanner.ml"
 
   | 49 ->
-# 29 "scanner.mll"
+# 32 "scanner.mll"
                               ( ENVOBJ )
 # 498 "scanner.ml"
 
   | 50 ->
-# 30 "scanner.mll"
+# 33 "scanner.mll"
            ( ACTOBJ )
 # 503 "scanner.ml"
 
   | 51 ->
-# 30 "scanner.mll"
+# 33 "scanner.mll"
                                        ( EVENTMGR )
 # 508 "scanner.ml"
 
   | 52 ->
-# 31 "scanner.mll"
+# 34 "scanner.mll"
          ( TRUE )
 # 513 "scanner.ml"
 
   | 53 ->
-# 31 "scanner.mll"
+# 34 "scanner.mll"
                             ( FALSE )
 # 518 "scanner.ml"
 
   | 54 ->
-# 32 "scanner.mll"
+# 35 "scanner.mll"
       ( EOF )
 # 523 "scanner.ml"
 
   | 55 ->
 let
-# 33 "scanner.mll"
+# 36 "scanner.mll"
                 lxm
 # 529 "scanner.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 33 "scanner.mll"
+# 36 "scanner.mll"
                     ( LITERAL(int_of_string lxm) )
 # 533 "scanner.ml"
 
   | 56 ->
 let
-# 34 "scanner.mll"
+# 37 "scanner.mll"
                                                          lxm
 # 539 "scanner.ml"
 = Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
-# 34 "scanner.mll"
+# 37 "scanner.mll"
                                                              ( ID(lxm) )
 # 543 "scanner.ml"
 
   | 57 ->
 let
-# 35 "scanner.mll"
+# 38 "scanner.mll"
        char
 # 549 "scanner.ml"
 = Lexing.sub_lexeme_char lexbuf lexbuf.Lexing.lex_start_pos in
-# 35 "scanner.mll"
+# 38 "scanner.mll"
             ( raise (Failure("illegal character " ^ Char.escaped char)) )
 # 553 "scanner.ml"
 
@@ -558,18 +558,18 @@ and multicomment lexbuf =
 and __ocaml_lex_multicomment_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 38 "scanner.mll"
+# 41 "scanner.mll"
      ( token lexbuf )
 # 564 "scanner.ml"
 
   | 1 ->
-# 39 "scanner.mll"
-      ( raise (Failure("eof reached before multicomment completion") )
+# 42 "scanner.mll"
+      ( raise ( Failure("eof reached before multicomment completion")) )
 # 569 "scanner.ml"
 
   | 2 ->
-# 40 "scanner.mll"
-    ( comment lexbuf )
+# 43 "scanner.mll"
+    ( multicomment lexbuf )
 # 574 "scanner.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_multicomment_rec lexbuf __ocaml_lex_state
@@ -579,13 +579,13 @@ and singlecomment lexbuf =
 and __ocaml_lex_singlecomment_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 43 "scanner.mll"
+# 46 "scanner.mll"
      ( token lexbuf )
 # 585 "scanner.ml"
 
   | 1 ->
-# 44 "scanner.mll"
-    ( comment lexbuf )
+# 47 "scanner.mll"
+    ( singlecomment lexbuf )
 # 590 "scanner.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_singlecomment_rec lexbuf __ocaml_lex_state
@@ -595,47 +595,26 @@ and doublequote lexbuf =
 and __ocaml_lex_doublequote_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
-# 47 "scanner.mll"
-     ( token lexbuf )
-# 601 "scanner.ml"
-
-  | 1 ->
-# 48 "scanner.mll"
-       ( escaped lexbuf )
+let
+# 50 "scanner.mll"
+                         lxm
+# 602 "scanner.ml"
+= Lexing.sub_lexeme lexbuf lexbuf.Lexing.lex_start_pos lexbuf.Lexing.lex_curr_pos in
+# 50 "scanner.mll"
+                             ( QUOTE(lxm) )
 # 606 "scanner.ml"
 
-  | 2 ->
-# 49 "scanner.mll"
-      ( raise (Failure("eof reached before string completion") )
+  | 1 ->
+# 51 "scanner.mll"
+       ( token lexbuf )
 # 611 "scanner.ml"
 
-  | 3 ->
-# 50 "scanner.mll"
-    ( doublequote lexbuf )
+  | 2 ->
+# 52 "scanner.mll"
+      ( raise (Failure("eof reached before string completion")) )
 # 616 "scanner.ml"
 
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_doublequote_rec lexbuf __ocaml_lex_state
-
-and escaped lexbuf =
-    __ocaml_lex_escaped_rec lexbuf 160
-and __ocaml_lex_escaped_rec lexbuf __ocaml_lex_state =
-  match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
-      | 0 ->
-# 53 "scanner.mll"
-                             ( doublequote lexbuf )
-# 627 "scanner.ml"
-
-  | 1 ->
-let
-# 54 "scanner.mll"
-       char
-# 633 "scanner.ml"
-= Lexing.sub_lexeme_char lexbuf lexbuf.Lexing.lex_start_pos in
-# 54 "scanner.mll"
-            ( raise (Failure("illegal character " ^ Char.escaped char)) )
-# 637 "scanner.ml"
-
-  | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_escaped_rec lexbuf __ocaml_lex_state
 
 ;;
 
