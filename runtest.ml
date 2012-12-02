@@ -1,4 +1,4 @@
 open Tests
 
 let _ =
-	test
+	print_endline test
