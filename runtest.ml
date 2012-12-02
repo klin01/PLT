@@ -1,4 +1,4 @@
-open Test
+open Tests
 
 let _ =
-	test (string2expr "1 + 2")
+	test
