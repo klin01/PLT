@@ -1,7 +1,8 @@
 { open Parser }
 
-let escape = '\\'['\'' '\"' 'n' 't' 'r' '\\']
+let escape = '\\'['\'' '\' 'n' 't' 'r' '\\']
 let character = [^'\\' '\"']
+let char_not_squote = [^'\\' '\'']
 
 rule token = parse
 [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
@@ -18,6 +19,7 @@ rule token = parse
 | "*:" { SHORTTIMES } | "/:" { SHORTDIVIDE }
 | '%' { MOD } | '^' { EXP }
 | '\"' { doublequote lexbuf }
+| '\'' { singlequote lexbuf }
 | "!=" { NEQ } | '<' { LT }
 | "<=" { LEQ } | '>' { GT }
 | ">=" { GEQ } | "if" { IF } (* keywords *)
@@ -31,9 +33,10 @@ rule token = parse
 | "Map" { MAP } | "PlayerObj" { PLAYEROBJ }
 | "Object" { OBJ } | "EnvObj" { ENVOBJ }
 | "ActObj" { ACTOBJ } | "EventManager" { EVENTMGR } 
-| "true" { TRUE } | "false" { FALSE }
+| "true" { LITERALBOOL(bool_of_string true) } | "false" { LITERALBOOL(bool_of_string false) }
 | eof { EOF } (* End-of-file *)
-| ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) } (* integers *)
+| ['0'-'9']+ as lxm { LITERALINT(int_of_string lxm) } (* integers *)
+| ['0'-'9']*'.'['0'-'9']+ as lxm { LITERALFLOAT(float_of_string lxm) } (* floats *)
 | '$'['a'-'z' 'A'-'Z']+['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
@@ -47,6 +50,12 @@ and singlecomment = parse
 | _ { singlecomment lexbuf } (* Eat everything else *)
 
 and doublequote = parse
-(escape | character)* as lxm { QUOTE(lxm) }
+(escape | character)* as lxm { LITERALSTRING(lxm) }
 | '\"' { token lexbuf }
 | eof { raise (Failure("eof reached before string completion")) }
+
+and singlequote = parse
+(escape | char_not_squote) as lxm { LITERALCHAR(lxm) }
+| '\'' { token lexbuf }
+| eof { raise (Failure("eof reached before char completion")) }
+
