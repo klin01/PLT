@@ -1,4 +1,8 @@
- let _ =
+
+
+open Glut
+
+let _ =
    ignore( Glut.init Sys.argv );
    Glut.initDisplayMode ~double_buffer:true ();
    ignore (Glut.createWindow ~title:"OpenGL Demo");

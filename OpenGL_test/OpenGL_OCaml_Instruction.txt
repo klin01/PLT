@@ -29,3 +29,13 @@ You will see a lot of example source file of OCaml code that uses OpenGL for cre
 	lablglut gears.ml
 
 8. I will follow up later regarding how we can compile the .ml file with OpenGL commands. For now, you should see if you can run the examples on step 7. README for more information.
+
+9. Here we go. We can compile the ocaml source file with OpenGL bindings as follows:
+
+	ocamlc -I +lablGL lablgl.cma lablglut.cma SOURCEFILE.ml -o EXECUTABLE_FILENAME
+
+For example,
+
+	ocamlc -I +lablGL lablgl.cma lablglut.cma simple.ml -o simple
+
+It is EXTREMELY important that -I comes before source file in order of arguments. Otherwise we will get "Unbound of GLUT" error.
