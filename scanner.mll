@@ -37,6 +37,8 @@ rule token = parse
 | eof { EOF } (* End-of-file *)
 | ['0'-'9']+ as lxm { LITERALINT(int_of_string lxm) } (* integers *)
 | ['0'-'9']*'.'['0'-'9']+ as lxm { LITERALFLOAT(float_of_string lxm) } (* floats *)
+| ("'\\''" | '\''[^'\'''\t''\r''\n']'\'') as chr { LITERALCHAR(String.sub chr 1 ((String.length chr) - 2 )) }
+| '"'([^'"'] | '\\''"')*'"' as str { LITERALSTRING(String.sub str 1 ((String.length str) - 2 )) }
 | '$'['a'-'z' 'A'-'Z']+['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
@@ -48,14 +50,4 @@ and multicomment = parse
 and singlecomment = parse
 '\n' { token lexbuf } (* End-of-comment *)
 | _ { singlecomment lexbuf } (* Eat everything else *)
-
-and doublequote = parse
-(escape | character)* as lxm { LITERALSTRING(lxm) }
-| '\"' { token lexbuf }
-| eof { raise (Failure("eof reached before string completion")) }
-
-and singlequote = parse
-(escape | char_not_squote) as lxm { LITERALCHAR(lxm) }
-| '\'' { token lexbuf }
-| eof { raise (Failure("eof reached before char completion")) }
 
