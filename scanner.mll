@@ -18,8 +18,6 @@ rule token = parse
 | "+:" { SHORTADD } | "-:" { SHORTMINUS }
 | "*:" { SHORTTIMES } | "/:" { SHORTDIVIDE }
 | '%' { MOD } | '^' { EXP }
-| '\"' { doublequote lexbuf }
-| '\'' { singlequote lexbuf }
 | "!=" { NEQ } | '<' { LT }
 | "<=" { LEQ } | '>' { GT }
 | ">=" { GEQ } | "if" { IF } (* keywords *)
