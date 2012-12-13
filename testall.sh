@@ -10,6 +10,7 @@ rm -f $globallog
 error=0
 globalerror=0
 
+# CHANGE IT BACK TO ZERO!
 keep=0
 
 Usage() {
