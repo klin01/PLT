@@ -28,6 +28,11 @@ type func_decl = {
     body : stmt list;
   }
 
+type var_decl = {
+    varname : string;
+    vartype : string;
+}
+
 type program = string list * func_decl list
 
 let rec string_of_expr = function

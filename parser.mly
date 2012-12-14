@@ -69,7 +69,7 @@ vdecl_list:
   Something like 
   int $myInt = 5; */
 vdecl:
-   TYPE ID SEMI { $2 }
+   TYPE ID SEMI { { varname : $2; vartype : $1 } }
   | ARRAY ID ASSIGN ARRAY TYPE LITERALINT SEMI { $2 }
   | ARRAY ID ASSIGN ARRAY TYPE DYNAMIC SEMI { $2 }
    /* INT ID SEMI { $2 } */
