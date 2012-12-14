@@ -1,7 +1,12 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq
 
 type expr =
-    Literal of int
+    Type of string
+  | LiteralBool of bool
+  | LiteralInt of int
+  | LiteralFloat of float
+  | LiteralChar of char
+  | LiteralString of string
   | Id of string
   | Binop of expr * op * expr
   | Assign of string * expr

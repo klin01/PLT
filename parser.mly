@@ -1,10 +1,26 @@
 %{ open Ast %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
+
+%token SEMI LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE INT
-%token <int> LITERAL
+
+%token SHORTADD SHORTMINUS SHORTTIMES SHORTDIVIDE /* MOD EXP */ REF
+%token FUNC
+%token AND OR NOT
+%token TRUE FALSE
+%token <string> TYPE
+/*%token INT FLOAT CHAR STRING BOOL VOID*/
+/*%token ARRAY MAP IMG PLAYEROBJ OBJ ENVOBJ ACTOBJ EVENTMGR */
+%token <string> QUOTE
+
+%token <bool> LITERALBOOL
+%token <int> LITERALINT
+%token <float> LITERALFLOAT
+%token <char> LITERALCHAR
+%token <string> LITERALSTRING
+/* Should I define LITERAL for FLOAT, STRING, etc too? */
 %token <string> ID
 %token EOF
 
@@ -26,27 +42,37 @@ program:
  | program vdecl { ($2 :: fst $1), snd $1 }
  | program fdecl { fst $1, ($2 :: snd $1) }
 
+/*
+TODO: Allow vdecl_list to mix with body?
+*/
 fdecl:
-   ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-     { { fname = $1;
-	 formals = $3;
-	 locals = List.rev $6;
-	 body = List.rev $7 } }
+   FUNC ID ASSIGN TYPE LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   /*ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE*/
+     { { fname = $2;
+	 formals = $6;
+	 locals = List.rev $9;
+	 body = List.rev $10 } }
 
 formals_opt:
     /* nothing */ { [] }
   | formal_list   { List.rev $1 }
 
 formal_list:
-    ID                   { [$1] }
-  | formal_list COMMA ID { $3 :: $1 }
+    TYPE ID              { [$2] }
+  | formal_list COMMA TYPE ID { $4 :: $1 }
 
 vdecl_list:
     /* nothing */    { [] }
   | vdecl_list vdecl { $2 :: $1 }
 
+/* TODO: How to declare and assign variables in one statement? 
+  Something like 
+  int $myInt = 5; */
 vdecl:
-   INT ID SEMI { $2 }
+   TYPE ID SEMI { $2 }
+  | ARRAY ID ASSIGN ARRAY TYPE LITERALINT SEMI { $2 }
+  | ARRAY ID ASSIGN ARRAY TYPE DYNAMIC SEMI { $2 }
+   /* INT ID SEMI { $2 } */
 
 stmt_list:
     /* nothing */  { [] }
@@ -68,6 +94,7 @@ expr_opt:
 
 expr:
     LITERAL          { Literal($1) }
+  | TYPE             { Type($1) }
   | ID               { Id($1) }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
