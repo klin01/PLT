@@ -1,0 +1,53 @@
+timestep/distance/speed/score
+
+function main : void () {
+	Map $gameMap: Map {
+		$height: 1024,
+		$width: 768,
+		$generator: $generateThis
+	};
+
+	Player $me : Player {
+		$shape:
+		$height:
+		$width:
+		$color?:
+	}
+
+	Run($gameMap, $me);
+}
+
+function $generateThis: Array () {
+	Array $output : Array Block dynamic;
+	Block $top : Block {
+		$height: 20,
+		$width: 1024,
+		$x: 0,
+		$y: 1004
+	};
+	$output.push($top);
+	Block $bottom : Block {
+		$height: 20,
+		$width: 1024,
+		$x: 0,
+		$y: 0
+	};
+	$output.push($bottom);
+	return $output;
+}
+
+//Array blocks = [];
+//j = 0
+//for (int i = 0; i < 500; i++)
+//{
+//	new Block(i, 1, j, 0, red);
+//	j++;
+//}
+
+Block
+	-height
+	-width
+	-x	
+	-y
+	-color
+
