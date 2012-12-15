@@ -1,18 +1,13 @@
 %{ open Ast %}
-
-
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN
+%token SHORTADD SHORTMINUS SHORTTIMES SHORTDIVIDE MOD EXP REF
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE INT
-
-%token SHORTADD SHORTMINUS SHORTTIMES SHORTDIVIDE MOD EXP REF
-%token FUNC
 %token AND OR NOT
-%token <string> TYPE
-%token ARRAY /*IMG PLAYEROBJ OBJ ENVOBJ ACTOBJ EVENTMGR*/
-%token <string> QUOTE
 
+%token FUNC ARRAY BRICK MAP PLAYER HEIGHT WIDTH SHAPE COLOR XCOORD YCOORD GENERATOR
+%token <string> TYPE
 %token <bool> LITERALBOOL
 %token <int> LITERALINT
 %token <float> LITERALFLOAT
@@ -25,10 +20,13 @@
 %nonassoc NOELSE
 %nonassoc ELSE
 %right ASSIGN
+%left AND OR
+%left NOT
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE MOD
+%left EXP
 
 %start program
 %type <Ast.program> program
@@ -62,7 +60,13 @@ formal_list:
 
 formal_decl:
     TYPE ID { { vartype: $1; varname: $2; varsize: 1 } }
+  | BRICK ID { { vartype: "Brick"; varname: $2; varsize: 1 } }
+  | PLAYER ID { { vartype: "Player"; varname: $2; varsize: 1 } }
+  | MAP ID { { vartype: "Map"; varname: $2; varsize: 1 } }
   | ARRAY TYPE ID { { vartype: "Array" ^ $2; varname: $3; varsize: 0 } }
+  | ARRAY BRICK ID { { vartype: "ArrayBrick"; varname: $3; varsize: 0 } }
+  | ARRAY PLAYER ID { { vartype: "ArrayPLayer"; varname: $3; varsize: 0 } }
+  | ARRAY MAP ID { { vartype: "ArrayMap"; varname: $3; varsize: 0 } }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -73,7 +77,13 @@ vdecl_list:
   int $myInt = 5; */
 vdecl:
     TYPE ID SEMI { { vartype : $1; varname : $2; varsize: 1 } } 
-  | ARRAY TYPE ID SEMI { { vartype: "Array" ^ $2 ; varname $3; varsize: 0 } }
+  | BRICK ID SEMI { { vartype: "Brick"; varname: $2; varsize: 1 } }
+  | PLAYER ID SEMI { { vartype: "Player"; varname: $2; varsize: 1 } }
+  | MAP ID SEMI { { vartype: "Map"; varname: $2; varsize: 1 } }
+  | ARRAY TYPE ID SEMI { { vartype: "Array" ^ $2; varname: $3; varsize: 0 } }
+  | ARRAY BRICK ID SEMI { { vartype: "ArrayBrick"; varname: $3; varsize: 0 } }
+  | ARRAY PLAYER ID SEMI { { vartype: "ArrayPLayer"; varname: $3; varsize: 0 } }
+  | ARRAY MAP ID SEMI { { vartype: "ArrayMap"; varname: $3; varsize: 0 } }
 
 stmt_list:
     /* nothing */  { [] }
@@ -99,21 +109,21 @@ expr:
   | LITERALBOOL          { LiteralBool($1) }
   | LITERALCHAR          { LiteralChar($1) }
   | LITERALSTRING        { LiteralString($1) }
-  | ID               { Id($1) }
+  | ID                   { Id($1) }
   | ID REF ID { Ref(Id($1), Id($3)) }
-  | BRICK LBRACE COLOR ASSIGN LITERALSTRING COMMA \
-    HEIGHT ASSIGN LITERALINT COMMA \
-    WIDTH ASSIGN LITERALINT COMMA \
-    XCOORD ASSIGN LITERALINT COMMA \
-    YCOORD ASSIGN LITERALINT RBRACE { Brick($5, $9, $13, $17, $21) }
-  | PLAYER LBRACE COLOR ASSIGN LITERALSTRING COMMA \
-    SHAPE ASSIGN LITERALSTRING COMMA \
-    HEIGHT ASSIGN LITERALINT COMMA \
-    WIDTH ASSIGN LITERALINT COMMA \
-    YCOORD ASSIGN LITERALINT RBRACE { Player($5, $9, $13, $17, $21) }
-  | MAP LBRACE HEIGHT ASSIGN LITERALINT COMMA \
-    WIDTH ASSIGN LITERALINT COMMA \
-    GENERATOR ASSIGN ID RBRACE { Map($5, $9, $13) }
+  | BRICK LBRACE COLOR ASSIGN expr COMMA
+    HEIGHT ASSIGN expr COMMA
+    WIDTH ASSIGN expr COMMA
+    XCOORD ASSIGN expr COMMA
+    YCOORD ASSIGN expr RBRACE { Brick($5, $9, $13, $17, $21) }
+  | PLAYER LBRACE COLOR ASSIGN expr COMMA
+    SHAPE ASSIGN expr COMMA
+    HEIGHT ASSIGN expr COMMA
+    WIDTH ASSIGN expr COMMA
+    YCOORD ASSIGN expr RBRACE { Player($5, $9, $13, $17, $21) }
+  | MAP LBRACE HEIGHT ASSIGN expr COMMA
+    WIDTH ASSIGN expr COMMA
+    GENERATOR ASSIGN expr RBRACE { Map($5, $9, $13) }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }

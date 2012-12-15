@@ -1,46 +1,6 @@
 { open Parser }
 
 rule token = parse
-  [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
-| "/*"     { comment lexbuf }           (* Comments *)
-| '('      { LPAREN }
-| ')'      { RPAREN }
-| '{'      { LBRACE }
-| '}'      { RBRACE }
-| ';'      { SEMI }
-| ','      { COMMA }
-| '+'      { PLUS }
-| '-'      { MINUS }
-| '*'      { TIMES }
-| '/'      { DIVIDE }
-| '='      { ASSIGN }
-| "=="     { EQ }
-| "!="     { NEQ }
-| '<'      { LT }
-| "<="     { LEQ }
-| ">"      { GT }
-| ">="     { GEQ }
-| "if"     { IF }
-| "else"   { ELSE }
-| "for"    { FOR }
-| "while"  { WHILE }
-| "return" { RETURN }
-| "int"    { INT }
-| ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }
-| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
-| eof { EOF }
-| _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
-
-and comment = parse
-  "*/" { token lexbuf }
-| _    { comment lexbuf }
-
-
-let escape = '\\'['\'' '\' 'n' 't' 'r' '\\']
-let character = [^'\\' '\"']
-let char_not_squote = [^'\\' '\'']
-
-rule token = parse
 [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "/*" { multicomment lexbuf } (* Double Comments *)
 | "//" { singlecomment lexbuf } (* Single Comments *)
@@ -65,9 +25,9 @@ rule token = parse
 | "char" { TYPE("char") } | "string" { TYPE("string") } 
 | "bool" { TYPE("bool") }
 | "Array" { ARRAY } (* | "Array" { TYPE("Array") } *) (* | "Image" { IMG } *)
-| "Map" { TYPE("Map") }
-| "Player" { TYPE("Player") }
-| "Brick" { TYPE("Brick") }
+| "Map" { MAP }
+| "Player" { PLAYER }
+| "Brick" { BRICK }
 | "function" { FUNC }
 | "Run" { RUN }
 (*)
@@ -82,6 +42,8 @@ rule token = parse
 | '"'([^'"'] | '\\''"')*'"' as str { LITERALSTRING(String.sub str 1 ((String.length str) - 2 )) }
 | "height" { HEIGHT }
 | "width" { WIDTH }
+| "color" { COLOR }
+| "shape" { SHAPE }
 | "x" { XCOORD }
 | "y" { YCOORD }
 | "generator" { GENERATOR }
