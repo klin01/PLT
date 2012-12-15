@@ -1,12 +1,12 @@
 %{ open Ast %}
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN
-%token SHORTADD SHORTMINUS SHORTTIMES SHORTDIVIDE MOD EXP REF
+%token SHORTADD SHORTMINUS SHORTTIMES SHORTDIVIDE MOD EXP REF INVOKE
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE INT
 %token AND OR NOT
 
-%token FUNC ARRAY BRICK MAP PLAYER HEIGHT WIDTH SHAPE COLOR XCOORD YCOORD GENERATOR
+%token NEW RUN FUNC ARRAY BRICK MAP PLAYER HEIGHT WIDTH SHAPE COLOR XCOORD YCOORD GENERATOR
 %token <string> TYPE
 %token <bool> LITERALBOOL
 %token <int> LITERALINT
@@ -20,6 +20,7 @@
 %nonassoc NOELSE
 %nonassoc ELSE
 %right ASSIGN
+%left SHORTADD SHORTMINUS SHORTTIMES SHORTDIVIDE
 %left AND OR
 %left NOT
 %left EQ NEQ
@@ -27,6 +28,7 @@
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 %left EXP
+%left REF INVOKE
 
 %start program
 %type <Ast.program> program
@@ -41,8 +43,18 @@ program:
 /*
 TODO: Allow vdecl_list to mix with body?
 */
+types:
+   TYPE { $1 }
+ | BRICK { "Brick" }
+ | PLAYER { "Player" }
+ | MAP { "Map" }
+ | ARRAY TYPE { "Array" ^ $2 }
+ | ARRAY BRICK { "ArrayBrick" }
+ | ARRAY PLAYER { "ArrayPlayer" }
+ | ARRAY MAP { "ArrayMap" }
+
 fdecl:
-   FUNC ID ASSIGN TYPE LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   FUNC ID ASSIGN types LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
    /*ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE*/
      { { fname = $2;
 	 formals = $6;
@@ -55,18 +67,18 @@ formals_opt:
   | formal_list   { List.rev $1 }
 
 formal_list:
-    formal_decl { $1 }
-  | formal_list COMMA formal_decl { $3 :: $1}
+    formal_decl { [$1] }
+  | formal_list COMMA formal_decl { $3 :: $1 }
 
 formal_decl:
-    TYPE ID { { vartype: $1; varname: $2; varsize: 1 } }
-  | BRICK ID { { vartype: "Brick"; varname: $2; varsize: 1 } }
-  | PLAYER ID { { vartype: "Player"; varname: $2; varsize: 1 } }
-  | MAP ID { { vartype: "Map"; varname: $2; varsize: 1 } }
-  | ARRAY TYPE ID { { vartype: "Array" ^ $2; varname: $3; varsize: 0 } }
-  | ARRAY BRICK ID { { vartype: "ArrayBrick"; varname: $3; varsize: 0 } }
-  | ARRAY PLAYER ID { { vartype: "ArrayPLayer"; varname: $3; varsize: 0 } }
-  | ARRAY MAP ID { { vartype: "ArrayMap"; varname: $3; varsize: 0 } }
+    TYPE ID { { vartype= $1; varname= $2; varsize= 1 } }
+  | BRICK ID { { vartype= "Brick"; varname= $2; varsize= 1 } }
+  | PLAYER ID { { vartype= "Player"; varname= $2; varsize= 1 } }
+  | MAP ID { { vartype= "Map"; varname= $2; varsize= 1 } }
+  | ARRAY TYPE ID { { vartype= "Array" ^ $2; varname= $3; varsize= 0 } }
+  | ARRAY BRICK ID { { vartype= "ArrayBrick"; varname= $3; varsize= 0 } }
+  | ARRAY PLAYER ID { { vartype= "ArrayPLayer"; varname= $3; varsize= 0 } }
+  | ARRAY MAP ID { { vartype= "ArrayMap"; varname= $3; varsize= 0 } }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -76,14 +88,14 @@ vdecl_list:
   Something like 
   int $myInt = 5; */
 vdecl:
-    TYPE ID SEMI { { vartype : $1; varname : $2; varsize: 1 } } 
-  | BRICK ID SEMI { { vartype: "Brick"; varname: $2; varsize: 1 } }
-  | PLAYER ID SEMI { { vartype: "Player"; varname: $2; varsize: 1 } }
-  | MAP ID SEMI { { vartype: "Map"; varname: $2; varsize: 1 } }
-  | ARRAY TYPE ID SEMI { { vartype: "Array" ^ $2; varname: $3; varsize: 0 } }
-  | ARRAY BRICK ID SEMI { { vartype: "ArrayBrick"; varname: $3; varsize: 0 } }
-  | ARRAY PLAYER ID SEMI { { vartype: "ArrayPLayer"; varname: $3; varsize: 0 } }
-  | ARRAY MAP ID SEMI { { vartype: "ArrayMap"; varname: $3; varsize: 0 } }
+    TYPE ID SEMI { { vartype= $1; varname= $2; varsize= 1 } } 
+  | BRICK ID SEMI { { vartype= "Brick"; varname= $2; varsize= 1 } }
+  | PLAYER ID SEMI { { vartype= "Player"; varname= $2; varsize= 1 } }
+  | MAP ID SEMI { { vartype= "Map"; varname= $2; varsize= 1 } }
+  | ARRAY TYPE ID SEMI { { vartype= "Array" ^ $2; varname= $3; varsize= 0 } }
+  | ARRAY BRICK ID SEMI { { vartype= "ArrayBrick"; varname= $3; varsize= 0 } }
+  | ARRAY PLAYER ID SEMI { { vartype= "ArrayPLayer"; varname= $3; varsize= 0 } }
+  | ARRAY MAP ID SEMI { { vartype= "ArrayMap"; varname= $3; varsize= 0 } }
 
 stmt_list:
     /* nothing */  { [] }
@@ -109,21 +121,16 @@ expr:
   | LITERALBOOL          { LiteralBool($1) }
   | LITERALCHAR          { LiteralChar($1) }
   | LITERALSTRING        { LiteralString($1) }
+  | NEW ARRAY TYPE       { Array($3) }
+  | NEW ARRAY BRICK      { Array("Brick") }
+  | NEW ARRAY MAP        { Array("Map") }
+  | NEW ARRAY PLAYER     { Array("Player") }
+  | NEW BRICK LPAREN expr COMMA expr COMMA expr COMMA expr COMMA expr RPAREN { Brick($4, $6, $8, $10, $12) }
+  | NEW MAP LPAREN expr COMMA expr COMMA expr RPAREN { Map($4, $6, $8) }
+  | NEW PLAYER LPAREN expr COMMA expr COMMA expr COMMA expr COMMA expr RPAREN { Player($4, $6, $8, $10, $12) }
   | ID                   { Id($1) }
-  | ID REF ID { Ref(Id($1), Id($3)) }
-  | BRICK LBRACE COLOR ASSIGN expr COMMA
-    HEIGHT ASSIGN expr COMMA
-    WIDTH ASSIGN expr COMMA
-    XCOORD ASSIGN expr COMMA
-    YCOORD ASSIGN expr RBRACE { Brick($5, $9, $13, $17, $21) }
-  | PLAYER LBRACE COLOR ASSIGN expr COMMA
-    SHAPE ASSIGN expr COMMA
-    HEIGHT ASSIGN expr COMMA
-    WIDTH ASSIGN expr COMMA
-    YCOORD ASSIGN expr RBRACE { Player($5, $9, $13, $17, $21) }
-  | MAP LBRACE HEIGHT ASSIGN expr COMMA
-    WIDTH ASSIGN expr COMMA
-    GENERATOR ASSIGN expr RBRACE { Map($5, $9, $13) }
+  | ID REF ID            { Ref(Id($1), Id($3)) }
+  | ID INVOKE expr   { CallRef(Id($1), $3)}
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }
@@ -137,15 +144,18 @@ expr:
   | expr GT     expr { Binop($1, Greater,  $3) }
   | expr GEQ    expr { Binop($1, Geq,   $3) }
   | expr AND    expr { Binop($1, And,   $3) }
-  | expr AND    expr { Binop($1, And,   $3) }
+  | expr OR     expr { Binop($1, Or,   $3) }
   | expr SHORTADD expr { Assign($1, Binop($1, Add, $3)) }
   | expr SHORTMINUS expr { Assign($1, Binop($1, Sub, $3)) }
   | expr SHORTTIMES expr { Assign($1, Binop($1, Mult, $3)) }
   | expr SHORTDIVIDE expr { Assign($1, Binop($1, Div, $3)) }
   | NOT  expr { Not($2) }
-  | ID ASSIGN expr   { Assign($1, $3) }
+  | expr ASSIGN expr   { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
   | LPAREN expr RPAREN { $2 }
+
+call_expr:
+  ID LPAREN actuals_opt RPAREN { Call($1, $3) }
 
 actuals_opt:
     /* nothing */ { [] }

@@ -7,7 +7,7 @@ rule token = parse
 | '(' { LPAREN } | ')' { RPAREN } (* punctuation *)
 | '{' { LBRACE } | '}' { RBRACE }
 | '[' { LBRACK } | ']' { RBRACK }
-| ';' { SEMI } | ',' { COMMA } | '.' { REF }
+| ';' { SEMI } | ',' { COMMA } | '.' { REF } | "->" { INVOKE }
 | '+' { PLUS } | '-' { MINUS }
 | '*' { TIMES } | '/' { DIVIDE }
 | ':' { ASSIGN } | '=' { EQ }
@@ -24,22 +24,19 @@ rule token = parse
 | "int" { TYPE("int") } | "float" { TYPE("float") } 
 | "char" { TYPE("char") } | "string" { TYPE("string") } 
 | "bool" { TYPE("bool") }
-| "Array" { ARRAY } (* | "Array" { TYPE("Array") } *) (* | "Image" { IMG } *)
+| "Array" { ARRAY } 
 | "Map" { MAP }
 | "Player" { PLAYER }
 | "Brick" { BRICK }
 | "function" { FUNC }
 | "Run" { RUN }
-(*)
-| "Object" { OBJ } | "EnvObj" { ENVOBJ }
-| "ActObj" { ACTOBJ } | "EventManager" { EVENTMGR } 
-*)
-| "true" { LITERALBOOL((*bool_of_string*) true) } | "false" { LITERALBOOL((*bool_of_string*) false) }
+| "true" { LITERALBOOL(true) } | "false" { LITERALBOOL(false) }
 | eof { EOF } (* End-of-file *)
 | ['0'-'9']+ as lxm { LITERALINT(int_of_string lxm) } (* integers *)
 | ['0'-'9']*'.'['0'-'9']+ as lxm { LITERALFLOAT(float_of_string lxm) } (* floats *)
-| ("'\\''" | '\''[^'\'''\t''\r''\n']'\'') as chr { LITERALCHAR(String.sub chr 1 ((String.length chr) - 2 )) }
+| ("'\\''" | '\''[^'\'''\t''\r''\n']'\'') as chr { LITERALCHAR((String.sub chr 1 ((String.length chr) - 2 )).[0]) }
 | '"'([^'"'] | '\\''"')*'"' as str { LITERALSTRING(String.sub str 1 ((String.length str) - 2 )) }
+| "new" { NEW }
 | "height" { HEIGHT }
 | "width" { WIDTH }
 | "color" { COLOR }
