@@ -154,9 +154,6 @@ expr:
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
   | LPAREN expr RPAREN { $2 }
 
-call_expr:
-  ID LPAREN actuals_opt RPAREN { Call($1, $3) }
-
 actuals_opt:
     /* nothing */ { [] }
   | actuals_list  { List.rev $1 }
