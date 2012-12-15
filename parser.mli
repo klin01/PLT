@@ -41,13 +41,6 @@ type token =
   | BRICK
   | MAP
   | PLAYER
-  | HEIGHT
-  | WIDTH
-  | SHAPE
-  | COLOR
-  | XCOORD
-  | YCOORD
-  | GENERATOR
   | TYPE of (string)
   | LITERALINT of (int)
   | LITERALSTRING of (string)

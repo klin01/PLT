@@ -35,13 +35,6 @@ rule token = parse
 (*| ("'\\''" | '\''[^'\'''\t''\r''\n']'\'') as chr { LITERALCHAR((String.sub chr 1 ((String.length chr) - 2 )).[0]) }*)
 | '"'([^'"'] | '\\''"')*'"' as str { LITERALSTRING(String.sub str 1 ((String.length str) - 2 )) }
 | "new" { NEW }
-| "height" { HEIGHT }
-| "width" { WIDTH }
-| "color" { COLOR }
-| "shape" { SHAPE }
-| "x" { XCOORD }
-| "y" { YCOORD }
-| "generator" { GENERATOR }
 | '$'['a'-'z' 'A'-'Z']+['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF } (* End-of-file *)
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
