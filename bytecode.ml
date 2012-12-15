@@ -1,17 +1,10 @@
 type bstmt =
-    Litin of int    (* Push a literal *)
-  | Litst of string (* Push a string *)
-  | Litch of char (* Push a char *)
-  | Litfl of float (* Push a float *)
-  | Litbl of bool (* Push a bool *)
-
+    Litint of int    (* Push a int literal *)
+  | Litstr of string (* Push a string literal *)
   | Drp           (* Discard a value *)
-
   | Bin of Ast.op (* Perform arithmetic on top of stack *)
-
   | Lod of int    (* Fetch global variable *)
   | Str of int    (* Store global variable *)
-
   | Lfp of int    (* Load frame pointer relative *)
   | Sfp of int    (* Store frame pointer relative *)
   | Jsr of int    (* Call function by absolute address *)
@@ -20,15 +13,17 @@ type bstmt =
   | Beq of int    (* Branch relative if top-of-stack is zero *)
   | Bne of int    (* Branch relative if top-of-stack is non-zero *)
   | Bra of int    (* Branch relative *)
-
-  | Lfpa of int
-  | Sfpa of int
-  | Loda of int
-  | Stra of int
-
-  | Cmap (* Create a new map *)
-  | Dmap (* Destroy a map *)
-
+  | Lfpa of int (* This is the start index of this array variable. Index is evaluated and 
+                    put on top of stack in an int structure. *)
+  | Sfpa of int (* Stores frame pointer of array *)
+  | Loda of int (* Load array variable *)
+  | Stra of int (* Stores array variable *)
+  | OpenWin     (* Opens a display window *)
+  | CloseWin    (* Closes the display window *)
+  | MakeB         (* Take top 5 variables on stack and make a new brick *)
+  | MakeM         (* Take top 3 variables on stack and make a new map *)
+  | MakeP         (* Take top 5 variables on stack and make a new player *)
+  | Move          (* Move object on the stack by x and y (two integers on the stack above the object) *)
   | Hlt           (* Terminate *)
 
 type prog = {
@@ -37,12 +32,15 @@ type prog = {
   }
 
 let string_of_stmt = function
-    Lit(i) -> "Lit " ^ string_of_int i
+    Litint(i) -> "Litint " ^ string_of_int i
+  | Litstr(i) -> "Litstr " ^ i
   | Drp -> "Drp"
   | Bin(Ast.Add) -> "Add"
   | Bin(Ast.Sub) -> "Sub"
   | Bin(Ast.Mult) -> "Mul"
   | Bin(Ast.Div) -> "Div"
+  | Bin(Ast.Mod) -> "Mod"
+  | Bin(Ast.Exp) -> "Exp"
   | Bin(Ast.Equal) -> "Eql"
   | Bin(Ast.Neq) -> "Neq"
   | Bin(Ast.Less) -> "Lt"
@@ -59,6 +57,16 @@ let string_of_stmt = function
   | Bne(i) -> "Bne " ^ string_of_int i
   | Beq(i) -> "Beq " ^ string_of_int i
   | Bra(i) -> "Bra " ^ string_of_int i
+  | Lfpa(i) -> "Lfpa " ^ string_of_int i
+  | Sfpa(i) -> "Sfpa " ^ string_of_int i
+  | Loda(i) -> "Loda " ^ string_of_int i
+  | Stra(i) -> "Stra " ^ string_of_int i
+  | OpenWin -> "OpenWin"
+  | CloseWin -> "CloseWin"
+  | MakeB -> "MakeB"
+  | MakeM -> "MakeM"
+  | MakeP -> "MakeP"
+  | Move -> "Move"
   | Hlt    -> "Hlt"
 
 let string_of_prog p =

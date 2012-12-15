@@ -1,24 +1,23 @@
 open Ast
 open Bytecode
 
-(* Stack layout just after "Ent":
+let trim s =
+  let s' = Str.replace_first (Str.regexp "^[ \t\n]+") "" s in
+  Str.replace_first (Str.regexp "[ \t\n]+$") "" s';;
+  
+let explode s =
+  let rec f acc = function
+    | -1 -> acc
+    | k -> f (s.[k] :: acc) (k - 1)
+  in f [] (String.length s - 1) ;;
 
-              <-- SP
-   Local n
-   ...
-   Local 0
-   Saved FP   <-- FP
-   Saved PC
-   Arg 0
-   ...
-   Arg n *)
-
+(* Execute the program *)
 let execute_prog prog =
-  let stack = Array.make 1024 0
+  let stack = Array.make 8192 0
   and globals = Array.make prog.num_globals 0 in
 
   let rec exec fp sp pc = match prog.text.(pc) with
-    Lit i  -> stack.(sp) <- i ; exec fp (sp+1) (pc+1)
+    Litint i  -> stack.(sp) <- i ; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
   | Drp    -> exec fp (sp-1) (pc+1)
   | Bin op -> let op1 = stack.(sp-2) and op2 = stack.(sp-1) in     
       stack.(sp-2) <- (let boolean i = if i then 1 else 0 in
