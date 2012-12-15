@@ -36,7 +36,6 @@ type token =
   | OR
   | NOT
   | NEW
-  | RUN
   | FUNC
   | ARRAY
   | BRICK

@@ -29,7 +29,6 @@ rule token = parse
 | "Player" { PLAYER }
 | "Brick" { BRICK }
 | "function" { FUNC }
-| "Run" { RUN }
 | "true" { LITERALBOOL(true) } | "false" { LITERALBOOL(false) }
 | eof { EOF } (* End-of-file *)
 | ['0'-'9']+ as lxm { LITERALINT(int_of_string lxm) } (* integers *)

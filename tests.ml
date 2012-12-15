@@ -126,7 +126,14 @@ let string_of_program (vars, funcs) =
   String.concat "\n" (List.map string_of_fdecl funcs)
 
 let test =
- 	string_of_program (string2expr("function $main : void () {
+ 	string_of_program (string2expr("
+int $globalvar1;
+int $globalvar2;
+
+//$globalvar2 : 1;
+//$globalvar1 : 2;
+
+function $main : void () {
   
   Map $gameMap;
   Player $me;
