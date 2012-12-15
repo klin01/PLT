@@ -60,16 +60,17 @@ rule token = parse
 | "&&" { AND } | "||" { OR } | '!' { NOT }
 | "else" { ELSE } | "for" { FOR }
 | "while" { WHILE } | "return" { RETURN }
-
 | "void" { TYPE("void") }
 | "int" { TYPE("int") } | "float" { TYPE("float") } 
 | "char" { TYPE("char") } | "string" { TYPE("string") } 
 | "bool" { TYPE("bool") }
-| "Array" { "Array" } (* | "Array" { TYPE("Array") } *) (* | "Image" { IMG } *)
+| "Array" { ARRAY } (* | "Array" { TYPE("Array") } *) (* | "Image" { IMG } *)
 | "Map" { TYPE("Map") }
+| "Player" { TYPE("Player") }
+| "Brick" { TYPE("Brick") }
 | "function" { FUNC }
+| "Run" { RUN }
 (*)
-| "PlayerObj" { PLAYEROBJ }
 | "Object" { OBJ } | "EnvObj" { ENVOBJ }
 | "ActObj" { ACTOBJ } | "EventManager" { EVENTMGR } 
 *)
@@ -79,6 +80,11 @@ rule token = parse
 | ['0'-'9']*'.'['0'-'9']+ as lxm { LITERALFLOAT(float_of_string lxm) } (* floats *)
 | ("'\\''" | '\''[^'\'''\t''\r''\n']'\'') as chr { LITERALCHAR(String.sub chr 1 ((String.length chr) - 2 )) }
 | '"'([^'"'] | '\\''"')*'"' as str { LITERALSTRING(String.sub str 1 ((String.length str) - 2 )) }
+| "height" { HEIGHT }
+| "width" { WIDTH }
+| "x" { XCOORD }
+| "y" { YCOORD }
+| "generator" { GENERATOR }
 | '$'['a'-'z' 'A'-'Z']+['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 

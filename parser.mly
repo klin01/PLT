@@ -6,13 +6,11 @@
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE INT
 
-%token SHORTADD SHORTMINUS SHORTTIMES SHORTDIVIDE /* MOD EXP */ REF
+%token SHORTADD SHORTMINUS SHORTTIMES SHORTDIVIDE MOD EXP REF
 %token FUNC
 %token AND OR NOT
-%token TRUE FALSE
 %token <string> TYPE
-/*%token INT FLOAT CHAR STRING BOOL VOID*/
-/*%token ARRAY MAP IMG PLAYEROBJ OBJ ENVOBJ ACTOBJ EVENTMGR */
+%token ARRAY /*IMG PLAYEROBJ OBJ ENVOBJ ACTOBJ EVENTMGR*/
 %token <string> QUOTE
 
 %token <bool> LITERALBOOL
@@ -51,15 +49,20 @@ fdecl:
      { { fname = $2;
 	 formals = $6;
 	 locals = List.rev $9;
-	 body = List.rev $10 } }
+	 body = List.rev $10;
+   rettype = $4 } }
 
 formals_opt:
     /* nothing */ { [] }
   | formal_list   { List.rev $1 }
 
 formal_list:
-    TYPE ID              { [$2] }
-  | formal_list COMMA TYPE ID { $4 :: $1 }
+    formal_decl { $1 }
+  | formal_list COMMA formal_decl { $3 :: $1}
+
+formal_decl:
+    TYPE ID { { vartype: $1; varname: $2; varsize: 1 } }
+  | ARRAY TYPE ID { { vartype: "Array" ^ $2; varname: $3; varsize: 0 } }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -69,10 +72,8 @@ vdecl_list:
   Something like 
   int $myInt = 5; */
 vdecl:
-   TYPE ID SEMI { { varname : $2; vartype : $1 } }
-  | ARRAY ID ASSIGN ARRAY TYPE LITERALINT SEMI { $2 }
-  | ARRAY ID ASSIGN ARRAY TYPE DYNAMIC SEMI { $2 }
-   /* INT ID SEMI { $2 } */
+    TYPE ID SEMI { { vartype : $1; varname : $2; varsize: 1 } } 
+  | ARRAY TYPE ID SEMI { { vartype: "Array" ^ $2 ; varname $3; varsize: 0 } }
 
 stmt_list:
     /* nothing */  { [] }
@@ -93,19 +94,45 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    LITERAL          { Literal($1) }
-  | TYPE             { Type($1) }
+    LITERALINT           { LiteralInt($1) }
+  | LITERALFLOAT         { LiteralFloat($1) }
+  | LITERALBOOL          { LiteralBool($1) }
+  | LITERALCHAR          { LiteralChar($1) }
+  | LITERALSTRING        { LiteralString($1) }
   | ID               { Id($1) }
+  | ID REF ID { Ref(Id($1), Id($3)) }
+  | BRICK LBRACE COLOR ASSIGN LITERALSTRING COMMA \
+    HEIGHT ASSIGN LITERALINT COMMA \
+    WIDTH ASSIGN LITERALINT COMMA \
+    XCOORD ASSIGN LITERALINT COMMA \
+    YCOORD ASSIGN LITERALINT RBRACE { Brick($5, $9, $13, $17, $21) }
+  | PLAYER LBRACE COLOR ASSIGN LITERALSTRING COMMA \
+    SHAPE ASSIGN LITERALSTRING COMMA \
+    HEIGHT ASSIGN LITERALINT COMMA \
+    WIDTH ASSIGN LITERALINT COMMA \
+    YCOORD ASSIGN LITERALINT RBRACE { Player($5, $9, $13, $17, $21) }
+  | MAP LBRACE HEIGHT ASSIGN LITERALINT COMMA \
+    WIDTH ASSIGN LITERALINT COMMA \
+    GENERATOR ASSIGN ID RBRACE { Map($5, $9, $13) }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }
   | expr DIVIDE expr { Binop($1, Div,   $3) }
+  | expr MOD    expr { Binop($1, Mod,   $3) }
+  | expr EXP    expr { Binop($1, Exp,   $3) }
   | expr EQ     expr { Binop($1, Equal, $3) }
   | expr NEQ    expr { Binop($1, Neq,   $3) }
   | expr LT     expr { Binop($1, Less,  $3) }
   | expr LEQ    expr { Binop($1, Leq,   $3) }
   | expr GT     expr { Binop($1, Greater,  $3) }
   | expr GEQ    expr { Binop($1, Geq,   $3) }
+  | expr AND    expr { Binop($1, And,   $3) }
+  | expr AND    expr { Binop($1, And,   $3) }
+  | expr SHORTADD expr { Assign($1, Binop($1, Add, $3)) }
+  | expr SHORTMINUS expr { Assign($1, Binop($1, Sub, $3)) }
+  | expr SHORTTIMES expr { Assign($1, Binop($1, Mult, $3)) }
+  | expr SHORTDIVIDE expr { Assign($1, Binop($1, Div, $3)) }
+  | NOT  expr { Not($2) }
   | ID ASSIGN expr   { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
   | LPAREN expr RPAREN { $2 }
