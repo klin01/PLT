@@ -8,10 +8,7 @@
 
 %token NEW FUNC ARRAY BRICK MAP PLAYER HEIGHT WIDTH SHAPE COLOR XCOORD YCOORD GENERATOR
 %token <string> TYPE
-%token <bool> LITERALBOOL
 %token <int> LITERALINT
-%token <float> LITERALFLOAT
-%token <char> LITERALCHAR
 %token <string> LITERALSTRING
 /* Should I define LITERAL for FLOAT, STRING, etc too? */
 %token <string> ID
@@ -117,9 +114,6 @@ expr_opt:
 
 expr:
     LITERALINT           { LiteralInt($1) }
-  | LITERALFLOAT         { LiteralFloat($1) }
-  | LITERALBOOL          { LiteralBool($1) }
-  | LITERALCHAR          { LiteralChar($1) }
   | LITERALSTRING        { LiteralString($1) }
   | NEW ARRAY TYPE       { Array($3) }
   | NEW ARRAY BRICK      { Array("Brick") }

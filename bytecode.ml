@@ -1,9 +1,17 @@
 type bstmt =
-    Lit of int    (* Push a literal *)
+    Litin of int    (* Push a literal *)
+  | Litst of string (* Push a string *)
+  | Litch of char (* Push a char *)
+  | Litfl of float (* Push a float *)
+  | Litbl of bool (* Push a bool *)
+
   | Drp           (* Discard a value *)
+
   | Bin of Ast.op (* Perform arithmetic on top of stack *)
+
   | Lod of int    (* Fetch global variable *)
   | Str of int    (* Store global variable *)
+
   | Lfp of int    (* Load frame pointer relative *)
   | Sfp of int    (* Store frame pointer relative *)
   | Jsr of int    (* Call function by absolute address *)
@@ -12,6 +20,15 @@ type bstmt =
   | Beq of int    (* Branch relative if top-of-stack is zero *)
   | Bne of int    (* Branch relative if top-of-stack is non-zero *)
   | Bra of int    (* Branch relative *)
+
+  | Lfpa of int
+  | Sfpa of int
+  | Loda of int
+  | Stra of int
+
+  | Cmap (* Create a new map *)
+  | Dmap (* Destroy a map *)
+
   | Hlt           (* Terminate *)
 
 type prog = {

@@ -1,10 +1,7 @@
 type op = Add | Sub | Mult | Div | Mod | Exp | Equal | Neq | Less | Leq | Greater | Geq | And | Or
 
 type expr =
-    LiteralBool of bool
-  | LiteralInt of int
-  | LiteralFloat of float
-  | LiteralChar of char
+    LiteralInt of int
   | LiteralString of string
   | Id of string
   | Array of string

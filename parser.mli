@@ -49,10 +49,7 @@ type token =
   | YCOORD
   | GENERATOR
   | TYPE of (string)
-  | LITERALBOOL of (bool)
   | LITERALINT of (int)
-  | LITERALFLOAT of (float)
-  | LITERALCHAR of (char)
   | LITERALSTRING of (string)
   | ID of (string)
   | EOF

@@ -22,19 +22,8 @@ let getInt v =
         
 let getBool v = 
     match v with
-      LiteralBool(v) -> v
-    | LiteralInt(1) -> true    
+      LiteralInt(1) -> true    
     | _ -> false
-
-let getFloat v = 
-    match v with
-      LiteralFloat(v) -> v
-    | _ -> 0.0
-        
-let getChar v = 
-    match v with
-      LiteralChar(v) -> v    
-    | _ -> ' '
 
 let getString v = 
     match v with
@@ -58,9 +47,6 @@ let getBrick v =
 
 let rec string_of_expr = function
     LiteralInt(l) -> string_of_int l
-  | LiteralBool(l) -> string_of_bool l
-  | LiteralFloat(l) -> string_of_float l
-  | LiteralChar(l) -> Char.escaped l
   | LiteralString(l) -> l
   | Id(s) -> s
   | Array(s) -> "Array" ^ s
