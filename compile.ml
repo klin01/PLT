@@ -65,6 +65,9 @@ let translate (globals, functions) =
       | Array(i) -> 
             (*  TODO: DO Array *)
 
+      | AAccess(a, i) ->
+            (*  TODO: Do Array Access *)
+
       | Brick (color, height, width, x, y) ->
             Litint (y);
             Litint (x);

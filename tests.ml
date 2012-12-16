@@ -126,6 +126,9 @@ function $main : void () {
   Player $me;
   int $test;
 
+  Array int $myIntArray;
+  $myIntArray[1] : 10;
+
   $test: -5;
   $gameMap: new Map(1024, 768, $generateThis);
   $me : new Player(\"red\", \"triangle\", 20, 20, 500);
