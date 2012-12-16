@@ -7,7 +7,7 @@ rule token = parse
 | '(' { LPAREN } | ')' { RPAREN } (* punctuation *)
 | '{' { LBRACE } | '}' { RBRACE }
 | '[' { LBRACK } | ']' { RBRACK }
-| ';' { SEMI } | ',' { COMMA } | '.' { REF } | "->" { INVOKE }
+| ';' { SEMI } | ',' { COMMA } | '.' { REF }
 | '+' { PLUS } | '-' { MINUS }
 | '*' { TIMES } | '/' { DIVIDE }
 | ':' { ASSIGN } | '=' { EQ }
@@ -29,7 +29,7 @@ rule token = parse
 | "Brick" { BRICK }
 | "function" { FUNC }
 | "true" { LITERALINT(1) } | "false" { LITERALINT(0) }
-| ('-')?['0'-'9']+ as lxm { LITERALINT(int_of_string lxm) } (* integers *)
+| ('-')?['0'-'9']+ as lxm { LITERALINT(int_of_string lxm) } (* +/- integers *)
 (*| ['0'-'9']*'.'['0'-'9']+ as lxm { LITERALFLOAT(float_of_string lxm) } (* floats *)*)
 (*| ("'\\''" | '\''[^'\'''\t''\r''\n']'\'') as chr { LITERALCHAR((String.sub chr 1 ((String.length chr) - 2 )).[0]) }*)
 | '"'([^'"'] | '\\''"')*'"' as str { LITERALSTRING(String.sub str 1 ((String.length str) - 2 )) }

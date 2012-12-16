@@ -9,9 +9,8 @@ type expr =
   | Player of expr * expr * expr * expr * expr (* color, shape, height, width, y *)
   | Map of expr * expr * expr
   | Ref of expr * expr
-  | CallRef of expr * expr * expr list
+  (*| CallRef of expr * expr * expr list*)
   | AAccess of expr * expr (* array access: arrayname, index*)
-  (*  *)
   | Binop of expr * op * expr
   | Not of expr
   | Assign of expr * expr
