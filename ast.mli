@@ -11,10 +11,11 @@ type expr =
   | Ref of expr * expr
   (*| CallRef of expr * expr * expr list*)
   | AAccess of expr * expr (* array access: arrayname, index*)
+  | AAssign of expr * expr * expr
   | Binop of expr * op * expr
   | Not of expr
   | Assign of expr * expr
-  | Call of string * expr list
+  | Call of expr * expr list
   | Noexpr
 
 type stmt =
@@ -28,7 +29,6 @@ type stmt =
 type var_decl = {
     vartype : string;
     varname : string;
-    varsize : int;
 }
 
 type func_decl = {

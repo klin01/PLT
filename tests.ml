@@ -47,41 +47,40 @@ let getBrick v =
 
 let rec string_of_expr = function
     LiteralInt(l) -> string_of_int l
-  | LiteralString(l) -> l
+  | LiteralString(l) -> "\"" ^ l ^ "\""
   | Id(s) -> s
   | Array(s) -> "Array" ^ s
   | Brick(s, i1, i2, i3, i4) -> 
-    "Brick {\ncolor: " ^ string_of_expr s ^ 
-      ",\nheight: " ^ string_of_expr i1 ^ 
-      ",\nwidth: " ^ string_of_expr i2 ^
-      ",\nx: " ^ string_of_expr i3 ^ 
-      ",\ny: " ^ string_of_expr i4 ^ "}"
+    "Brick(" ^ string_of_expr s ^ 
+      ", " ^ string_of_expr i1 ^ 
+      ", " ^ string_of_expr i2 ^
+      ", " ^ string_of_expr i3 ^ 
+      ", " ^ string_of_expr i4 ^ ")"
   | Player(s1, s2, i1, i2, i3) ->
-    "Player {\ncolor: " ^ string_of_expr s1 ^
-      ",\nshape: " ^ string_of_expr s2 ^
-      ",\nheight: " ^ string_of_expr i1 ^
-      ",\nwidth: " ^ string_of_expr i2 ^
-      ",\ny: " ^ string_of_expr i3 ^ "}"
+    "Player(" ^ string_of_expr s1 ^
+      ", " ^ string_of_expr s2 ^
+      ", " ^ string_of_expr i1 ^
+      ", " ^ string_of_expr i2 ^
+      ", " ^ string_of_expr i3 ^ ")"
   | Map(i1, i2, e) ->
-    "Map {\nheight: " ^ string_of_expr i1 ^
-      ",\nwidth: " ^ string_of_expr i2 ^
-      ",\ngenerator: " ^ string_of_expr e
+    "Map(" ^ string_of_expr i1 ^
+      ", " ^ string_of_expr i2 ^
+      ", " ^ string_of_expr e ^ ")"
   | Ref(s1, s2) ->
     string_of_expr s1 ^ "." ^ string_of_expr s2
-  | CallRef(s1, s2, s3) ->
-    string_of_expr s1 ^ "->" ^ string_of_expr s2 ^ "(" ^ String.concat ", " (List.map string_of_expr s3) ^ ")"
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^
       (match o with
-  Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
-      | Equal -> "==" | Neq -> "!="
-      | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=" | And -> "&&"
+        Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
+      | Equal -> "=" | Neq -> "!:"
+      | Less -> "<" | Leq -> "<:" | Greater -> ">" | Geq -> ">:" | And -> "&&"
       | Or -> "||" | Mod -> "%" | Exp -> "^") ^ " " ^
       string_of_expr e2
-  | Assign(v, e) -> string_of_expr v ^ " = " ^ string_of_expr e
+  | Assign(v, e) -> string_of_expr v ^ " : " ^ string_of_expr e
+  | AAssign(a, i, e) -> string_of_expr a ^ "[" ^ string_of_expr i ^ "] : " ^ string_of_expr e
   | AAccess(a, i) -> string_of_expr a ^ "[" ^ string_of_expr i ^ "]"
   | Call(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+      string_of_expr f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Not(e1) -> "!" ^ string_of_expr e1
   | Noexpr -> ""
 
@@ -131,7 +130,7 @@ function $main : void () {
 
   $test: -5;
   $gameMap: new Map(1024, 768, $generateThis);
-  $me : new Player(\"red\", \"triangle\", 20, 20, 500);
+  $me : new Player(\"12 12 12\", \"12 13 14\", 20, 20, 500);
 
   $Run($gameMap, $me);
 }
@@ -144,9 +143,9 @@ function $generateThis: Array Brick () {
   //stmts
   $output : new Array Brick;
 
-  $top : new Brick(\"red\", 20, 1024, 0, 1004);
-  $output->$push($top);
-  $bottom : new Brick(\"red\", 20, 1024, 0, 0);
-  $output->$push($bottom);
+  $top : new Brick(\"12 23 54\", 20, 1024, 0, 1004);
+  $Push($output, $top);
+  $bottom : new Brick(\"12 2 34\", 20, 1024, 0, 0);
+  $Push($output, $bottom);
   return $output;
 }"))
