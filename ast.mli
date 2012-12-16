@@ -9,10 +9,6 @@ type expr =
   | Player of expr * expr * expr * expr * expr (* color, shape, height, width, y *)
   | Map of expr * expr * expr
   | Ref of expr * expr
-<<<<<<< HEAD
-  (*| CallRef of expr * expr * expr list*)
-=======
->>>>>>> Added to compiler, still missing commands for Array
   | AAccess of expr * expr (* array access: arrayname, index*)
   | AAssign of expr * expr * expr
   | Binop of expr * op * expr
