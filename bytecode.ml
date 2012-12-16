@@ -26,6 +26,7 @@ type bstmt =
   | MakeM         (* Take top 3 variables on stack and make a new map *)
   | MakeP         (* Take top 5 variables on stack and make a new player *)
   | Move          (* Move object on the stack by x and y (two integers on the stack above the object) *)
+  | Ref           (* Take two variables below in stack and access as parent and child *)
   | Hlt           (* Terminate *)
 
 type prog = {

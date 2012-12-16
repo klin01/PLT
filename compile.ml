@@ -17,12 +17,12 @@ let rec enum stride n = function
     if stride > 0 then
       match hd.vartype with
         "int" ->    (n + 1, hd.varname) :: enum stride (n+stride * 2) tl
-      | "string" -> (n + 29, hd.varname) :: enum stride (n+stride * 30) tl 
+      | "string" -> (n + 39, hd.varname) :: enum stride (n+stride * 40) tl 
       | "Brick" ->  (n + 5, hd.varname) :: enum stride (n+stride * 6) tl 
       | "Player" -> (n + 5, hd.varname) :: enum stride (n+stride * 6) tl 
       | "Map" ->    (n + 2, hd.varname) :: enum stride (n+stride * 2) tl 
       | "Arrayint" ->    (n + 2*hd.varsize-1, hd.varname) :: enum stride (n+stride * 2 * hd.varsize) tl
-      | "Arraystring" -> (n + 30*hd.varsize-1, hd.varname) :: enum stride (n+stride * 30 * hd.varsize) tl
+      | "Arraystring" -> (n + 40*hd.varsize-1, hd.varname) :: enum stride (n+stride * 40 * hd.varsize) tl
       | "ArrayBrick" ->  (n + 6*hd.varsize-1, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
       | "ArrayPlayer" -> (n + 6*hd.varsize-1, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
       | "ArrayMap" ->    (n + 4*hd.varsize-1, hd.varname) :: enum stride (n+stride * 4 * hd.varsize) tl
@@ -30,12 +30,12 @@ let rec enum stride n = function
     else
       match hd.vartype with
         "int" ->    (n, hd.varname) :: enum stride (n+stride * 2) tl
-      | "string" -> (n, hd.varname) :: enum stride (n+stride * 30) tl 
+      | "string" -> (n, hd.varname) :: enum stride (n+stride * 40) tl 
       | "Brick" ->  (n, hd.varname) :: enum stride (n+stride * 6) tl 
       | "Player" -> (n, hd.varname) :: enum stride (n+stride * 6) tl 
       | "Map" ->    (n, hd.varname) :: enum stride (n+stride * 2) tl 
       | "Arrayint" ->    (n, hd.varname) :: enum stride (n+stride * 2 * hd.varsize) tl
-      | "Arraystring" -> (n, hd.varname) :: enum stride (n+stride * 30 * hd.varsize) tl
+      | "Arraystring" -> (n, hd.varname) :: enum stride (n+stride * 40 * hd.varsize) tl
       | "ArrayBrick" ->  (n, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
       | "ArrayPlayer" -> (n, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
       | "ArrayMap" ->    (n, hd.varname) :: enum stride (n+stride * 4 * hd.varsize) tl
@@ -45,6 +45,21 @@ let rec enum stride n = function
 let rec enum_func stride n = function
     [] -> []
   | hd::tl -> (n, hd) :: enum_func stride (n+stride) tl
+
+let total_varsize a vlist = 
+   List.fold_left (fun a b -> a + (match b.vtype with
+                    "int" -> 2  
+                  |   "string" -> 30
+                  |   "Brick" -> 6
+                  |   "Player" -> 6
+                  |   "Map" -> 4
+                  |   "Arrayint" -> b.varsize*2
+                  |   "Arraystring"  -> b.varsize*30
+                  |   "ArrayBrick" -> b.varsize*6
+                  |   "ArrayPlayer" -> b.varsize*6
+                  |   "ArrayMap" -> b.varsize*4
+                  |   _ -> raise(Failure("Error in total_varsize"))
+                  )) 0 vlist
 
 (* val string_map_pairs StringMap 'a -> (int * 'a) list -> StringMap 'a *)
 let string_map_pairs map pairs =
@@ -65,6 +80,7 @@ let translate (globals, functions) =
   let built_in_functions = StringMap.add "printstring" (-4) built_in_functions in
   let built_in_functions = StringMap.add "printarray" (-5) built_in_functions in
   let built_in_functions = StringMap.add "dumpstack" (-6) built_in_functions in
+  let built_in_functions = StringMap.add "push" (-7) built_in_functions in
 
   let function_indexes = string_map_pairs built_in_functions
       (enum 1 1 (List.map (fun f -> f.fname) functions)) in
@@ -72,55 +88,67 @@ let translate (globals, functions) =
   (* Translate a function in AST form into a list of bytecode statements *)
   let translate env fdecl =
     (* Bookkeeping: FP offsets for locals and arguments *)
-    let num_formals = List.length fdecl.formals
-    and num_locals = List.length fdecl.locals
+    let num_formals = total_varsize 0 fdecl.formals
+    and num_locals = total_varsize 0 fdecl.locals
     and local_offsets = enum 1 1 fdecl.locals
     and formal_offsets = enum (-1) (-2) fdecl.formals in
     let env = { env with local_index = string_map_pairs
 		  StringMap.empty (local_offsets @ formal_offsets) } in
 
     let rec expr = function
-	      LiteralString i -> [Litstr i]
-      | LiteralInt i -> [Litint i] 
+      LiteralInt i -> [Litint i] 
+	    | LiteralString i -> [Litstr i]
       | Id s ->
 	        (try [Lfp (StringMap.find s env.local_index)]
           with Not_found -> try [Lod (StringMap.find s env.global_index)]
           with Not_found -> try [Lodf (StringMap.find s env.function_index)]
           with Not_found -> raise (Failure ("undeclared variable " ^ s)))
-      | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
-      | Assign (s, e) -> expr e @
-	        (try [Sfp (StringMap.find s env.local_index)]
-  	       with Not_found -> try [Str (StringMap.find s env.global_index)]
-	         with Not_found -> raise (Failure ("undeclared variable " ^ s)))
-
+      
       | Array(i) -> 
             (*  TODO: DO Array *)
 
-      | AAccess(a, i) ->
-            (*  TODO: Do Array Access *)
-
       | Brick (color, height, width, x, y) ->
-            Litint (y);
-            Litint (x);
-            Litint (width);
-            Litint (height);
-            Litstr (color);
-            Litint (1);
+          expr y @ expr x @ expr width @ expr height @
+          [Litstr color] @ [MakeB]
 
       | Player (shape, color, height, width, y) ->
+          expr y @ expr x @ expr width @ expr height @ 
+          [Litstr color] @ [MakeP]
 
        (*  TODO: DO Player *)
 
       | Map (width, height, generator) ->
+          expr generator @ expr height @ expr width @ [MakeM]
 
-      | Ref (i) -> 
+      | Ref (base, child) -> 
+          expr child @ expr base @ [Ref]
+
+      | AAccess(a, i) -> 
+          expr i @ (try [Lfpa(StringMap.find a env.local_index)]
+          with Not_found -> try[Loda (StringMap.find a env.global_index)]
+          with Not_found -> raise (Failure ("undeclared variable" ^ a)))
+            (*  TODO: Do Array Access *)
+
+      | AAssign(a, i, e) ->
+          expr e @ expr i @ (try [Sfpa(StringMap.find a env.local_index)] 
+          with Not_found -> try[Stra(StringMap.find a env.global_index)]
+          with Not_found -> raise (Failure ("undelcared variable" ^ a)))
+      | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
+      | Not (e) -> 
+        match e with
+          1 -> [Litint 0]
+        | 0 -> [Litint 1]
+        | _ -> raise (Failure ("'Not' cannot operate on" ^ e))
+      | Assign (s, e) -> expr e @
+          (try [Sfp (StringMap.find s env.local_index)]
+           with Not_found -> try [Str (StringMap.find s env.global_index)]
+           with Not_found -> raise (Failure ("undeclared variable " ^ s)))
+
 
       | Call (fname, actuals) -> (try
 	         (List.concat (List.map expr (List.rev actuals))) @
 	         [Jsr (StringMap.find fname env.function_index) ]   
             with Not_found -> raise (Failure ("undefined function " ^ fname)))
-
-      | CallRef (base, fname, args) ->
 
       | Noexpr -> []
 
@@ -148,7 +176,7 @@ let translate (globals, functions) =
 
   (* Code executed to start the program: Jsr main; halt *)
   let entry_function = try
-    [Jsr (StringMap.find "main" function_indexes); Hlt]
+    [Jsr (StringMap.find "$main" function_indexes); Hlt]
   with Not_found -> raise (Failure ("no \"main\" function"))
   in
     
