@@ -4,7 +4,6 @@ type expr =
     LiteralInt of int
   | LiteralString of string
   | Id of string
-  | Array of string
   | Brick of expr * expr * expr * expr * expr (* color, height, width, x, y *)
   | Player of expr * expr * expr * expr * expr (* color, shape, height, width, y *)
   | Map of expr * expr * expr

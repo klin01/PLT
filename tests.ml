@@ -49,7 +49,6 @@ let rec string_of_expr = function
     LiteralInt(l) -> string_of_int l
   | LiteralString(l) -> "\"" ^ l ^ "\""
   | Id(s) -> s
-  | Array(s) -> "Array" ^ s
   | Brick(s, i1, i2, i3, i4) -> 
     "Brick(" ^ string_of_expr s ^ 
       ", " ^ string_of_expr i1 ^ 
@@ -141,7 +140,6 @@ function $generateThis: Array Brick () {
   Brick $top;
   Brick $bottom;
   //stmts
-  $output : new Array Brick;
 
   $top : new Brick(\"12 23 54\", 20, 1024, 0, 1004);
   $Push($output, $top);
