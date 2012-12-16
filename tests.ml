@@ -68,8 +68,8 @@ let rec string_of_expr = function
       ",\ngenerator: " ^ string_of_expr e
   | Ref(s1, s2) ->
     string_of_expr s1 ^ "." ^ string_of_expr s2
-  | CallRef(s1, s2) ->
-    string_of_expr s1 ^ "->" ^ string_of_expr s2
+  | CallRef(s1, s2, s3) ->
+    string_of_expr s1 ^ "->" ^ string_of_expr s2 ^ "(" ^ String.concat ", " (List.map string_of_expr s3) ^ ")"
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^
       (match o with
@@ -79,6 +79,7 @@ let rec string_of_expr = function
       | Or -> "||" | Mod -> "%" | Exp -> "^") ^ " " ^
       string_of_expr e2
   | Assign(v, e) -> string_of_expr v ^ " = " ^ string_of_expr e
+  | AAccess(a, i) -> string_of_expr a ^ "[" ^ string_of_expr i ^ "]"
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Not(e1) -> "!" ^ string_of_expr e1
@@ -125,7 +126,7 @@ function $main : void () {
   Player $me;
   int $test;
 
-  $test: 5;
+  $test: -5;
   $gameMap: new Map(1024, 768, $generateThis);
   $me : new Player(\"red\", \"triangle\", 20, 20, 500);
 

@@ -21,16 +21,15 @@ rule token = parse
 | "else" { ELSE } | "for" { FOR }
 | "while" { WHILE } | "return" { RETURN }
 | "void" { TYPE("void") }
-| "int" { TYPE("int") } | "float" { TYPE("float") } 
-| "char" { TYPE("char") } | "string" { TYPE("string") } 
-| "bool" { TYPE("bool") }
+| "int" { TYPE("int") }
+| "string" { TYPE("string") } 
 | "Array" { ARRAY } 
 | "Map" { MAP }
 | "Player" { PLAYER }
 | "Brick" { BRICK }
 | "function" { FUNC }
 | "true" { LITERALINT(1) } | "false" { LITERALINT(0) }
-| ['0'-'9']+ as lxm { LITERALINT(int_of_string lxm) } (* integers *)
+| ('-')?['0'-'9']+ as lxm { LITERALINT(int_of_string lxm) } (* integers *)
 (*| ['0'-'9']*'.'['0'-'9']+ as lxm { LITERALFLOAT(float_of_string lxm) } (* floats *)*)
 (*| ("'\\''" | '\''[^'\'''\t''\r''\n']'\'') as chr { LITERALCHAR((String.sub chr 1 ((String.length chr) - 2 )).[0]) }*)
 | '"'([^'"'] | '\\''"')*'"' as str { LITERALSTRING(String.sub str 1 ((String.length str) - 2 )) }
