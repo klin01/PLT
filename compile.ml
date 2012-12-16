@@ -63,6 +63,7 @@ let translate (globals, functions) =
 	         with Not_found -> raise (Failure ("undeclared variable " ^ s)))
 
       | Array(i) -> 
+            (*  TODO: DO Array *)
 
       | Brick (color, height, width, x, y) ->
             Litint (y);
@@ -73,6 +74,8 @@ let translate (globals, functions) =
             Litint (1);
 
       | Player (shape, color, height, width, y) ->
+
+       (*  TODO: DO Player *)
 
       | Map (width, height, generator) ->
 
