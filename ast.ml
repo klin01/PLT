@@ -1,3 +1,5 @@
+(* Note: RetroCraft didn't use this one for compiling *)
+
 type op = Add | Sub | Mult | Div | Mod | Exp | Equal | Neq | Less | Leq | Greater | Geq
 
 type expr =
