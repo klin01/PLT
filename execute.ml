@@ -22,10 +22,11 @@ let execute_prog prog =
   | Bin op -> let op1 = stack.(sp-2) and op2 = stack.(sp-1) in     
       stack.(sp-2) <- (let boolean i = if i then 1 else 0 in
       match op with
-	Add     -> op1 + op2
+	      Add     -> op1 + op2
       | Sub     -> op1 - op2
       | Mult    -> op1 * op2
       | Div     -> op1 / op2
+      | Mod     -> op1 % op2
       | Equal   -> boolean (op1 =  op2)
       | Neq     -> boolean (op1 != op2)
       | Less    -> boolean (op1 <  op2)

@@ -27,8 +27,14 @@ let translate (globals, functions) =
   (* Allocate "addresses" for each global variable *)
   let global_indexes = string_map_pairs StringMap.empty (enum 1 0 globals) in
 
-  (* Assign indexes to function names; built-in "print" is special *)
-  let built_in_functions = StringMap.add "print" (-1) StringMap.empty in
+  (* Assign indexes to function names *)
+  let built_in_functions = StringMap.add "draw" (-1) StringMap.empty in
+  let built_in_functions = StringMap.add "run" (-2) built_in_functions in
+  let built_in_functions = StringMap.add "printint" (-3) built_in_functions in
+  let built_in_functions = StringMap.add "printstring" (-4) built_in_functions in
+  let built_in_functions = StringMap.add "printarray" (-5) built_in_functions in
+  let built_in_functions = StringMap.add "dumpstack" (-6) built_in_functions in
+
   let function_indexes = string_map_pairs built_in_functions
       (enum 1 1 (List.map (fun f -> f.fname) functions)) in
 
@@ -43,20 +49,42 @@ let translate (globals, functions) =
 		  StringMap.empty (local_offsets @ formal_offsets) } in
 
     let rec expr = function
-	Literal i -> [Lit i]
+	      LiteralString i -> [Litstr i]
+      | LiteralInt i -> [Litint i] 
       | Id s ->
-	  (try [Lfp (StringMap.find s env.local_index)]
+	        (try [Lfp (StringMap.find s env.local_index)]
           with Not_found -> try [Lod (StringMap.find s env.global_index)]
+          with Not_found -> try [Lodf (StringMap.find s env.function_index)]
           with Not_found -> raise (Failure ("undeclared variable " ^ s)))
       | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
       | Assign (s, e) -> expr e @
-	  (try [Sfp (StringMap.find s env.local_index)]
-  	  with Not_found -> try [Str (StringMap.find s env.global_index)]
-	  with Not_found -> raise (Failure ("undeclared variable " ^ s)))
+	        (try [Sfp (StringMap.find s env.local_index)]
+  	       with Not_found -> try [Str (StringMap.find s env.global_index)]
+	         with Not_found -> raise (Failure ("undeclared variable " ^ s)))
+
+      | Array(i) -> 
+
+      | Brick (color, height, width, x, y) ->
+            Litint (y);
+            Litint (x);
+            Litint (width);
+            Litint (height);
+            Litstr (color);
+            Litint (1);
+
+      | Player (shape, color, height, width, y) ->
+
+      | Map (width, height, generator) ->
+
+      | Ref (i) -> 
+
       | Call (fname, actuals) -> (try
-	  (List.concat (List.map expr (List.rev actuals))) @
-	  [Jsr (StringMap.find fname env.function_index) ]   
-        with Not_found -> raise (Failure ("undefined function " ^ fname)))
+	         (List.concat (List.map expr (List.rev actuals))) @
+	         [Jsr (StringMap.find fname env.function_index) ]   
+            with Not_found -> raise (Failure ("undefined function " ^ fname)))
+
+      | CallRef (base, fname, args) ->
+
       | Noexpr -> []
 
     in let rec stmt = function
