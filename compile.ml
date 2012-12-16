@@ -3,6 +3,8 @@ open Bytecode
 
 module StringMap = Map.Make(String)
 
+let array_def_size = 100
+
 (* Symbol table: Information about all the names in scope *)
 type env = {
     function_index : int StringMap.t; (* Index for each function *)
@@ -18,27 +20,30 @@ let rec enum stride n = function
       match hd.vartype with
         "int" ->    (n + 1, hd.varname) :: enum stride (n+stride * 2) tl
       | "string" -> (n + 39, hd.varname) :: enum stride (n+stride * 40) tl 
-      | "Brick" ->  (n + 5, hd.varname) :: enum stride (n+stride * 6) tl 
-      | "Player" -> (n + 5, hd.varname) :: enum stride (n+stride * 6) tl 
-      | "Map" ->    (n + 2, hd.varname) :: enum stride (n+stride * 2) tl 
-      | "Arrayint" ->    (n + 2*hd.varsize-1, hd.varname) :: enum stride (n+stride * 2 * hd.varsize) tl
-      | "Arraystring" -> (n + 40*hd.varsize-1, hd.varname) :: enum stride (n+stride * 40 * hd.varsize) tl
-      | "ArrayBrick" ->  (n + 6*hd.varsize-1, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
-      | "ArrayPlayer" -> (n + 6*hd.varsize-1, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
-      | "ArrayMap" ->    (n + 4*hd.varsize-1, hd.varname) :: enum stride (n+stride * 4 * hd.varsize) tl
+      | "Brick" ->  (n + 7, hd.varname) :: enum stride (n+stride * 8) tl
+          (* Brick size : 3 int (color), 4 int (coords), 1 int for type = 8 *) 
+      | "Player" -> (n + 46, hd.varname) :: enum stride (n+stride * 47) tl 
+          (* Player size : 40 string (shape), 6 x 1 int (color, h, w, y), 1 for type = 47 *)
+      | "Map" ->    (n + 42, hd.varname) :: enum stride (n+stride * 43) tl 
+          (* Map size : 40 string (name of generator function), 2 x 1 int (h, w), 1 for type = 43 *)
+      | "Arrayint" ->    (n + 2*array_def_size-1, hd.varname) :: enum stride (n+stride * 2 * hd.varsize) tl
+      | "Arraystring" -> (n + 40*array_def_size-1, hd.varname) :: enum stride (n+stride * 40 * hd.varsize) tl
+      | "ArrayBrick" ->  (n + 8*array_def_size-1, hd.varname) :: enum stride (n+stride * 8 * hd.varsize) tl
+      | "ArrayPlayer" -> (n + 47*array_def_size-1, hd.varname) :: enum stride (n+stride * 47 * hd.varsize) tl
+      | "ArrayMap" ->    (n + 43*array_def_size-1, hd.varname) :: enum stride (n+stride * 43 * hd.varsize) tl
       | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
     else
       match hd.vartype with
         "int" ->    (n, hd.varname) :: enum stride (n+stride * 2) tl
       | "string" -> (n, hd.varname) :: enum stride (n+stride * 40) tl 
-      | "Brick" ->  (n, hd.varname) :: enum stride (n+stride * 6) tl 
-      | "Player" -> (n, hd.varname) :: enum stride (n+stride * 6) tl 
-      | "Map" ->    (n, hd.varname) :: enum stride (n+stride * 2) tl 
-      | "Arrayint" ->    (n, hd.varname) :: enum stride (n+stride * 2 * hd.varsize) tl
-      | "Arraystring" -> (n, hd.varname) :: enum stride (n+stride * 40 * hd.varsize) tl
-      | "ArrayBrick" ->  (n, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
-      | "ArrayPlayer" -> (n, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
-      | "ArrayMap" ->    (n, hd.varname) :: enum stride (n+stride * 4 * hd.varsize) tl
+      | "Brick" ->  (n, hd.varname) :: enum stride (n+stride * 8) tl 
+      | "Player" -> (n, hd.varname) :: enum stride (n+stride * 47) tl 
+      | "Map" ->    (n, hd.varname) :: enum stride (n+stride * 43) tl 
+      | "Arrayint" ->    (n, hd.varname) :: enum stride (n+stride * 2 * array_def_size) tl
+      | "Arraystring" -> (n, hd.varname) :: enum stride (n+stride * 40 * array_def_size) tl
+      | "ArrayBrick" ->  (n, hd.varname) :: enum stride (n+stride * 8 * array_def_size) tl
+      | "ArrayPlayer" -> (n, hd.varname) :: enum stride (n+stride * 47 * array_def_size) tl
+      | "ArrayMap" ->    (n, hd.varname) :: enum stride (n+stride * 43 * array_def_size) tl
       | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
 
 (* val enum : int -> 'a list -> (int * 'a) list *)
@@ -49,15 +54,15 @@ let rec enum_func stride n = function
 let total_varsize a vlist = 
    List.fold_left (fun a b -> a + (match b.vtype with
                     "int" -> 2  
-                  |   "string" -> 30
-                  |   "Brick" -> 6
-                  |   "Player" -> 6
-                  |   "Map" -> 4
-                  |   "Arrayint" -> b.varsize*2
-                  |   "Arraystring"  -> b.varsize*30
-                  |   "ArrayBrick" -> b.varsize*6
-                  |   "ArrayPlayer" -> b.varsize*6
-                  |   "ArrayMap" -> b.varsize*4
+                  |   "string" -> 40
+                  |   "Brick" -> 8
+                  |   "Player" -> 47
+                  |   "Map" -> 43
+                  |   "Arrayint" -> array_def_size*2
+                  |   "Arraystring"  -> array_def_size*40
+                  |   "ArrayBrick" -> array_def_size*8
+                  |   "ArrayPlayer" -> array_def_size*47
+                  |   "ArrayMap" -> array_def_size*43
                   |   _ -> raise(Failure("Error in total_varsize"))
                   )) 0 vlist
 
@@ -115,8 +120,6 @@ let translate (globals, functions) =
           expr y @ expr x @ expr width @ expr height @ 
           [Litstr color] @ [MakeP]
 
-       (*  TODO: DO Player *)
-
       | Map (width, height, generator) ->
           expr generator @ expr height @ expr width @ [MakeM]
 
@@ -168,7 +171,7 @@ let translate (globals, functions) =
 
     in [Ent num_locals] @      (* Entry: allocate space for locals *)
     stmt (Block fdecl.body) @  (* Body *)
-    [Lit 0; Rts num_formals]   (* Default = return 0 *)
+    [Litint 0; Rts num_formals]   (* Default = return 0 *)
 
   in let env = { function_index = function_indexes;
 		 global_index = global_indexes;
@@ -176,8 +179,8 @@ let translate (globals, functions) =
 
   (* Code executed to start the program: Jsr main; halt *)
   let entry_function = try
-    [Jsr (StringMap.find "$main" function_indexes); Hlt]
-  with Not_found -> raise (Failure ("no \"main\" function"))
+    [OpenWin; Jsr (StringMap.find "$main" function_indexes); Hlt]
+  with Not_found -> raise (Failure ("no \"$main\" function"))
   in
     
   (* Compile the functions *)
@@ -188,7 +191,7 @@ let translate (globals, functions) =
       (fun (l,i) f -> (i :: l, (i + List.length f))) ([],0) func_bodies in
   let func_offset = Array.of_list (List.rev fun_offset_list) in
 
-  { num_globals = List.length globals;
+  { globals_size = total_varsize globals;
     (* Concatenate the compiled functions and replace the function
        indexes in Jsr statements with PC values *)
     text = Array.of_list (List.map (function
