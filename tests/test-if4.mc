@@ -1,5 +1,6 @@
-main()
+function $main : void ()
 {
-  if (0) print(42); else print(8);
-  print(17);
+	$printstring("Should print 8 17")
+  if (0) $printint(42); else $printint(8);
+  $printint(17);
 }

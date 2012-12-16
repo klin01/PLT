@@ -1,4 +1,6 @@
-main()
+
+function $main : void ()
 {
-  print(39 + 3);
+	$printstring("Should be 42");
+	$printint(39 + 3);
 }

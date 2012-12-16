@@ -1,27 +1,34 @@
-main()
+function $main : void ()
 {
-  print(1 + 2);
-  print(1 - 2);
-  print(1 * 2);
-  print(100 / 2);
-  print(99);
-  print(1 == 2);
-  print(1 == 1);
-  print(99);
-  print(1 != 2);
-  print(1 != 1);
-  print(99);
-  print(1 < 2);
-  print(2 < 1);
-  print(99);
-  print(1 <= 2);
-  print(1 <= 1);
-  print(2 <= 1);
-  print(99);
-  print(1 > 2);
-  print(2 > 1);
-  print(99);
-  print(1 >= 2);
-  print(1 >= 1);
-  print(2 >= 1);
+    $printstring("A lot of arithmetic tests");
+  
+    $printstring("Should be 3, -1, 2, 50, 1, 99, -100");
+  $printint(1 + 2);
+  $printint(1 - 2);
+  $printint(1 * 2);
+  $printint(100 / 2);
+  $printint(10 % 3);
+  $printint(99);
+  $printint(-100);
+
+    $printstring("Should be 0, 1, 99, 1, 0, 99, 1, 1, 0, 99, 0, 1, 99, 0, 1, 1")
+  $printint(1 == 2);
+  $printint(1 == 1);
+  $printint(99);
+  $printint(1 != 2);
+  $printint(1 != 1);
+  $printint(99);
+  $printint(1 < 2);
+  $printint(2 < 1);
+  $printint(99);
+  $printint(1 <= 2);
+  $printint(1 <= 1);
+  $printint(2 <= 1);
+  $printint(99);
+  $printint(1 > 2);
+  $printint(2 > 1);
+  $printint(99);
+  $printint(1 >= 2);
+  $printint(1 >= 1);
+  $printint(2 >= 1);
 }

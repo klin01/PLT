@@ -1,18 +1,19 @@
 /* Bug noticed by Pin-Chin Huang */
 
-fun(x, y)
+function $fun : int (int $x, int $y)
 {
   return 0;
 }
 
-main()
+function $main : void ()
 {
-  int i;
-  i = 1;
+  int $i;
+  $i = 1;
 
-  fun(i = 2, i = i+1);
+  $printstring("I am not sure what it should print.. 1? 2? 3?");
+  $fun($i = 2, $i = $i + 1);
 
-  print(i);
+  $printint( $i );
 
 }
 

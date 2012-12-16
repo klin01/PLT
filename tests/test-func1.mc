@@ -1,11 +1,12 @@
-add(a, b)
+function $add : int (int $a, int $b)
 {
-  return a + b;
+  return $a + $b;
 }
 
-main()
+function $main : void ()
 {
-  int a;
-  a = add(39, 3);
-  print(a);
+  int $a;
+  $a = $add(39, 3);
+  $printstring("Should print 42");
+  $printint( $a );
 }

@@ -1,15 +1,26 @@
-fib(x)
+function $fib : int (int $x)
 {
-  if (x < 2) return 1;
-  return fib(x-1) + fib(x-2);
+  if ($x < 2) return 1;
+  return $fib($x - 1) + $fib($x - 2);
 }
 
-main()
+function $main : void ()
 {
-  print(fib(0));
-  print(fib(1));
-  print(fib(2));
-  print(fib(3));
-  print(fib(4));
-  print(fib(5));
+	$printstring("Should be 1");
+	$printint( fib(0) );
+
+	$printstring("Should be 1");
+	$printint( fib(1) );
+
+	$printstring("Should be 1");
+	$printint( fib(2) );
+
+	$printstring("Should be 2");
+	$printint( fib(3) );
+
+	$printstring("Should be 3");
+	$printint( fib(4) );
+	
+	$printstring("Should be 5");
+	$printint( fib(5) );
 }

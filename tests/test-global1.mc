@@ -1,29 +1,30 @@
-int a;
-int b;
+int $a;
+int $b;
 
-printa()
+function $printa : void ()
 {
-  print(a);
+  $printint( $a );
 }
 
-printb()
+function $printb : void ()
 {
-  print(b);
+  $printint( $b );
 }
 
-incab()
+function $incab : void ()
 {
-  a = a + 1;
-  b = b + 1;
+  $a = $a + 1;
+  $b = $b + 1;
 }
 
-main()
+function $main : void ()
 {
-  a = 42;
-  b = 21;
-  printa();
-  printb();
-  incab();
-  printa();
-  printb();
+  $printstring("Test global var. Should print 43 22, then 44 23");
+  $a = 42;
+  $b = 21;
+  $printa();
+  $printb();
+  $incab();
+  $printa();
+  $printb();
 }
