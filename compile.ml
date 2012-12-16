@@ -13,7 +13,38 @@ type env = {
 (* val enum : int -> 'a list -> (int * 'a) list *)
 let rec enum stride n = function
     [] -> []
-  | hd::tl -> (n, hd) :: enum stride (n+stride) tl
+  | hd::tl -> 
+    if stride > 0 then
+      match hd.vartype with
+        "int" ->    (n + 1, hd.varname) :: enum stride (n+stride * 2) tl
+      | "string" -> (n + 29, hd.varname) :: enum stride (n+stride * 30) tl 
+      | "Brick" ->  (n + 5, hd.varname) :: enum stride (n+stride * 6) tl 
+      | "Player" -> (n + 5, hd.varname) :: enum stride (n+stride * 6) tl 
+      | "Map" ->    (n + 2, hd.varname) :: enum stride (n+stride * 2) tl 
+      | "Arrayint" ->    (n + 2*hd.varsize-1, hd.varname) :: enum stride (n+stride * 2 * hd.varsize) tl
+      | "Arraystring" -> (n + 30*hd.varsize-1, hd.varname) :: enum stride (n+stride * 30 * hd.varsize) tl
+      | "ArrayBrick" ->  (n + 6*hd.varsize-1, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
+      | "ArrayPlayer" -> (n + 6*hd.varsize-1, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
+      | "ArrayMap" ->    (n + 4*hd.varsize-1, hd.varname) :: enum stride (n+stride * 4 * hd.varsize) tl
+      | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
+    else
+      match hd.vartype with
+        "int" ->    (n, hd.varname) :: enum stride (n+stride * 2) tl
+      | "string" -> (n, hd.varname) :: enum stride (n+stride * 30) tl 
+      | "Brick" ->  (n, hd.varname) :: enum stride (n+stride * 6) tl 
+      | "Player" -> (n, hd.varname) :: enum stride (n+stride * 6) tl 
+      | "Map" ->    (n, hd.varname) :: enum stride (n+stride * 2) tl 
+      | "Arrayint" ->    (n, hd.varname) :: enum stride (n+stride * 2 * hd.varsize) tl
+      | "Arraystring" -> (n, hd.varname) :: enum stride (n+stride * 30 * hd.varsize) tl
+      | "ArrayBrick" ->  (n, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
+      | "ArrayPlayer" -> (n, hd.varname) :: enum stride (n+stride * 6 * hd.varsize) tl
+      | "ArrayMap" ->    (n, hd.varname) :: enum stride (n+stride * 4 * hd.varsize) tl
+      | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
+
+(* val enum : int -> 'a list -> (int * 'a) list *)
+let rec enum_func stride n = function
+    [] -> []
+  | hd::tl -> (n, hd) :: enum_func stride (n+stride) tl
 
 (* val string_map_pairs StringMap 'a -> (int * 'a) list -> StringMap 'a *)
 let string_map_pairs map pairs =
