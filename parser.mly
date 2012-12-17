@@ -134,7 +134,7 @@ expr:
   | ID LBRACK expr RBRACK ASSIGN expr { AAssign(Id($1), $3, $6) }
   | ID ASSIGN expr                    { Assign(Id($1), $3) }
   | ID REF ID ASSIGN expr             { Assign(Ref(Id($1), Id($3)), $5) }
-  | ID LPAREN actuals_opt RPAREN      { Call($1, $3) }
+  | ID LPAREN actuals_opt RPAREN      { Call(Id($1), $3) }
   | LPAREN expr RPAREN                { $2 }
 
 actuals_opt:
