@@ -1,62 +1,40 @@
 type op = Add | Sub | Mult | Div | Mod | Exp | Equal | Neq | Less | Leq | Greater | Geq | And | Or
 
 type expr =
-    LiteralInt of int
-  | LiteralString of string
-  | Id of string
-  | Brick of expr * expr * expr * expr * expr (* color, height, width, x, y *)
-  | Player of expr * expr * expr * expr * expr (* color, shape, height, width, y *)
-  | Map of expr * expr * expr
-  | Ref of expr * expr
-  | AAccess of expr * expr (* array access: arrayname, index*)
-  | AAssign of expr * expr * expr
-  | Binop of expr * op * expr
-  | Not of expr
-  | Assign of expr * expr
-  | Call of expr * expr list
+    LiteralInt of int                  (* Integers *)
+  | LiteralString of string            (* Strings *)
+  | Id of string                       (* reference a variable *)
+  | Brick of expr * expr * expr * expr (* construct a Brick: Brick(color, array of points, x, y) *)
+  | Player of expr * expr * expr       (* construct Player: Player(color, array of points, y) *)
+  | Map of expr * expr * expr          (* construct Map: Map(height, width, generator function) *)
+  | Ref of expr * expr                 (* reference properties of object: Ref(parent, child) *)
+  | AAccess of expr * expr             (* array access: AAccess(arrayname, index) *)
+  | AAssign of expr * expr * expr      (* assign value to index of array: AAssign(arrayid, index, value) *)
+  | Binop of expr * op * expr          (* binary operations: Binop(value, operator, value) *)
+  | Not of expr                        (* boolean negation *)
+  | Assign of expr * expr              (* assign value to variable *)
+  | Call of expr * expr list           (* Call functions *)
   | Noexpr
 
 type stmt =
-    Block of stmt list
-  | Expr of expr
-  | Return of expr
-  | If of expr * stmt * stmt
-  | For of expr * expr * expr * stmt
-  | While of expr * stmt
+    Block of stmt list                 (* block of statements *)
+  | Expr of expr                       (* expressions *)
+  | Return of expr                     (* return expression *)
+  | If of expr * stmt * stmt           (* if statements *)
+  | For of expr * expr * expr * stmt   (* for loops *)
+  | While of expr * stmt               (* while loops *)
 
 type var_decl = {
-    vartype : string;
-    varname : string;
+    vartype : string;                  (* variable type *)
+    varname : string;                  (* variable name *)
 }
 
 type func_decl = {
-    fname : string;
-    formals : var_decl list;
-    locals : var_decl list;
-    body : stmt list;
-    rettype : string;
-}
-
-type brick = {
-  mutable bcolor: expr;
-  mutable bheight: expr;
-  mutable bwidth: expr;
-  mutable bx: expr;
-  mutable by: expr;
-}
-
-type player = {
-  mutable pcolor: expr;
-  mutable pshape: expr;
-  mutable pheight: expr;
-  mutable pwidth: expr;
-  mutable py: expr;
-}
-
-type map = {
-  mutable mheight: expr;
-  mutable mwidth: expr;
-  mutable mgenerator: expr;
+    fname : string;                    (* function name *)
+    formals : var_decl list;           (* function parameters *)
+    locals : var_decl list;            (* function local variables *)
+    body : stmt list;                  (* function body statements *)
+    rettype : string;                  (* return type *)
 }
 
 type program = var_decl list * func_decl list
