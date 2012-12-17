@@ -36,7 +36,7 @@ rule token = parse
 | "new" { NEW }
 | '$'['a'-'z' 'A'-'Z']+['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF } (* End-of-file *)
-| _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
+| _ as charac { raise (Failure("illegal character " ^ Char.escaped charac)) }
 
 and multicomment = parse
 "*/" { token lexbuf } (* End-of-comment *)

@@ -9,6 +9,8 @@ type bstmt =
   | Strf of int   (* Store global function *)
   | Lfp of int    (* Load frame pointer relative *)
   | Sfp of int    (* Store frame pointer relative *)
+  | StrRef        (* Store pointer to reference of object *)
+  | LodRef of int (* Load pointer to reference of object *)
   | Jsr of int    (* Call function by absolute address *)
   | Ent of int    (* Push FP, FP -> SP, SP += i *)
   | Rts of int    (* Restore FP, SP, consume formals, push result *)

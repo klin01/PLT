@@ -124,7 +124,7 @@ function $main : void () {
 
   Array int $myIntArray;
   $myIntArray[1] : 10;
-
+  $test.$x = 9;
   $test: -5;
   $gameMap: new Map(1024, 768, $generateThis);
   $me : new Player(\"12 12 12\", $testarray, 500);
