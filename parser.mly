@@ -100,12 +100,16 @@ expr:
     LITERALINT            { LiteralInt($1) }
   | LITERALSTRING         { LiteralString($1) }
   | ID LBRACK expr RBRACK { AAccess(Id($1), $3) }
-  | NEW BRICK LPAREN LITERALSTRING COMMA ID COMMA expr COMMA expr RPAREN  
-                          { Brick(LiteralString($4), Id($6), $8, $10) }
+  | NEW BRICK LPAREN LITERALSTRING COMMA expr COMMA expr COMMA expr RPAREN  
+                          { Brick(LiteralString($4), $6, $8, $10) }
   | NEW MAP LPAREN expr COMMA expr COMMA ID RPAREN 
                           { Map($4, $6, Id($8)) }
-  | NEW PLAYER LPAREN LITERALSTRING COMMA ID COMMA expr RPAREN 
-                          { Player(LiteralString($4), Id($6), $8) }
+  | NEW PLAYER LPAREN LITERALSTRING COMMA expr COMMA expr RPAREN 
+                          { Player(LiteralString($4), $6, $8) }
+  | NEW ARRAY TYPE        { Array($3) }
+  | NEW ARRAY BRICK       { Array("Brick") }
+  | NEW ARRAY PLAYER      { Array("Player") }
+  | NEW ARRAY MAP         { Array("Map") }
   | ID                    { Id($1) }
   | ID REF ID             { Ref(Id($1), Id($3)) }
   | expr PLUS   expr      { Binop($1, Add,   $3) }
@@ -130,7 +134,7 @@ expr:
   | ID LBRACK expr RBRACK ASSIGN expr { AAssign(Id($1), $3, $6) }
   | ID ASSIGN expr                    { Assign(Id($1), $3) }
   | ID REF ID ASSIGN expr             { Assign(Ref(Id($1), Id($3)), $5) }
-  | ID LPAREN actuals_opt RPAREN      { Call(Id($1), $3) }
+  | ID LPAREN actuals_opt RPAREN      { Call($1, $3) }
   | LPAREN expr RPAREN                { $2 }
 
 actuals_opt:

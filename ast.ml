@@ -6,6 +6,7 @@ type expr =
   | Id of string                       (* reference a variable *)
   | Brick of expr * expr * expr * expr (* construct a Brick: Brick(color, array of points, x, y) *)
   | Player of expr * expr * expr       (* construct Player: Player(color, array of points, y) *)
+  | Array of string
   | Map of expr * expr * expr          (* construct Map: Map(height, width, generator function) *)
   | Ref of expr * expr                 (* reference properties of object: Ref(parent, child) *)
   | AAccess of expr * expr             (* array access: AAccess(arrayname, index) *)
