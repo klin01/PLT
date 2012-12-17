@@ -104,30 +104,30 @@ let execute_prog prog =
               stack.(sp+3) <- globals.(i);
               exec fp (sp+4) (pc+1)
           | 6 ->  (* Arrayint *)
-              for i=0 to 200 do
-                stack.(sp+i) <- globals.(i-200+i)
+              for i=0 to 199 do
+                stack.(sp+i) <- globals.(i-199+i)
               done;
-              exec fp (sp+201) (pc+1)
+              exec fp (sp+200) (pc+1)
           | 7 ->  (* Arraystring *)
-              for i=0 to 4000 do
-                stack.(sp+i) <- globals.(i-4000+i)
+              for i=0 to 3999 do
+                stack.(sp+i) <- globals.(i-3999+i)
               done;
-              exec fp (sp+4001) (pc+1)
+              exec fp (sp+4000) (pc+1)
           | 8 ->  (* ArrayBrick *)
-              for i=0 to 700 do
-                stack.(sp+i) <- globals.(i-700+i)
+              for i=0 to 699 do
+                stack.(sp+i) <- globals.(i-699+i)
               done;
-              exec fp (sp+701) (pc+1)
+              exec fp (sp+700) (pc+1)
           | 9 ->  (* ArrayPlayer *)
-              for i=0 to 600 do
-                stack.(sp+i) <- globals.(i-600+i)
+              for i=0 to 599 do
+                stack.(sp+i) <- globals.(i-599+i)
               done;
-              exec fp (sp+601) (pc+1)
+              exec fp (sp+600) (pc+1)
           | 10 ->  (* ArrayMap *)
-              for i=0 to 400 do
-                stack.(sp+i) <- globals.(i-400+i)
+              for i=0 to 399 do
+                stack.(sp+i) <- globals.(i-399+i)
               done;
-              exec fp (sp+401) (pc+1)
+              exec fp (sp+400) (pc+1)
           | _ -> raise(Failure("Type error: Attempt to load unknown type!"))
         ) 
   | Str i -> (* Store a global variable variable *)
@@ -528,6 +528,68 @@ let execute_prog prog =
       Graphics.open_graph ""; exec fp (sp) (pc+1)
   | CloseWin -> (* Closes graphical display *)
       Graphics.clear_graph (); exec fp (sp) (pc+1)
+
+  | MakeB ->
+        let v1 = stack.(sp-1)  (* 3 *)
+        and v2 = stack.(sp-3)  (* R *)
+        and v3 = stack.(sp-5)  (* G *)
+        and v4 = stack.(sp-7)  (* B *)
+        and v5 = stack.(sp-9)  (* varray address *)
+        and v6 = stack.(sp-11) (* x *)
+        and v7 = stack.(sp-13) (* y *)
+
+        in
+        if ((v1 <> 1) || (v2 <> 1) || (v3 <> 1) || (v4 <> 1) || (v5 <> 1) || (v6 <> 1) || (v7 <> 1)) then 
+          raise(Failure("MakeB type check error!")) else
+          ( 
+            stack.(sp-1) <- stack.(sp-2);
+            stack.(sp-2) <- stack.(sp-4);
+            stack.(sp-3) <- stack.(sp-6);
+            stack.(sp-4) <- stack.(sp-8);
+            stack.(sp-5) <- stack.(sp-10);
+            stack.(sp-6) <- stack.(sp-12);
+            stack.(sp-7) <- stack.(sp-14);
+            exec fp sp (pc+1)
+          )
+
+  | MakeP ->      
+        let v1 = stack.(sp-1)  (* 4 *)
+        and v2 = stack.(sp-3)  (* R *)
+        and v3 = stack.(sp-5)  (* G *)
+        and v4 = stack.(sp-7)  (* B *)
+        and v5 = stack.(sp-9)  (* varray address *)
+        and v6 = stack.(sp-11) (* y *)
+
+        in
+        if ((v1 <> 1) || (v2 <> 1) || (v3 <> 1) || (v4 <> 1) || (v5 <> 1) || (v6 <> 1)) then 
+          raise(Failure("MakeB type check error!")) else
+          ( 
+            stack.(sp-1) <- stack.(sp-2);
+            stack.(sp-2) <- stack.(sp-4);
+            stack.(sp-3) <- stack.(sp-6);
+            stack.(sp-4) <- stack.(sp-8);
+            stack.(sp-5) <- stack.(sp-10);
+            stack.(sp-6) <- stack.(sp-12);
+            stack.(sp-7) <- stack.(sp-14);
+            exec fp sp (pc+1)
+          )
+
+  | MakeM ->
+        let v1 = stack.(sp-1)  (* 5 *)
+        and v2 = stack.(sp-3)  (* generator ID address *)
+        and v3 = stack.(sp-5)  (* height *)
+        and v4 = stack.(sp-7)  (* width *)
+
+        in
+        if ((v1 <> 1) || (v2 <> 1) || (v3 <> 1) || (v4 <> 1)) then 
+          raise(Failure("MakeB type check error!")) else
+          ( 
+            stack.(sp-1) <- stack.(sp-2);
+            stack.(sp-2) <- stack.(sp-4);
+            stack.(sp-3) <- stack.(sp-6);
+            stack.(sp-4) <- stack.(sp-8);
+            exec fp sp (pc+1)
+          )
 
   | Move ->
       (* Get change in x, and change in y, replace x and y in object on stack *)
