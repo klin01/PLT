@@ -99,12 +99,12 @@ expr_opt:
 expr:
     LITERALINT            { LiteralInt($1) }
   | LITERALSTRING         { LiteralString($1) }
-  | ID LBRACK expr RBRACK { AAccess(Id($1), $3) }
-  | NEW BRICK LPAREN LITERALSTRING COMMA expr COMMA expr COMMA expr RPAREN  
+  | ID LBRACK expr RBRACK { AAccess($1, $3) }
+  | NEW BRICK LPAREN LITERALSTRING COMMA ID COMMA expr COMMA expr RPAREN  
                           { Brick(LiteralString($4), $6, $8, $10) }
   | NEW MAP LPAREN expr COMMA expr COMMA ID RPAREN 
-                          { Map($4, $6, Id($8)) }
-  | NEW PLAYER LPAREN LITERALSTRING COMMA expr COMMA expr RPAREN 
+                          { Map($4, $6, $8) }
+  | NEW PLAYER LPAREN LITERALSTRING COMMA ID COMMA expr RPAREN 
                           { Player(LiteralString($4), $6, $8) }
   | NEW ARRAY TYPE        { Array($3) }
   | NEW ARRAY BRICK       { Array("Brick") }
@@ -124,16 +124,16 @@ expr:
   | expr LEQ    expr      { Binop($1, Leq,   $3) }
   | expr GT     expr      { Binop($1, Greater, $3) }
   | expr GEQ    expr      { Binop($1, Geq,     $3) }
-  | ID SHORTADD expr    { Assign($1, Binop($1, Add,  $3)) }
-  | ID SHORTMINUS expr  { Assign($1, Binop($1, Sub,  $3)) }
-  | ID SHORTTIMES expr  { Assign($1, Binop($1, Mult, $3)) }
-  | ID SHORTDIVIDE expr { Assign($1, Binop($1, Div,  $3)) }
+  | ID SHORTADD expr    { Assign($1, Binop(Id($1), Add,  $3)) }
+  | ID SHORTMINUS expr  { Assign($1, Binop(Id($1), Sub,  $3)) }
+  | ID SHORTTIMES expr  { Assign($1, Binop(Id($1), Mult, $3)) }
+  | ID SHORTDIVIDE expr { Assign($1, Binop(Id($1), Div,  $3)) }
   | expr AND expr         { Binop($1, And, $3) }
   | expr OR  expr         { Binop($1, Or,  $3) }
   | NOT LITERALINT                    { Not(LiteralInt($2)) }
   | ID LBRACK expr RBRACK ASSIGN expr { AAssign($1, $3, $6) }
   | ID ASSIGN expr                    { Assign($1, $3) }
-  | ID REF ID ASSIGN expr             { Assign(($1 ^ $2 ^ $3), Id($3)), $5) }
+  | ID REF ID ASSIGN expr             { Assign(($1 ^ "." ^ $3), $5) }
   | ID LPAREN actuals_opt RPAREN      { Call($1, $3) }
   | LPAREN expr RPAREN                { $2 }
 

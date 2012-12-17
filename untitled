@@ -1,0 +1,4 @@
+
+Array $controlPoints [4];
+
+Brick myBrick = new Brick("11 111 11", $controlPoints)
