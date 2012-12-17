@@ -1,5 +1,7 @@
 type op = Add | Sub | Mult | Div | Mod | Exp | Equal | Neq | Less | Leq | Greater | Geq | And | Or
 
+(* TODO: Compiler will complain if we don't use "string" in Map and Brick *)
+
 type expr =
     LiteralInt of int                  (* Integers *)
   | LiteralString of string            (* Strings *)

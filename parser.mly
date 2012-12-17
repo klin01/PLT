@@ -110,8 +110,8 @@ expr:
   | NEW ARRAY BRICK       { Array("Brick") }
   | NEW ARRAY PLAYER      { Array("Player") }
   | NEW ARRAY MAP         { Array("Map") }
+  | ID REF ID             { Id($1 ^ "." ^ $3) } /* Ref(Id($1), Id($3)) } */
   | ID                    { Id($1) }
-  | ID REF ID             { Id($1 ^ $2 ^ $3) } (* Ref(Id($1), Id($3)) } *)
   | expr PLUS   expr      { Binop($1, Add,   $3) }
   | expr MINUS  expr      { Binop($1, Sub,   $3) }
   | expr TIMES  expr      { Binop($1, Mult,  $3) }
@@ -133,7 +133,7 @@ expr:
   | NOT LITERALINT                    { Not(LiteralInt($2)) }
   | ID LBRACK expr RBRACK ASSIGN expr { AAssign(Id($1), $3, $6) }
   | ID ASSIGN expr                    { Assign(Id($1), $3) }
-  | ID REF ID ASSIGN expr             { Assign(Id($1 ^ $2 ^ $3), Id($3)), $5) }
+  | ID REF ID ASSIGN expr             { Assign(Id($1 ^ "." ^ $3), $5) }
   | ID LPAREN actuals_opt RPAREN      { Call(Id($1), $3) }
   | LPAREN expr RPAREN                { $2 }
 
