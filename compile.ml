@@ -154,10 +154,10 @@ let translate (globals, functions) =
              with Not_found -> raise (Failure ("undelcared variable" ^ a)))
       | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
       | Not (e) -> 
-        match e with
+        (match e with
           1 -> [Litint 0]
         | 0 -> [Litint 1]
-        | _ -> raise (Failure ("'Not' cannot operate on" ^ e))
+        | _ -> raise (Failure ("'Not' cannot operate on" ^ e)))
       | Assign (s, e) -> expr e @
           (try [Sfp (StringMap.find s env.local_index)]
            with Not_found -> try [Str (StringMap.find s env.global_index)]
