@@ -11,7 +11,7 @@ type expr =
   | AAccess of expr * expr (* array access: arrayname, index*)
   | AAssign of expr * expr * expr
   | Binop of expr * op * expr
-  | Not of expr
+  | Not of int
   | Assign of expr * expr
   | Call of expr * expr list
   | Noexpr

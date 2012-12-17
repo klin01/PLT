@@ -12,6 +12,12 @@ type env = {
     local_index    : int StringMap.t; (* FP offset for args, locals *)
   }
 
+let split_colors s =
+  let rec f acc = function
+    | -1 -> acc
+    | k -> f (s.[k] :: acc) (k - 1)
+  in f [] (String.length s - 1) ;;
+
 (* val enum : int -> 'a list -> (int * 'a) list *)
 let rec enum stride n = function
     [] -> []
@@ -101,41 +107,51 @@ let translate (globals, functions) =
 		  StringMap.empty (local_offsets @ formal_offsets) } in
 
     let rec expr = function
-      LiteralInt i -> [Litint i] 
+        LiteralInt i -> [Litint i] 
 	    | LiteralString i -> [Litstr i]
       | Id s ->
 	        (try [Lfp (StringMap.find s env.local_index)]
           with Not_found -> try [Lod (StringMap.find s env.global_index)]
           with Not_found -> try [Lodf (StringMap.find s env.function_index)]
           with Not_found -> raise (Failure ("undeclared variable " ^ s)))
-      
-      | Array(i) -> 
-            (*  TODO: DO Array *)
 
-      | Brick (color, height, width, x, y) ->
-          expr y @ expr x @ expr width @ expr height @
-          [Litstr color] @ [MakeB]
+      | Brick (color, varray, x, y) ->
+          expr y @ expr x 
+          @ (try [Lfpa (StringMap.find varray env.local_index)]
+             with Not_found -> try [Loda (StringMap.find varray env.global_index)]
+             with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
+          @ [Litstr color] 
+          @ [MakeB]
 
-      | Player (shape, color, height, width, y) ->
-          expr y @ expr x @ expr width @ expr height @ 
-          [Litstr color] @ [MakeP]
+      | Player (color, varray, y) ->
+          expr y @ (try [Lfpa (StringMap.find varray env.local_index)]
+                    with Not_found -> try [Loda (StringMap.find varray env.global_index)]
+                    with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
+          @ [Litstr color]
+          @ [MakeP]
 
       | Map (width, height, generator) ->
-          expr generator @ expr height @ expr width @ [MakeM]
+          (try [Lodf (StringMap.find generator env.function_index)]
+           with Not_found -> raise (Failure ("undeclared function " ^ generator))) 
+          @ expr height @ expr width @ [MakeM]
 
       | Ref (base, child) -> 
-          expr child @ expr base @ [Ref]
+          (try [Lfp (StringMap.find child env.local_index)]
+           with Not_found -> try [Lod (StringMap.find child env.global_index)]
+           with Not_found -> raise (Failure ("undeclared variable " ^ s))) 
+          @ expr base @ [Ref]
 
       | AAccess(a, i) -> 
-          expr i @ (try [Lfpa(StringMap.find a env.local_index)]
-          with Not_found -> try[Loda (StringMap.find a env.global_index)]
-          with Not_found -> raise (Failure ("undeclared variable" ^ a)))
-            (*  TODO: Do Array Access *)
+          expr i @ 
+          (try [Lfpa(StringMap.find a env.local_index)]
+           with Not_found -> try[Loda (StringMap.find a env.global_index)]
+           with Not_found -> raise (Failure ("undeclared variable" ^ a)))
 
       | AAssign(a, i, e) ->
-          expr e @ expr i @ (try [Sfpa(StringMap.find a env.local_index)] 
-          with Not_found -> try[Stra(StringMap.find a env.global_index)]
-          with Not_found -> raise (Failure ("undelcared variable" ^ a)))
+          expr e @ expr i 
+          @ (try [Sfpa(StringMap.find a env.local_index)] 
+             with Not_found -> try[Stra(StringMap.find a env.global_index)]
+             with Not_found -> raise (Failure ("undelcared variable" ^ a)))
       | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
       | Not (e) -> 
         match e with
@@ -148,37 +164,35 @@ let translate (globals, functions) =
            with Not_found -> raise (Failure ("undeclared variable " ^ s)))
       | Call (fname, actuals) -> (try
 	         (List.concat (List.map expr (List.rev actuals))) @
-	         [Jsr (StringMap.find fname env.function_index) ]   
+	         (try [Jsr (StringMap.find fname env.function_index)]   
             with Not_found -> raise (Failure ("undefined function " ^ fname)))
       | Noexpr -> []
 
     in let rec stmt = function
-	Block sl     ->  List.concat (List.map stmt sl)
+	      Block sl     ->  List.concat (List.map stmt sl)
       | Expr e       -> expr e @ [Drp]
       | Return e     -> expr e @ [Rts num_formals]
       | If (p, t, f) -> let t' = stmt t and f' = stmt f in
-	expr p @ [Beq(2 + List.length t')] @
-	t' @ [Bra(1 + List.length f')] @ f'
-      | For (e1, e2, e3, b) ->
-	  stmt (Block([Expr(e1); While(e2, Block([b; Expr(e3)]))]))
-      | While (e, b) ->
-	  let b' = stmt b and e' = expr e in
-	  [Bra (1+ List.length b')] @ b' @ e' @
-	  [Bne (-(List.length b' + List.length e'))]
+	                       expr p @ [Beq(2 + List.length t')] @
+	                       t' @ [Bra(1 + List.length f')] @ f'
+      | For (e1, e2, e3, b) -> stmt (Block([Expr(e1); While(e2, Block([b; Expr(e3)]))]))
+      | While (e, b) -> let b' = stmt b and e' = expr e in
+	                       [Bra (1+ List.length b')] @ b' @ e' @
+	                       [Bne (-(List.length b' + List.length e'))]
 
-    in [Ent num_locals] @      (* Entry: allocate space for locals *)
-    stmt (Block fdecl.body) @  (* Body *)
-    [Litint 0; Rts num_formals]   (* Default = return 0 *)
+    in [Ent num_locals] @           (* Entry: allocate space for locals *)
+       stmt (Block fdecl.body) @    (* Body *)
+       [Litint 0; Rts num_formals]  (* Default = return 0 *)
 
-  in let env = { function_index = function_indexes;
-		 global_index = global_indexes;
-		 local_index = StringMap.empty } in
+    in let env = { function_index = function_indexes;
+		               global_index = global_indexes;
+		               local_index = StringMap.empty } in
 
   (* Code executed to start the program: Jsr main; halt *)
-  let entry_function = try
-    [OpenWin; Jsr (StringMap.find "$main" function_indexes); Hlt]
-  with Not_found -> raise (Failure ("no \"$main\" function"))
-  in
+    let entry_function = 
+        try [OpenWin; Jsr (StringMap.find "$main" function_indexes); Hlt]
+        with Not_found -> raise (Failure ("no \"$main\" function"))
+    in
     
   (* Compile the functions *)
   let func_bodies = entry_function :: List.map (translate env) functions in
