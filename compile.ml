@@ -131,34 +131,38 @@ let translate (globals, functions) =
         LiteralInt i -> [Litint i] 
 	    | LiteralString i -> [Litstr i]
       | Id s ->
-	        (try [Lfp (StringMap.find s env.local_index)]
+	        (try [LitInt (StringMap.find s env.local_index)]
            with Not_found -> try [Lod (StringMap.find s env.global_index)]
            with Not_found -> try [Lodf (StringMap.find s env.function_index)]
            with Not_found -> raise (Failure ("undeclared variable " ^ s)))
 
       | Brick (color, varray, x, y) ->
           expr y @ expr x 
-          @ (try [Lfp (StringMap.find Id(varray) env.local_index)]
-             with Not_found -> try [Lod (StringMap.find varray env.global_index)]
+          @ (try [Litint (StringMap.find Id(varray) env.local_index)]
+             with Not_found -> try [Lod (StringMap.find Id(varray) env.global_index)]
              with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
           @ (let colorlits = (List.map (fun a -> [Litint (int_of_string a)]) (string_split color))
              in if ((List.length colorlits) = 3) then colorlits
                 else raise (Failure ("incorrect color string passed in : \"" ^ color ^ "\"")))
+          @ [LitInt 3]
           @ MakeB
 
       | Player (color, varray, y) ->
-          expr y @ (try [Lfp (StringMap.find Id(varray) env.local_index)]
+          expr y @ (try [LitInt (StringMap.find Id(varray) env.local_index)]
                     with Not_found -> try [Lod (StringMap.find varray env.global_index)]
                     with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
           @ (let colorlits = (List.map (fun a -> [Litint (int_of_string a)]) (string_split color))
              in if ((List.length colorlits) = 3) then colorlits
                 else raise (Failure ("incorrect color string passed in : \"" ^ color ^ "\"")))
           @ [Litint 4]
+          @ MakeP
 
       | Map (width, height, generator) ->
-          (try [Lodf (StringMap.find generator env.function_index)]
+          (try [LitInt (StringMap.find generator env.function_index)]
            with Not_found -> raise (Failure ("undeclared function " ^ generator))) 
-          @ expr height @ expr width @ [Litint 5]
+          @ expr height @ expr width 
+          @ [Litint 5]
+          @ MakeM
       | Array (array_type) -> (* Push an empty array onto stack with type identifier on top *)
           let rec initializeEmptyArray size lst =
             if (size > 0) then initializeEmptyArray (size-1) ([Litint 0] @ lst)
