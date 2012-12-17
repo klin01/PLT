@@ -73,6 +73,7 @@ let rec string_of_expr = function
       | Less -> "<" | Leq -> "<:" | Greater -> ">" | Geq -> ">:" | And -> "&&"
       | Or -> "||" | Mod -> "%" | Exp -> "^") ^ " " ^
       string_of_expr e2
+  | Array(a) -> "new Array " ^ a 
   | Assign(v, e) -> string_of_expr v ^ " : " ^ string_of_expr e
   | AAssign(a, i, e) -> string_of_expr a ^ "[" ^ string_of_expr i ^ "] : " ^ string_of_expr e
   | AAccess(a, i) -> string_of_expr a ^ "[" ^ string_of_expr i ^ "]"
