@@ -1,6 +1,8 @@
 open Ast
 open Bytecode
 
+exception IllegalMove;;
+
 let explode s =
   let rec f acc = function
     | -1 -> acc
@@ -202,7 +204,32 @@ let execute_prog prog =
 
 
   (* Lodf and Strf *)
+  | OpenWin -> (* Opens graphical display *) 
+      Graphics.open_graph ""; exec fp (sp) (pc+1)
+  | CloseWin -> (* Closes graphical display *)
+      Graphics.clear_graph (); exec fp (sp) (pc+1)
 
+  | Move ->
+      (* Get change in x, and change in y, replace x and y in object on stack *)
+      let movex = stack.(sp-2) in
+      let movey = stack.(sp-4) in
+      let obj_id = stack.(sp-5) in
+      (
+          match obj_id with
+              1 ->  raise (IllegalMove)
+            | 2 ->  raise (IllegalMove)
+
+            | 3 -> (* Moves x and y for brick *)
+                  stack.(sp-10) <- (stack.(sp-10) + movex)
+                  stack.(sp-11) <- (stack.(sp-10) + movey)
+                  exec fp sp (pc+1)
+
+            | 4 -> (* Only moves y coordinate for player *)
+                  stack.(sp-10) <- (stack.(sp-10) + movey)
+                  exec fp sp (pc+1)
+                  
+            | 5 -> raise (IllegalMove)
+            | _ -> raise(Failure("Unmatched type!!")))
 
   
   | Hlt     -> ()
