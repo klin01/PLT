@@ -159,28 +159,28 @@ let execute_prog prog =
           done;
           exec fp (sp) (pc+1)
       | 6 -> (* Arrayint *)
-          for j=0 to 200 do
-            globals.(i-200+j) <- stack.(sp-201+j)
+          for j=0 to 199 do
+            globals.(i-199+j) <- stack.(sp-200+j)
           done;
           exec fp (sp) (pc+1)
       | 7 -> (* Arraystring *)
-          for j=0 to 4000 do
-            globals.(i-4000+j) <- stack.(sp-4001+j)
+          for j=0 to 3999 do
+            globals.(i-3999+j) <- stack.(sp-4000+j)
           done;
           exec fp (sp) (pc+1)
       | 8 -> (* ArrayBrick *)
-          for j=0 to 700 do
-            globals.(i-700+j) <- stack.(sp-701+j)
+          for j=0 to 699 do
+            globals.(i-699+j) <- stack.(sp-700+j)
           done;
           exec fp (sp) (pc+1)
       | 9 -> (* ArrayPlayer *)
-          for j=0 to 600 do
-            globals.(i-600+j) <- stack.(sp-601+j)
+          for j=0 to 599 do
+            globals.(i-599+j) <- stack.(sp-600+j)
           done;
           exec fp (sp) (pc+1)
       | 10 -> (* ArrayMap *)
-          for j=0 to 400 do
-            globals.(i-400+j) <- stack.(sp-401+j)
+          for j=0 to 399 do
+            globals.(i-399+j) <- stack.(sp-400+j)
           done;
           exec fp (sp) (pc+1)
       | _ -> raise(Failure("Type error: Unable to store variable of unknown type!"))
