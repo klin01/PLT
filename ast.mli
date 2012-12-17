@@ -4,8 +4,8 @@ type expr =
     LiteralInt of int
   | LiteralString of string
   | Id of string
-  | Brick of expr * expr * expr * expr * expr (* color, height, width, x, y *)
-  | Player of expr * expr * expr * expr * expr (* color, shape, height, width, y *)
+  | Brick of expr * expr * expr * expr (* color, array of points, x, y *)
+  | Player of expr * expr * expr (* color, array of points, y *)
   | Map of expr * expr * expr
   | Ref of expr * expr
   | AAccess of expr * expr (* array access: arrayname, index*)

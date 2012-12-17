@@ -146,13 +146,10 @@ let translate (globals, functions) =
           (try [Sfp (StringMap.find s env.local_index)]
            with Not_found -> try [Str (StringMap.find s env.global_index)]
            with Not_found -> raise (Failure ("undeclared variable " ^ s)))
-
-
       | Call (fname, actuals) -> (try
 	         (List.concat (List.map expr (List.rev actuals))) @
 	         [Jsr (StringMap.find fname env.function_index) ]   
             with Not_found -> raise (Failure ("undefined function " ^ fname)))
-
       | Noexpr -> []
 
     in let rec stmt = function

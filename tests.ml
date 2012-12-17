@@ -30,6 +30,7 @@ let getString v =
       LiteralString(v) -> v
     | _ -> ""
 
+(*
 let getMap v = 
     match v with
       Map(v1, v2, v3) -> { mheight= v1; mwidth= v2; mgenerator= v3 }
@@ -37,30 +38,27 @@ let getMap v =
 
 let getPlayer v = 
     match v with
-      Player(v1, v2, v3, v4, v5) -> { pcolor= v1; pshape= v2; pheight= v3; pwidth= v4; py= v5 }
+      Player(c, a, x, y) -> { pcolor= v1; pshape= v2; pheight= v3; pwidth= v4; py= v5 }
     | _ -> { pcolor= LiteralString("red"); pshape= LiteralString("triangle"); pheight= LiteralInt(0); pwidth= LiteralInt(0); py= LiteralInt(0) }
 
 let getBrick v = 
     match v with
       Brick(v1, v2, v3, v4, v5) -> { bcolor= v1; bheight= v2; bwidth= v3; bx= v4; by= v5 }
     | _ -> { bcolor= LiteralString("red"); bheight= LiteralInt(0); bwidth= LiteralInt(0); bx= LiteralInt(0); by= LiteralInt(0) }
-
+*)
 let rec string_of_expr = function
     LiteralInt(l) -> string_of_int l
   | LiteralString(l) -> "\"" ^ l ^ "\""
   | Id(s) -> s
-  | Brick(s, i1, i2, i3, i4) -> 
-    "Brick(" ^ string_of_expr s ^ 
-      ", " ^ string_of_expr i1 ^ 
-      ", " ^ string_of_expr i2 ^
-      ", " ^ string_of_expr i3 ^ 
-      ", " ^ string_of_expr i4 ^ ")"
-  | Player(s1, s2, i1, i2, i3) ->
-    "Player(" ^ string_of_expr s1 ^
-      ", " ^ string_of_expr s2 ^
-      ", " ^ string_of_expr i1 ^
-      ", " ^ string_of_expr i2 ^
-      ", " ^ string_of_expr i3 ^ ")"
+  | Brick(c, a, x, y) -> 
+    "Brick(" ^ string_of_expr c ^ 
+      ", " ^ string_of_expr a ^ 
+      ", " ^ string_of_expr x ^
+      ", " ^ string_of_expr y ^ ")"
+  | Player(c, a, y) ->
+    "Player(" ^ string_of_expr c ^
+      ", " ^ string_of_expr a ^
+      ", " ^ string_of_expr y ^ ")"
   | Map(i1, i2, e) ->
     "Map(" ^ string_of_expr i1 ^
       ", " ^ string_of_expr i2 ^
@@ -129,7 +127,7 @@ function $main : void () {
 
   $test: -5;
   $gameMap: new Map(1024, 768, $generateThis);
-  $me : new Player(\"12 12 12\", \"12 13 14\", 20, 20, 500);
+  $me : new Player(\"12 12 12\", $testarray, 500);
 
   $Run($gameMap, $me);
 }
@@ -141,9 +139,9 @@ function $generateThis: Array Brick () {
   Brick $bottom;
   //stmts
 
-  $top : new Brick(\"12 23 54\", 20, 1024, 0, 1004);
+  $top : new Brick(\"12 23 54\", $test2, 0, 1004);
   $Push($output, $top);
-  $bottom : new Brick(\"12 2 34\", 20, 1024, 0, 0);
+  $bottom : new Brick(\"12 2 34\", $test3, 0, 0);
   $Push($output, $bottom);
   return $output;
 }"))

@@ -1,22 +1,19 @@
-(* Note: RetroCraft didn't use this one for compiling *)
-
-type op = Add | Sub | Mult | Div | Mod | Exp | Equal | Neq | Less | Leq | Greater | Geq
+type op = Add | Sub | Mult | Div | Mod | Exp | Equal | Neq | Less | Leq | Greater | Geq | And | Or
 
 type expr =
-    LiteralBool of bool
-  | LiteralInt of int
-  | LiteralFloat of float
-  | LiteralChar of char
+    LiteralInt of int
   | LiteralString of string
   | Id of string
-  | Brick of string * int * int * int * int (* color, height, width, x, y *)
-  | Player of string * string * int * int * int (* color, shape, height, width, y *)
-  | Map of int * int * expr
+  | Brick of expr * expr * expr * expr * expr (* color, height, width, x, y *)
+  | Player of expr * expr * expr * expr * expr (* color, shape, height, width, y *)
+  | Map of expr * expr * expr
   | Ref of expr * expr
+  | AAccess of expr * expr (* array access: arrayname, index*)
+  | AAssign of expr * expr * expr
   | Binop of expr * op * expr
   | Not of expr
-  | Assign of string * expr
-  | Call of string * expr list
+  | Assign of expr * expr
+  | Call of expr * expr list
   | Noexpr
 
 type stmt =
@@ -27,138 +24,40 @@ type stmt =
   | For of expr * expr * expr * stmt
   | While of expr * stmt
 
-type func_decl = {
-    fname : string;
-    formals : string list;
-    locals : string list;
-    body : stmt list;
-    rettype: string;
-}
-
 type var_decl = {
     vartype : string;
     varname : string;
-    varsize: int;
+}
+
+type func_decl = {
+    fname : string;
+    formals : var_decl list;
+    locals : var_decl list;
+    body : stmt list;
+    rettype : string;
 }
 
 type brick = {
-  mutable color: string;
-  mutable height: int;
-  mutable width: int;
-  mutable x: int;
-  mutable y: int;
+  mutable bcolor: expr;
+  mutable bheight: expr;
+  mutable bwidth: expr;
+  mutable bx: expr;
+  mutable by: expr;
 }
 
 type player = {
-  mutable color: string;
-  mutable shape: string;
-  mutable height: int;
-  mutable width: int;
-  mutable y: int;
+  mutable pcolor: expr;
+  mutable pshape: expr;
+  mutable pheight: expr;
+  mutable pwidth: expr;
+  mutable py: expr;
 }
 
 type map = {
-  mutable height: int;
-  mutable width: int;
-  mutable generator: string;
+  mutable mheight: expr;
+  mutable mwidth: expr;
+  mutable mgenerator: expr;
 }
 
-type program = string list * func_decl list
+type program = var_decl list * func_decl list
 
-let getInt v = 
-    match v with
-      LiteralInt(v) -> v
-    | _ -> 0
-        
-let getBool v = 
-    match v with
-      LiteralBool(v) -> v
-    | LiteralInt(1) -> true    
-    | _ -> false
-
-let getFloat v = 
-    match v with
-      LiteralFloat(v) -> v
-    | _ -> 0.0
-        
-let getChar v = 
-    match v with
-      LiteralChar(v) -> v    
-    | _ -> ''
-
-let getString v = 
-    match v with
-      LiteralString(v) -> v
-    | _ -> ""
-
-let getMap v = 
-    match v with
-      Map(v) -> v
-    | _ -> {height: 0; width: 0; generator: nil}
-
-let getPlayer v = 
-    match v with
-      Player(v) -> v
-    | _ -> {color: nil; shape: nil; height: 0; width: 0; y: 0}
-
-let rec string_of_expr = function
-    LiteralInt(l) -> string_of_int l
-  | LiteralBool(l) -> string_of_bool l
-  | LiteralFloat(l) -> string_of_float l
-  | LiteralChar(l) -> string_of_char l
-  | LiteralString(l) -> l
-  | Id(s) -> s
-  | Brick(s, i1, i2, i3, i4) -> 
-    "Brick {\ncolor: " ^ s ^ 
-      ",\nheight: " ^ i1 ^ 
-      ",\nwidth: " ^ i2 ^
-      ",\nx: " ^ i3 ^ 
-      ",\ny: " ^ i4 ^ "}"
-  | Player(s1, s2, i1, i2, i3) ->
-    "Player {\ncolor: " ^ s1 ^
-      ",\nshape: " ^ s2 ^
-      ",\nheight: " ^ i1 ^
-      ",\nwidth: " ^ i2 ^
-      ",\ny: " ^ i3 ^ "}"
-  | Map(i1, i2, e) ->
-    "Map {\nheight: " ^ i1 ^
-      ",\nwidth: " ^ i2 ^
-      ",\ngenerator: " ^ string_of_expr e
-  | Ref(s1, s2) ->
-    string_of_expr s1 ^ "." ^ string_of_expr s2
-  | Binop(e1, o, e2) ->
-      string_of_expr e1 ^ " " ^
-      (match o with
-	Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
-      | Equal -> "==" | Neq -> "!="
-      | Less -> "<" | Leq -> "<=" | Greater -> ">" | Geq -> ">=") ^ " " ^
-      string_of_expr e2
-  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
-  | Call(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | Noexpr -> ""
-
-let rec string_of_stmt = function
-    Block(stmts) ->
-      "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
-  | Expr(expr) -> string_of_expr expr ^ ";\n";
-  | Return(expr) -> "return " ^ string_of_expr expr ^ ";\n";
-  | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
-  | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" ^
-      string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
-  | For(e1, e2, e3, s) ->
-      "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
-      string_of_expr e3  ^ ") " ^ string_of_stmt s
-  | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
-
-let string_of_vdecl id = "int " ^ id ^ ";\n"
-
-let string_of_fdecl fdecl =
-  fdecl.fname ^ "(" ^ String.concat ", " fdecl.formals ^ ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.locals) ^
-  String.concat "" (List.map string_of_stmt fdecl.body) ^
-  "}\n"
-
-let string_of_program (vars, funcs) =
-  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_fdecl funcs)
