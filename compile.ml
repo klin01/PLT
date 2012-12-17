@@ -20,24 +20,18 @@ let varTypeMap = {
   varname: StringMap.empty;
 }
 
-let rec enumTypes = function
-    [] -> []
-  | hd::tl -> 
-      match hd.vartype with
-        "int" ->    (hd.varname, "int") :: enumTypes tl
-      | "string" -> (hd.varname, "string") :: enumTypes tl 
-      | "Brick" ->  (hd.varname, "Brick") :: enumTypes tl
-          (* Brick size : 3 int (color), 1 int for vertex array, 2 for x and y, 1 int for type (3) = 7 *) 
-      | "Player" -> (hd.varname, "Player") :: enumTypes tl 
-          (* Player size :  3 int (color), 1 int for vertex array, 1 int (y), 1 for type (4) = 6 *)
-      | "Map" ->    (hd.varname, "Map") :: enumTypes tl 
-          (* Map size : 1 int for generator function, 2 x 1 int (h, w), 1 for type (5) = 4 *)
-      | "Arrayint" ->    (hd.varname, "Arrayint") :: enumTypes tl
-      | "Arraystring" -> (hd.varname, "Arraystring") :: enumTypes tl
-      | "ArrayBrick" ->  (hd.varname, "ArrayBrick") :: enumTypes tl
-      | "ArrayPlayer" -> (hd.varname, "ArrayPlayer") :: enumTypes tl
-      | "ArrayMap" ->    (hd.varname, "ArrayMap") :: enumTypes tl
-      | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
+let string_split s =
+  let rec f str lst =
+    try
+      if (String.length str) = 0 then 
+        lst 
+      else
+        let space_index = (String.index str ' ')
+        and slength = (String.length str) in
+        f (String.sub str (space_index + 1) (slength - space_index - 1)) 
+          (if (space_index = 0) then lst else (String.sub str 0 space_index :: lst))
+    with Not_found -> str :: lst
+  in f s [];;
 
 (* val enum : int -> 'a list -> (int * 'a) list *)
 let rec enum stride n = function
@@ -142,7 +136,9 @@ let translate (globals, functions) =
           @ (try [Lfpa (StringMap.find varray env.local_index)]
              with Not_found -> try [Loda (StringMap.find varray env.global_index)]
              with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
-          @ [Litstr color] 
+          @ (let colorlits = (List.map (fun a -> [Litint (int_of_string a)]) (string_split color))
+             in if ((List.length colorlits) = 3) then colorlits
+                else raise (Failure ("incorrect color string passed in : \"" ^ color ^ "\"")))
           @ [Litint 3]
           @ [MakeB]
 
@@ -150,7 +146,9 @@ let translate (globals, functions) =
           expr y @ (try [Lfpa (StringMap.find varray env.local_index)]
                     with Not_found -> try [Loda (StringMap.find varray env.global_index)]
                     with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
-          @ [Litstr color]
+          @ (let colorlits = (List.map (fun a -> [Litint (int_of_string a)]) (string_split color))
+             in if ((List.length colorlits) = 3) then colorlits
+                else raise (Failure ("incorrect color string passed in : \"" ^ color ^ "\"")))
           @ [Litint 4]
           @ [MakeP]
 
