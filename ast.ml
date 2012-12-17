@@ -6,17 +6,17 @@ type expr =
     LiteralInt of int                  (* Integers *)
   | LiteralString of string            (* Strings *)
   | Id of string                       (* reference a variable *)
-  | Brick of expr * expr * expr * expr (* construct a Brick: Brick(color, array of points, x, y) *)
-  | Player of expr * expr * expr       (* construct Player: Player(color, array of points, y) *)
+  | Brick of expr * string * expr * expr (* construct a Brick: Brick(color, array of points, x, y) *)
+  | Player of expr * string * expr       (* construct Player: Player(color, array of points, y) *)
   | Array of string
-  | Map of expr * expr * expr          (* construct Map: Map(height, width, generator function) *)
+  | Map of expr * expr * string          (* construct Map: Map(height, width, generator function) *)
   | Ref of expr * expr                 (* reference properties of object: Ref(parent, child) *)
-  | AAccess of expr * expr             (* array access: AAccess(arrayname, index) *)
-  | AAssign of expr * expr * expr      (* assign value to index of array: AAssign(arrayid, index, value) *)
+  | AAccess of string * expr             (* array access: AAccess(arrayname, index) *)
+  | AAssign of string * expr * expr      (* assign value to index of array: AAssign(arrayid, index, value) *)
   | Binop of expr * op * expr          (* binary operations: Binop(value, operator, value) *)
   | Not of expr                        (* boolean negation *)
-  | Assign of expr * expr              (* assign value to variable *)
-  | Call of expr * expr list           (* Call functions *)
+  | Assign of string * expr              (* assign value to variable *)
+  | Call of string * expr list           (* Call functions *)
   | Noexpr
 
 type stmt =
