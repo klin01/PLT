@@ -238,7 +238,7 @@ let translate (globals, functions) =
                                 let strPlayer = (match actuals with
                                                     hd :: tl -> (match (List.nth tl 0) with
                                                                     Id(x) -> expr Id(x)
-                                                                    AAccess(a, i) -> expr AAccess(a, i)
+                                                                  | AAccess(a, i) -> expr AAccess(a, i)
                                                                 )) in
                                 strPlayer
                               )
