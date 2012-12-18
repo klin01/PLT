@@ -255,7 +255,6 @@ let translate (globals, functions) =
         )
 
       | Assign (s, e) ->
-          print_endline ("assign addr " ^ s ^ " " ^ (string_of_int (StringMap.find s env.local_index)));
            expr e @
           (try [Sfp (StringMap.find s env.local_index)]
           with Not_found -> try [Str (StringMap.find s env.global_index)]

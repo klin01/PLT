@@ -29,6 +29,7 @@ function $main : void ()
 	$printint($p1.$y);
 
 	$p3 : $playerArr[0];
+	
 
 	$printstring("Should print 400");
 	$printint($p3.$vertices[0]);
