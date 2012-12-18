@@ -562,8 +562,8 @@ let execute_prog prog =
   | CloseWin -> (* Closes graphical display *)
       Graphics.clear_graph (); exec fp (sp) (pc+1)
   | CheckCollision -> (* Put a boolean on top of stack depending on whether there is a collision of player and bricks *)
+  | CheckUserInput -> 
   | DrawPlayer -> (* Draws the player on top of the stack *)
-
   | Move ->
       (* Get change in x, and change in y, replace x and y in object on stack *)
       let movex = stack.(sp-2) in

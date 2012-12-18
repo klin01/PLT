@@ -22,6 +22,7 @@ type bstmt =
   | CloseWin              (* Closes the display window *)
   | DrawPlayer            (* Draws a player object on top of the stack *)
   | CheckCollision        (* Checks if the player object has collided with anyone *)
+  | CheckUserInput        (* Checks for user input and modifies player on stack *)
   | Hlt                   (* Terminate *)
   | Nt
 
