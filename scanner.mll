@@ -13,7 +13,7 @@ rule token = parse
 | '+' { PLUS } | '-' { MINUS }
 | '*' { TIMES } | '/' { DIVIDE }
 | ':' { ASSIGN } | '=' { EQ }
-| '%' { MOD } | '^' { EXP }
+| '%' { MOD }
 | "!=" { NEQ } | '<' { LT }
 | "<=" { LEQ } | '>' { GT }
 | ">=" { GEQ } | "if" { IF } (* keywords *)

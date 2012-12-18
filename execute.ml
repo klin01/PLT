@@ -181,9 +181,9 @@ let execute_prog prog =
   | Loda -> (* Load an index of a global array, first element on stack is address of array, next element is index of array *)
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-1) <> 3) then raise(Failure("Type error: Array index must be an integer!")) else
-    let array_address = stack.(sp-2)
-    and elem_index = stack.(sp-4)
-    and var_type_id = globals.(array_address) in
+    let i = stack.(sp-2)
+    and elem_index = stack.(sp-4) in
+    let var_type_id = globals.(i) in
     let elem_size = 
       (
         match var_type_id with
@@ -228,8 +228,8 @@ let execute_prog prog =
     if (stack.(sp-1) <> 3) then raise(Failure("Type error: Array index must be an integer.")) else
     let array_address = stack.(sp-2)
     and obj_id = stack.(sp-5) 
-    and loffset = stack.(sp-4)
-    and var_type_id = globals.(array_address) in
+    and offset = stack.(sp-4) in
+    let var_type_id = globals.(array_address) in
     let elem_type =
     (
       match var_type_id with
@@ -393,8 +393,8 @@ let execute_prog prog =
   | Lfpa -> (* Load index of local array, based on next integer on stack *)
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
-    let i = stack.(sp-2) (* array address *)
-    and obj_id = stack.(fp+i)
+    let i = stack.(sp-2) in (* array address *)
+    let obj_id = stack.(fp+i)
     and loffset = stack.(sp-4) in
     ( 
       match obj_id with
@@ -414,8 +414,8 @@ let execute_prog prog =
           exec fp (sp+13) (pc+1)
       | 9 -> (* ArrayPlayer *)
           for j=0 to 10 do
-            stack.(sp+j) <- stack.(fp+i-11+j)
-            stack.(sp+j) <- stack.(fp+i-11+j-loffset*11)
+            stack.(sp+j) <- stack.(fp+i-11+j);
+            stack.(sp+j) <- stack.(fp+i-11+j-loffset*11);
           done;
           exec fp (sp+11) (pc+1)
       | 10 -> (* ArrayMap *)
@@ -430,8 +430,8 @@ let execute_prog prog =
   | Sfpa -> (* Store into index of array the next item on stack after index *)
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else 
     if (stack.(sp-3) <> 3) then raise(Failure("Type error: Array index must be an integer.")) else 
-    let i = stack.(sp-2) (* array address *)
-    and obj_id = stack.(sp-5) 
+    let i = stack.(sp-2) in (* array address *)
+    let obj_id = stack.(sp-5) 
     and loffset = stack.(sp-4)
     and array_type_id = stack.(fp+i) in
     if (obj_id <> (match array_type_id with
@@ -483,13 +483,16 @@ let execute_prog prog =
 
       if var_type_id <> 2 then raise (Failure("Type error: Unable to call printstring on nonstring."))
       else let strLen = stack.(sp-2) in
-              let rec buildStr remaining str = if (remaining > 2) then
-                  buildStr (remaining-1) ((Char.escaped (char_of_int (stack.(sp-remaining-2)))) ^ str) in
-                  print_endline (buildStr strLen "")
+              let rec buildStr remaining str = if (remaining > 0) then
+                  buildStr (remaining-1) ((Char.escaped (char_of_int (stack.(sp-remaining-2)))) ^ str) else str in
+                  print_endline (buildStr strLen "");
+                  exec fp sp (pc+1)          
   | Jsr(-5) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
   | Jsr(-6) -> (* Push *)
+        ()
   | Jsr(-7) -> (* CallGenerator function of map on top of stack *)
+        ()
   | Jsr i   -> stack.(sp)   <- pc + 1       ; exec fp (sp+1) i
   | Ent i   -> stack.(sp)   <- fp           ; exec sp (sp+i+1) (pc+1)
   | Rts i   -> 
@@ -562,36 +565,17 @@ let execute_prog prog =
   | CloseWin -> (* Closes graphical display *)
       Graphics.clear_graph (); exec fp (sp) (pc+1)
   | CheckCollision -> (* Put a boolean on top of stack depending on whether there is a collision of player and bricks *)
-  | CheckUserInput -> 
+        ()
+  | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
+        ()
   | DrawPlayer -> (* Draws the player on top of the stack *)
-  | Move ->
-      (* Get change in x, and change in y, replace x and y in object on stack *)
-      let movex = stack.(sp-2) in
-      let movey = stack.(sp-4) in
-      let obj_id = stack.(sp-5) in
-      (
-          match obj_id with
-              1 ->  raise (IllegalMove)
-            | 2 ->  raise (IllegalMove)
-
-            | 3 -> (* Moves x and y for brick *)
-                  stack.(sp-10) <- (stack.(sp-10) + movex)
-                  stack.(sp-11) <- (stack.(sp-10) + movey)
-                  exec fp sp (pc+1)
-
-            | 4 -> (* Only moves y coordinate for player *)
-                  stack.(sp-10) <- (stack.(sp-10) + movey)
-                  exec fp sp (pc+1)
-                  
-            | 5 -> raise (IllegalMove)
-            | _ -> raise(Failure("Unmatched type!!")))
-
+        ()
   | Nt ->
     if (stack.(sp-1) <> 1) then 
       raise(Failure("Cannot apply 'Not' to non-int")) else
-      (if stack.(sp-2) = 1 then stack.(sp-2) <- 0
+        if (stack.(sp-2) = 1) then stack.(sp-2) <- 0
         else if stack.(sp-2) = 2 then stack.(sp-2) <- 1
-        else raise(Failure("'Not' can only apply to 1 or 0")))
+        else raise(Failure("'Not' can only apply to 1 or 0"));
       exec fp sp (pc+1)
 
   | Hlt     -> ()

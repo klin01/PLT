@@ -50,28 +50,30 @@ let rec string_of_expr = function
     LiteralInt(l) -> string_of_int l
   | LiteralString(l) -> "\"" ^ l ^ "\""
   | Id(s) -> s
-  | Brick(c, a, x, y) -> 
-    "Brick(" ^  c ^ 
+  | Brick(r, g, b, a, x, y) -> 
+    "Brick(" ^ string_of_expr r ^
+      ", " ^ string_of_expr g ^
+      ", " ^ string_of_expr b ^  
       ", " ^  a ^ 
       ", " ^ string_of_expr x ^
       ", " ^ string_of_expr y ^ ")"
-  | Player(c, a, y) ->
-    "Player(" ^ string_of_expr c ^
+  | Player(r, g, b, a, y) ->
+    "Player(" ^  string_of_expr r ^
+      ", " ^ string_of_expr g ^
+      ", " ^ string_of_expr b ^
       ", " ^  a ^
       ", " ^ string_of_expr y ^ ")"
   | Map(i1, i2, e) ->
     "Map(" ^ string_of_expr i1 ^
       ", " ^ string_of_expr i2 ^
       ", " ^  e ^ ")"
-  | Ref(s1, s2) ->
-    string_of_expr s1 ^ "." ^ string_of_expr s2
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^
       (match o with
         Add -> "+" | Sub -> "-" | Mult -> "*" | Div -> "/"
       | Equal -> "=" | Neq -> "!:"
       | Less -> "<" | Leq -> "<:" | Greater -> ">" | Geq -> ">:" | And -> "&&"
-      | Or -> "||" | Mod -> "%" | Exp -> "^") ^ " " ^
+      | Or -> "||" | Mod -> "%" ) ^ " " ^
       string_of_expr e2
   | Array(a) -> "new Array " ^ a 
   | Assign(v, e) ->  v ^ " : " ^ string_of_expr e

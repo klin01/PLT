@@ -233,7 +233,7 @@ let translate (globals, functions) =
                                @ [StrRef]) *)
       | Call (fname, actuals) -> 
           if (fname = "Run") then
-            let actualVars = (List.concat (List.map expr (List.rev actuals))) in
+            let actualVars = (List.concat (List.map expr actuals)) in
             if (List.length actualVars) <> 2 then raise(Failure("The function run expects 2 parameters.")) else
             let loadMap = [List.hd actualVars]
             and loadPlayer = [List.nth actualVars 1] in
@@ -243,8 +243,9 @@ let translate (globals, functions) =
                                                     hd :: tl -> (match (List.nth tl 0) with
                                                                     Id(x) -> expr (Id(x))
                                                                   | AAccess(a, i) -> expr (AAccess(a, i))
+                                                                  | _ -> raise(Failure("The second argument of run must be a reference to a player object.")))
                                                  | [] -> raise(Failure("Run must be applied to two arguments."))
-                                                )) in
+                                                ) in
                                 strPlayer
                               )
                             @ loadPlayer @ (expr (Call("DrawPlayer", [List.nth actuals 1]))) @ (expr (Call("CallGenerator", [List.nth actuals 0])))) in

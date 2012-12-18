@@ -40,7 +40,6 @@ let string_of_stmt = function
   | Bin(Ast.Mult) -> "Mul"
   | Bin(Ast.Div) -> "Div"
   | Bin(Ast.Mod) -> "Mod"
-  | Bin(Ast.Exp) -> "Exp"
   | Bin(Ast.Equal) -> "Eql"
   | Bin(Ast.Neq) -> "Neq"
   | Bin(Ast.Less) -> "Lt"

@@ -1,4 +1,4 @@
-type op = Add | Sub | Mult | Div | Mod | Exp | Equal | Neq | Less | Leq | Greater | Geq | And | Or
+type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Geq | And | Or
 
 (* TODO: Compiler will complain if we don't use "string" in Map and Brick *)
 

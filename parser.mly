@@ -1,7 +1,7 @@
 %{ open Ast %}
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN
-%token SHORTADD SHORTMINUS SHORTTIMES SHORTDIVIDE MOD EXP REF INVOKE
+%token SHORTADD SHORTMINUS SHORTTIMES SHORTDIVIDE MOD REF
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE INT
 %token AND OR NOT
@@ -24,7 +24,6 @@
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
-%left EXP
 %left REF INVOKE
 
 %start program
@@ -119,7 +118,6 @@ expr:
   | expr TIMES  expr      { Binop($1, Mult,  $3) }
   | expr DIVIDE expr      { Binop($1, Div,   $3) }
   | expr MOD    expr      { Binop($1, Mod,   $3) }
-  | expr EXP    expr      { Binop($1, Exp,   $3) }
   | expr EQ     expr      { Binop($1, Equal, $3) }
   | expr NEQ    expr      { Binop($1, Neq,   $3) }
   | expr LT     expr      { Binop($1, Less,  $3) }
