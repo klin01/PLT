@@ -1,0 +1,34 @@
+function $main : void ()
+{
+	Player $p1;
+	Array int $vertices;
+
+	$vertices : new Array int;
+
+	$vertices[0] : 400;
+	$vertices[1] : 200;
+	$vertices[2] : 150;
+	$vertices[3] : 300;
+
+	$p1 : new Player(0,0,255,$vertices,10);
+	
+	$printstring("Should print 400 200 150 300");
+	$printint($p1.$vertices[0]);
+	$printint($p1.$vertices[1]);
+	$printint($p1.$vertices[2]);
+	$printint($p1.$vertices[3]);
+
+	$printstring("");
+
+	$p1.$vertices[0] : 100;
+	$p1.$vertices[1] : 200;
+	$p1.$vertices[2] : 300;
+	$p1.$vertices[3] : 400;
+
+	$printstring("Should print 100 200 300 400");
+	$printint($p1.$vertices[0]);
+	$printint($p1.$vertices[1]);
+	$printint($p1.$vertices[2]);
+	$printint($p1.$vertices[3]);
+
+}

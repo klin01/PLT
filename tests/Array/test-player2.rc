@@ -1,9 +1,13 @@
 function $main : void ()
 {
 	Player $p1;
-	Array int $vertices;
-	$vertices : new Array int;
+	Player $p3;
 
+	Array int $vertices;
+	Array Player $playerArr;
+
+	$vertices : new Array int;
+	$playerArr : new Array Player;
 
 	$vertices[0] : 400;
 	$vertices[1] : 200;
@@ -12,16 +16,20 @@ function $main : void ()
 
 	$p1 : new Player(0,0,255,$vertices,10);
 
+	$playerArr[0] : $p1;
+	
 	$printstring("Should print 0 0 255 10");
 	$printint($p1.$colorR);
 	$printint($p1.$colorG);
 	$printint($p1.$colorB);
 	$printint($p1.$y);
 
-
+	$p3 : $playerArr[0];
+	
+	$printstring("");
 	$printstring("Should print 400 200 150 300");
-	$printint($p1.$vertices[0]);
-	$printint($p1.$vertices[1]);
-	$printint($p1.$vertices[2]);
-	$printint($p1.$vertices[3]);
+	$printint($p3.$vertices[0]);
+	$printint($p3.$vertices[1]);
+	$printint($p3.$vertices[2]);
+	$printint($p3.$vertices[3]);
 }

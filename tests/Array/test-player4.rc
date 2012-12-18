@@ -1,0 +1,38 @@
+Array Player $playerArr;
+
+function $printAllPlayers : void ()
+{
+	int $i;
+	Player $p3;
+	for ($i : 0; $i < 2; $i +: 1) {
+		$printstring("Printing Player: ");
+		$p3 : $playerArr[$i];
+		$printint($p3.$colorR);
+		$printint($p3.$colorG);
+		$printint($p3.$colorB);
+		$printint($p3.$y);
+	}
+}
+
+
+function $main : void ()
+{
+	Player $p1;
+	Player $p2;
+	Array int $vertices;
+	$vertices  : new Array int;
+	$playerArr : new Array Player;
+
+	$vertices[0] : 100;
+	$vertices[1] : 200;
+	$vertices[2] : 300;
+	$vertices[3] : 400;
+
+	$p1 : new Player(20,10,255,$vertices,10);
+	$p2 : new Player(255,20,10,$vertices,0);
+
+	$playerArr[0] : $p1;
+	$playerArr[1] : $p2;
+	
+	$printAllPlayers();
+}

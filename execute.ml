@@ -190,10 +190,10 @@ let execute_prog prog =
       | _ -> raise(Failure("Type error: Unable to store variable of unknown type."))
     )
   | Loda -> (* Load an index of a global array, first element on stack is address of array, next element is index of array *)
-            print_endline ("loda" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+            (*print_endline ("loda" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
                   ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
                   ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;*)
 
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer!")) else
@@ -218,7 +218,7 @@ let execute_prog prog =
         6 -> (* Arrayint *)
           stack.(sp-4) <- globals.(i-2-elem_size*elem_index);
           stack.(sp+1-4) <- globals.(i-1-elem_size*elem_index);
-          print_endline("loaded" ^ string_of_int stack.(sp));
+          (*print_endline("loaded" ^ string_of_int stack.(sp));*)
           exec fp (sp-2) (pc+1)
       | 7 -> (* Arraystring *)
           for j=0 to 39 do
