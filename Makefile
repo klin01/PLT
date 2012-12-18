@@ -1,6 +1,6 @@
 # TODO: Change "microc" to "retrocraft"
 OBJS = ast.cmo scanner.cmo parser.cmo bytecode.cmo compile.cmo execute.cmo
-COMPILER = microc.cmo
+COMPILER = retrocraft.cmo
 TESTS = tests.cmo runtest.cmo
 
 CONF=-I +threads
@@ -52,9 +52,9 @@ execute.cmo: bytecode.cmo ast.cmo
 execute.cmx: bytecode.cmx ast.cmx 
 #interpret.cmo: ast.cmo 
 #interpret.cmx: ast.cmx 
-microc.cmo: scanner.cmo parser.cmi execute.cmo compile.cmo \
+retrocraft.cmo: scanner.cmo parser.cmi execute.cmo compile.cmo \
     bytecode.cmo ast.cmo tests.cmo
-microc.cmx: scanner.cmx parser.cmx execute.cmx compile.cmx \
+retrocraft.cmx: scanner.cmx parser.cmx execute.cmx compile.cmx \
     bytecode.cmx ast.cmx tests.cmx
 parser.cmo: ast.cmo parser.cmi 
 parser.cmx: ast.cmx parser.cmi 

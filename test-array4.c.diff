@@ -1,0 +1,74 @@
+1,50c1,22
+< positive stride
+< a assign$myInt
+< a assign$myInt
+< a assign$myInt
+< a assign$myInt
+< a access$myInt
+< a assign$myInt
+< a access$myInt
+< a assign$myInt
+< a access$myInt
+< a access$myInt
+< a assign$myInt
+< a access$myInt
+< a access$myInt
+< a access$myInt
+< a access$myInt
+< a access$myInt
+< a access$myInt
+< Global arith array, prints 41 27 10 30
+< stra1 200 1 0 1 7 1 0 1
+< stra1 200 1 1 1 21 1 0 1
+< stra1 200 1 95 1 9 1 1 1
+< loda1 200 1 0 1 48 1 95 1
+< loaded0
+< stra1 200 1 96 1 41 1 95 1
+< loda1 200 1 95 1 96 1 41 1
+< loaded0
+< stra1 200 1 97 1 27 1 96 1
+< loda1 200 1 1 1 97 1 27 1
+< loaded0
+< loda1 200 1 0 1 3 1 97 1
+< loaded0
+< stra1 200 1 98 1 10 1 97 1
+< loda1 200 1 95 1 98 1 10 1
+< loaded0
+< loda1 200 1 1 1 9 1 98 1
+< loaded0
+< stra1 200 1 99 1 30 1 98 1
+< loda1 200 1 96 1 99 1 30 1
+< loaded0
+< 41
+< loda1 200 1 97 1 99 1 30 1
+< loaded0
+< 27
+< loda1 200 1 98 1 99 1 30 1
+< loaded0
+< 10
+< loda1 200 1 99 1 99 1 30 1
+< loaded0
+< 30
+---
+> Array int $myInt;
+> function $main : void ()
+> {
+> 	int $i;
+> 	
+> 	$printstring("Global arith array, prints 41 27 10 30");
+> 
+> 	$myInt : new Array int;
+> 	
+> 	$myInt[0] : 7;
+> 	$myInt[1] : 21;
+> 	$myInt[95] : 9;
+> 	$myInt[96] : (48 - $myInt[0]); 
+> 	$myInt[97] : ($myInt[95] * 3);
+> 	$myInt[98] : ($myInt[1] / 7 + $myInt[0]);
+> 	$myInt[99] : ($myInt[95] + $myInt[1]);	
+> 
+> 	$printint( $myInt[96] );
+> 	$printint( $myInt[97] );
+> 	$printint( $myInt[98] );
+> 	$printint( $myInt[99] );
+> }

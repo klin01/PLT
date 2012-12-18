@@ -1,0 +1,150 @@
+./testall.sh: line 115: CheckFail: command not found
+
+###### Testing test-arith1
+./retrocraft -c < tests/Basic/test-arith1.rc > test-arith1.c.out
+diff -b test-arith1.c.out tests/Basic/test-arith1.rc > test-arith1.c.diff
+FAILED test-arith1.c.out differs from tests/Basic/test-arith1.rc
+###### FAILED
+
+###### Testing test-arith2
+./retrocraft -c < tests/Basic/test-arith2.rc > test-arith2.c.out
+diff -b test-arith2.c.out tests/Basic/test-arith2.rc > test-arith2.c.diff
+FAILED test-arith2.c.out differs from tests/Basic/test-arith2.rc
+###### FAILED
+
+###### Testing test-arith3
+./retrocraft -c < tests/Basic/test-arith3.rc > test-arith3.c.out
+diff -b test-arith3.c.out tests/Basic/test-arith3.rc > test-arith3.c.diff
+FAILED test-arith3.c.out differs from tests/Basic/test-arith3.rc
+###### FAILED
+
+###### Testing test-fib
+./retrocraft -c < tests/Basic/test-fib.rc > test-fib.c.out
+diff -b test-fib.c.out tests/Basic/test-fib.rc > test-fib.c.diff
+FAILED test-fib.c.out differs from tests/Basic/test-fib.rc
+###### FAILED
+
+###### Testing test-for1
+./retrocraft -c < tests/Basic/test-for1.rc > test-for1.c.out
+diff -b test-for1.c.out tests/Basic/test-for1.rc > test-for1.c.diff
+FAILED test-for1.c.out differs from tests/Basic/test-for1.rc
+###### FAILED
+
+###### Testing test-func1
+./retrocraft -c < tests/Basic/test-func1.rc > test-func1.c.out
+diff -b test-func1.c.out tests/Basic/test-func1.rc > test-func1.c.diff
+FAILED test-func1.c.out differs from tests/Basic/test-func1.rc
+###### FAILED
+
+###### Testing test-func2
+./retrocraft -c < tests/Basic/test-func2.rc > test-func2.c.out
+diff -b test-func2.c.out tests/Basic/test-func2.rc > test-func2.c.diff
+FAILED test-func2.c.out differs from tests/Basic/test-func2.rc
+###### FAILED
+
+###### Testing test-func3
+./retrocraft -c < tests/Basic/test-func3.rc > test-func3.c.out
+diff -b test-func3.c.out tests/Basic/test-func3.rc > test-func3.c.diff
+FAILED test-func3.c.out differs from tests/Basic/test-func3.rc
+###### FAILED
+
+###### Testing test-gcd
+./retrocraft -c < tests/Basic/test-gcd.rc > test-gcd.c.out
+diff -b test-gcd.c.out tests/Basic/test-gcd.rc > test-gcd.c.diff
+FAILED test-gcd.c.out differs from tests/Basic/test-gcd.rc
+###### FAILED
+
+###### Testing test-global1
+./retrocraft -c < tests/Basic/test-global1.rc > test-global1.c.out
+diff -b test-global1.c.out tests/Basic/test-global1.rc > test-global1.c.diff
+FAILED test-global1.c.out differs from tests/Basic/test-global1.rc
+###### FAILED
+
+###### Testing test-hello
+./retrocraft -c < tests/Basic/test-hello.rc > test-hello.c.out
+diff -b test-hello.c.out tests/Basic/test-hello.rc > test-hello.c.diff
+FAILED test-hello.c.out differs from tests/Basic/test-hello.rc
+###### FAILED
+
+###### Testing test-if1
+./retrocraft -c < tests/Basic/test-if1.rc > test-if1.c.out
+diff -b test-if1.c.out tests/Basic/test-if1.rc > test-if1.c.diff
+FAILED test-if1.c.out differs from tests/Basic/test-if1.rc
+###### FAILED
+
+###### Testing test-if2
+./retrocraft -c < tests/Basic/test-if2.rc > test-if2.c.out
+diff -b test-if2.c.out tests/Basic/test-if2.rc > test-if2.c.diff
+FAILED test-if2.c.out differs from tests/Basic/test-if2.rc
+###### FAILED
+
+###### Testing test-if3
+./retrocraft -c < tests/Basic/test-if3.rc > test-if3.c.out
+diff -b test-if3.c.out tests/Basic/test-if3.rc > test-if3.c.diff
+FAILED test-if3.c.out differs from tests/Basic/test-if3.rc
+###### FAILED
+
+###### Testing test-if4
+./retrocraft -c < tests/Basic/test-if4.rc > test-if4.c.out
+diff -b test-if4.c.out tests/Basic/test-if4.rc > test-if4.c.diff
+FAILED test-if4.c.out differs from tests/Basic/test-if4.rc
+###### FAILED
+
+###### Testing test-ops1
+./retrocraft -c < tests/Basic/test-ops1.rc > test-ops1.c.out
+diff -b test-ops1.c.out tests/Basic/test-ops1.rc > test-ops1.c.diff
+FAILED test-ops1.c.out differs from tests/Basic/test-ops1.rc
+###### FAILED
+
+###### Testing test-var1
+./retrocraft -c < tests/Basic/test-var1.rc > test-var1.c.out
+diff -b test-var1.c.out tests/Basic/test-var1.rc > test-var1.c.diff
+FAILED test-var1.c.out differs from tests/Basic/test-var1.rc
+###### FAILED
+
+###### Testing test-while1
+./retrocraft -c < tests/Basic/test-while1.rc > test-while1.c.out
+diff -b test-while1.c.out tests/Basic/test-while1.rc > test-while1.c.diff
+FAILED test-while1.c.out differs from tests/Basic/test-while1.rc
+###### FAILED
+
+###### Testing test-array1
+./retrocraft -c < tests/Array/test-array1.rc > test-array1.c.out
+diff -b test-array1.c.out tests/Array/test-array1.rc > test-array1.c.diff
+FAILED test-array1.c.out differs from tests/Array/test-array1.rc
+###### FAILED
+
+###### Testing test-array2
+./retrocraft -c < tests/Array/test-array2.rc > test-array2.c.out
+diff -b test-array2.c.out tests/Array/test-array2.rc > test-array2.c.diff
+FAILED test-array2.c.out differs from tests/Array/test-array2.rc
+###### FAILED
+
+###### Testing test-array3
+./retrocraft -c < tests/Array/test-array3.rc > test-array3.c.out
+diff -b test-array3.c.out tests/Array/test-array3.rc > test-array3.c.diff
+FAILED test-array3.c.out differs from tests/Array/test-array3.rc
+###### FAILED
+
+###### Testing test-array4
+./retrocraft -c < tests/Array/test-array4.rc > test-array4.c.out
+diff -b test-array4.c.out tests/Array/test-array4.rc > test-array4.c.diff
+FAILED test-array4.c.out differs from tests/Array/test-array4.rc
+###### FAILED
+
+###### Testing test-array5
+./retrocraft -c < tests/Array/test-array5.rc > test-array5.c.out
+diff -b test-array5.c.out tests/Array/test-array5.rc > test-array5.c.diff
+FAILED test-array5.c.out differs from tests/Array/test-array5.rc
+###### FAILED
+
+###### Testing test-obj1
+./retrocraft -c < tests/Array/test-obj1.rc > test-obj1.c.out
+diff -b test-obj1.c.out tests/Array/test-obj1.rc > test-obj1.c.diff
+FAILED test-obj1.c.out differs from tests/Array/test-obj1.rc
+###### FAILED
+
+###### Testing test-obj2
+./retrocraft -c < tests/Array/test-obj2.rc > test-obj2.c.out
+Fatal error: exception Failure("Type error: Attempt to access the index of a nonarray.")
+###### FAILED

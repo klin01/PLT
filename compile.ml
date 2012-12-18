@@ -169,20 +169,20 @@ let translate (globals, functions) =
           (try [Lfp (StringMap.find s env.local_index)]
            with Not_found -> try [Lod (StringMap.find s env.global_index)]
            (*with Not_found -> try [Lodf (StringMap.find s env.function_index)]*)
-           with Not_found -> raise (Failure ("undeclared variable " ^ s)))
+           with Not_found -> raise (Failure ("undeclared Id " ^ s)))
 
       | Brick (r, g, b, varray, x, y) ->
           expr y @ expr x 
-          @ (try [Litint (StringMap.find varray env.function_index)]
-             (*with Not_found -> try [Litint (StringMap.find varray env.global_index)]*)
-             with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
+          @ (try [Litint (StringMap.find varray env.local_index)]
+             with Not_found -> try [Litint (StringMap.find varray env.global_index)]
+             with Not_found -> raise (Failure ("undeclared Brick " ^ varray)))
           @ expr b @ expr g @ expr r
           @ [Litint 3] @ [Make]
 
       | Player (r, g, b, varray, y) ->
           expr y @ (try [Lfp (StringMap.find varray env.local_index)]
                     with Not_found -> try [Lod (StringMap.find varray env.global_index)]
-                    with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
+                    with Not_found -> raise (Failure ("undeclared Player " ^ varray)))
           @ expr b @ expr g @ expr r
           @ [Litint 4] @ [Make]
 
@@ -214,13 +214,14 @@ let translate (globals, functions) =
           expr i @ 
           (try [Litint (StringMap.find a env.local_index)] @ [Lfpa]
           with Not_found -> try[Litint (StringMap.find a env.global_index)] @ [Loda]
-          with Not_found -> raise (Failure ("undeclared variable" ^ a)))
+          with Not_found -> raise (Failure ("AAccess: undeclared array " ^ a)))
       | AAssign(a, i, e) ->
+          print_endline("a assign" ^ a);
           (*print_endline("i " ^ string_of_expr i); print_endline("a " ^ a); print_endline("e " ^ string_of_expr e);*)
           expr e @ expr i @
           (try [Litint (StringMap.find a env.local_index)] @ [Sfpa]
           with Not_found -> try [Litint (StringMap.find a env.global_index)] @ [Stra]
-          with Not_found -> raise (Failure ("undeclared variable" ^ a)))
+          with Not_found -> raise (Failure ("AAssign: undeclared array " ^ a)))
       | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
       | Not(e) -> 
         expr e @ [Nt]
@@ -228,7 +229,7 @@ let translate (globals, functions) =
           expr e @
           (try [Sfp (StringMap.find s env.local_index)]
           with Not_found -> try [Str (StringMap.find s env.global_index)]
-          with Not_found -> raise (Failure ("undeclared variable " ^ s)))
+          with Not_found -> raise (Failure ("Binop: undeclared variable " ^ s)))
     (*     | Ref(base, child) -> [Litstr child]
                                @ (try [Litint 1] @ [Litint (StringMap.find base env.local_index)]
                                   with Not_found -> try [Litint 2] @ [Litint (StringMap.find base env.global_index)]

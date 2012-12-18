@@ -1,0 +1,17 @@
+positive stride
+a assign$myInt
+a assign$myInt
+a assign$myInt
+a access$myInt
+a access$myInt
+a access$myInt
+Local array, prints 7 21 9
+sfpa1 201 1 0 1 7 1 0 1
+sfpa1 201 1 1 1 21 1 0 1
+sfpa1 201 1 99 1 9 1 1 1
+lfpa1 201 1 0 1 99 1 9 1
+7
+lfpa1 201 1 1 1 99 1 9 1
+21
+lfpa1 201 1 99 1 99 1 9 1
+9

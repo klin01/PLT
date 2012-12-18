@@ -1,0 +1,10 @@
+1,2c1,6
+< Should be 3
+< 3
+---
+> 
+> function $main : void ()
+> {
+> 	$printstring("Should be 3");
+> 	$printint(29 % 13);
+> }

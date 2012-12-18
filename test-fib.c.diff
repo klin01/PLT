@@ -1,0 +1,40 @@
+1,12c1,26
+< Should be 1
+< 1
+< Should be 1
+< 1
+< Should be 2
+< 2
+< Should be 3
+< 3
+< Should be 5
+< 5
+< Should be 8
+< 8
+---
+> function $fib : int (int $x)
+> {
+>   if ($x < 2) return 1;
+>   return $fib($x - 1) + $fib($x - 2);
+> }
+> 
+> function $main : void ()
+> {
+> 	$printstring("Should be 1");
+> 	$printint( $fib(0) );
+> 
+> 	$printstring("Should be 1");
+> 	$printint( $fib(1) );
+> 
+> 	$printstring("Should be 2");
+> 	$printint( $fib(2) );
+> 
+> 	$printstring("Should be 3");
+> 	$printint( $fib(3) );
+> 
+> 	$printstring("Should be 5");
+> 	$printint( $fib(4) );
+> 	
+> 	$printstring("Should be 8");
+> 	$printint( $fib(5) );
+> }

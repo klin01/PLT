@@ -1,0 +1,12 @@
+1,2c1,8
+< Should print 42
+< 42
+---
+> function $main : void ()
+> {
+>   int $a;
+>   $a : 42;
+> 
+>   $printstring("Should print 42");
+>   $printint( $a );
+> }
