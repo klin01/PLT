@@ -4,6 +4,7 @@ open Bytecode
 module StringMap = Map.Make(String)
 
 let array_def_size = 100
+let a = 1
 
 (* Symbol table: Information about all the names in scope *)
 type env = {
@@ -70,11 +71,11 @@ let rec enum stride n = function
         (n + 4, hd.varname ^ ".$width") ::
         (n + 6, hd.varname) :: enum stride (n+stride * 7) tl 
           (* Map size : 1 * 2 int for generator function, 2 x 2 int (h, w), 1 for type (5) = 7 *)
-      | "Arrayint" ->    (n + 2*array_def_size-1, hd.varname) :: enum stride (n+stride * 2 * array_def_size + 1) tl
-      | "Arraystring" -> (n + 40*array_def_size-1, hd.varname) :: enum stride (n+stride * 40 * array_def_size + 1) tl
-      | "ArrayBrick" ->  (n + 13*array_def_size-1, hd.varname) :: enum stride (n+stride * 13 * array_def_size + 1) tl
-      | "ArrayPlayer" -> (n + 11*array_def_size-1, hd.varname) :: enum stride (n+stride * 11 * array_def_size + 1) tl
-      | "ArrayMap" ->    (n + 7*array_def_size-1, hd.varname) :: enum stride (n+stride * 7 * array_def_size + 1) tl
+      | "Arrayint" ->   print_endline("positive stride"); (n + 2*array_def_size, hd.varname) :: enum stride (n+stride * 2 * array_def_size + 1) tl
+      | "Arraystring" -> (n + 40*array_def_size, hd.varname) :: enum stride (n+stride * 40 * array_def_size + 1) tl
+      | "ArrayBrick" ->  (n + 13*array_def_size, hd.varname) :: enum stride (n+stride * 13 * array_def_size + 1) tl
+      | "ArrayPlayer" -> (n + 11*array_def_size, hd.varname) :: enum stride (n+stride * 11 * array_def_size + 1) tl
+      | "ArrayMap" ->    (n + 7*array_def_size, hd.varname) :: enum stride (n+stride * 7 * array_def_size + 1) tl
       | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
     else
       match hd.vartype with
@@ -100,11 +101,11 @@ let rec enum stride n = function
         (n - 3, hd.varname ^ ".$width" ) ::
         (n - 1, hd.varname ^ ".$height") ::
         (n, hd.varname) :: enum stride (n+stride * 7) tl 
-      | "Arrayint" ->    (n, hd.varname) :: enum stride (n+stride * 2 * array_def_size + 1) tl
-      | "Arraystring" -> (n, hd.varname) :: enum stride (n+stride * 40 * array_def_size + 1) tl
-      | "ArrayBrick" ->  (n, hd.varname) :: enum stride (n+stride * 13 * array_def_size + 1) tl
-      | "ArrayPlayer" -> (n, hd.varname) :: enum stride (n+stride * 11 * array_def_size + 1) tl
-      | "ArrayMap" ->    (n, hd.varname) :: enum stride (n+stride * 7 * array_def_size + 1) tl
+      | "Arrayint" ->   print_endline("negative stride"); (n, hd.varname) :: enum stride (n+stride * 2 * array_def_size - 1) tl
+      | "Arraystring" -> (n, hd.varname) :: enum stride (n+stride * 40 * array_def_size - 1) tl
+      | "ArrayBrick" ->  (n, hd.varname) :: enum stride (n+stride * 13 * array_def_size - 1) tl
+      | "ArrayPlayer" -> (n, hd.varname) :: enum stride (n+stride * 11 * array_def_size - 1) tl
+      | "ArrayMap" ->    (n, hd.varname) :: enum stride (n+stride * 7 * array_def_size - 1) tl
       | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
 
 (* val enum : int -> 'a list -> (int * 'a) list *)
@@ -209,7 +210,7 @@ let translate (globals, functions) =
               | _ -> raise (Failure ("Invalid array type " ^ array_type)) 
             )
       | AAccess(a, i) -> 
-          (*print_endline("i " ^ string_of_expr i); print_endline("a " ^ a);*)
+          print_endline("a access" ^ a);
           expr i @ 
           (try [Litint (StringMap.find a env.local_index)] @ [Lfpa]
           with Not_found -> try[Litint (StringMap.find a env.global_index)] @ [Loda]

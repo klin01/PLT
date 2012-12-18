@@ -17,7 +17,9 @@ let execute_prog prog =
   and globals = Array.make prog.globals_size 0 in
 
   let rec exec fp sp pc = match prog.text.(pc) with
-    Litint i  -> stack.(sp) <- i ; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1) 
+    Litint i  -> 
+    (*print_endline("litint " ^ string_of_int i);*)
+    stack.(sp) <- i ; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1) 
     (* Lit String *)
   | Litstr str -> 
     (*let trimmed = trim str in
@@ -42,7 +44,7 @@ let execute_prog prog =
     (* TODO: Are we putting type after the data onto the stack? *)
   | Drp ->
     let var_type_id = stack.(sp-1) in
-      print_endline("Drp" ^ string_of_int var_type_id);
+      (*print_endline("Drp" ^ string_of_int var_type_id);*)
       (match var_type_id with
           1 -> exec fp (sp-2) (pc+1)
         | 2 -> exec fp (sp-40) (pc+1)
@@ -54,7 +56,7 @@ let execute_prog prog =
         | 8 -> exec fp (sp-array_def_size*13-1) (pc+1)
         | 9 -> exec fp (sp-array_def_size*11-1) (pc+1)
         | 10 -> exec fp (sp-array_def_size*7-1) (pc+1)
-        | _ -> raise(Failure("Unmatched type in Drp!!")))
+        | _ -> raise(Failure("Unmatched type in Drp!!" ^ string_of_int var_type_id)))
       
   | Bin op -> 
       let op1 = stack.(sp-4) and op2 = stack.(sp-2) in     
@@ -188,15 +190,21 @@ let execute_prog prog =
       | _ -> raise(Failure("Type error: Unable to store variable of unknown type."))
     )
   | Loda -> (* Load an index of a global array, first element on stack is address of array, next element is index of array *)
+            print_endline ("loda" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
+                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer!")) else
     let i = stack.(sp-2)
     and elem_index = stack.(sp-4) in
     let var_type_id = globals.(i) in
+    (*print_endline ("var type id" ^ string_of_int globals.(i));*)
     let elem_size = 
       (
         match var_type_id with
-          1 -> 2  (* int *)
+          6 -> 2  (* int *)
         | 7 -> 40 (* string *)
         | 8 -> 13 (* Brick *)
         | 9 -> 11 (* Player *)
@@ -206,10 +214,11 @@ let execute_prog prog =
       )
     in
     (match var_type_id with
-        1 -> (* Arrayint *)
-          stack.(sp) <- globals.(i-2-elem_size*elem_index);
-          stack.(sp+1) <- globals.(i-1-elem_size*elem_index);
-          exec fp (sp+2) (pc+1)
+        6 -> (* Arrayint *)
+          stack.(sp-4) <- globals.(i-2-elem_size*elem_index);
+          stack.(sp+1-4) <- globals.(i-1-elem_size*elem_index);
+          print_endline("loaded" ^ string_of_int stack.(sp));
+          exec fp (sp-2) (pc+1)
       | 7 -> (* Arraystring *)
           for j=0 to 39 do
             stack.(sp+j) <- globals.(i-40-elem_size*elem_index+j)
@@ -233,6 +242,13 @@ let execute_prog prog =
       | _ -> raise(Failure("Type error: Global variable accessed is of unknown type."))
     )
   | Stra -> (* Store a value into global array index, top of stack is array address, next is array index, then value to store *)
+    
+            print_endline ("stra" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
+                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+
+
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
     let array_address = stack.(sp-2)
@@ -400,6 +416,11 @@ let execute_prog prog =
         | _ -> raise(Failure("Type error: Unmatched type error!"))
       )
   | Lfpa -> (* Load index of local array, based on next integer on stack *)
+
+        print_endline ("lfpa" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
+                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
     let i = stack.(sp-2) in (* array address *)
@@ -407,10 +428,11 @@ let execute_prog prog =
     and loffset = stack.(sp-4) in
     ( 
       match obj_id with
+      (* TODO: Change 7 to 10 offsets by 4 *)
         6 -> (* Arrayint *)
-          stack.(sp) <- stack.(fp+i-2-loffset*2);
-          stack.(sp+1) <- stack.(fp+i-1-loffset*2);
-          exec fp (sp+2) (pc+1)
+          stack.(sp-4) <- stack.(fp+i-2-loffset*2); (* value *)
+          stack.(sp+1-4) <- stack.(fp+i-1-loffset*2); (* type *)
+          exec fp (sp-2) (pc+1)
       | 7 -> (* Arraystring *)
           for j=0 to 39 do
             stack.(sp+j) <- stack.(fp+i-40+j-loffset*40)
@@ -437,6 +459,12 @@ let execute_prog prog =
       | _ -> raise(Failure("Type error: Attempt to access index of array of unknown type."))
     )
   | Sfpa -> (* Store into index of array the next item on stack after index *)
+
+        print_endline ("sfpa" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
+                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else 
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else 
     let i = stack.(sp-2) in (* array address *)
@@ -456,8 +484,8 @@ let execute_prog prog =
     ( 
       match array_type_id with
         6 -> (* Arrayint *)
-           stack.(fp+i-1-2*loffset) <- stack.(sp-4); 
-           stack.(fp+i-2-2*loffset) <- stack.(sp-1-4); 
+           stack.(fp+i-1-2*loffset) <- stack.(sp-5); 
+           stack.(fp+i-2-2*loffset) <- stack.(sp-6); 
            exec fp (sp) (pc+1)
       | 7 -> (* Arraystring *)
           for j=1 to 40 do
@@ -558,6 +586,12 @@ let execute_prog prog =
            stack.(base) <- sp5;
            exec new_fp (base+5) new_pc
            )*)
+      | 6 -> (* Arrayint *)
+            (for j=0 to 200 do
+              stack.(base+j) <- stack.(sp-(201-j))
+            done;
+            exec new_fp (base+2) new_pc)
+
       | _ -> raise(Failure("Unmatched type in Rts!!"));
       );
 

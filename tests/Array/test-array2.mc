@@ -1,9 +1,9 @@
+Array int $myInt;
 function $main : void ()
 {
-	Array int $myInt;
 	int $i;
 
-	$printstring("Local array, prints 7 21 9");
+	$printstring("Global array, prints 7 21 9");
 
 	$myInt : new Array int;
 	
