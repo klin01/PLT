@@ -173,8 +173,8 @@ let translate (globals, functions) =
 
       | Brick (r, g, b, varray, x, y) ->
           expr y @ expr x 
-          @ (try [Litint (StringMap.find varray env.local_index)]
-             with Not_found -> try [Litint (StringMap.find varray env.global_index)]
+          @ (try [Litint (StringMap.find varray env.function_index)]
+             (*with Not_found -> try [Litint (StringMap.find varray env.global_index)]*)
              with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
           @ expr b @ expr g @ expr r
           @ [Litint 3] @ [Make]
