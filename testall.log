@@ -1,4 +1,4 @@
-./testall.sh: line 115: CheckFail: command not found
+./testall.sh: line 117: CheckFail: command not found
 
 ###### Testing test-arith1
 ./retrocraft -c < tests/Basic/test-arith1.rc > test-arith1.c.out

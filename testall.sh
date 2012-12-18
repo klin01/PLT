@@ -53,10 +53,12 @@ Check() {
     error=0
     basename=`echo $1 | sed 's/.*\\///
                              s/.rc//'`
-    reffile=`echo $1 | sed 's/.ref.out$//'`
     basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
+    reffile=`echo $1 | sed 's/.ref.out$//'`
 
     echo -n "$basename..."
+
+    echo -n "$reffile..."
 
     echo 1>&2
     echo "###### Testing $basename" 1>&2
