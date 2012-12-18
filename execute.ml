@@ -3,6 +3,8 @@ open Bytecode
 
 exception IllegalMove;;
 
+let array_def_size = 100
+
 let explode s =
   let rec f acc = function
     | -1 -> acc
@@ -40,13 +42,19 @@ let execute_prog prog =
     (* TODO: Are we putting type after the data onto the stack? *)
   | Drp ->
     let var_type_id = stack.(sp-1) in
+      print_endline("Drp" ^ string_of_int var_type_id);
       (match var_type_id with
           1 -> exec fp (sp-2) (pc+1)
         | 2 -> exec fp (sp-40) (pc+1)
         | 3 -> exec fp (sp-13) (pc+1)
         | 4 -> exec fp (sp-11) (pc+1)
         | 5 -> exec fp (sp-7) (pc+1)
-        | _ -> raise(Failure("Unmatched type!!")))
+        | 6 -> exec fp (sp-array_def_size*2-1) (pc+1)
+        | 7 -> exec fp (sp-array_def_size*40-1) (pc+1) 
+        | 8 -> exec fp (sp-array_def_size*13-1) (pc+1)
+        | 9 -> exec fp (sp-array_def_size*11-1) (pc+1)
+        | 10 -> exec fp (sp-array_def_size*7-1) (pc+1)
+        | _ -> raise(Failure("Unmatched type in Drp!!")))
       
   | Bin op -> 
       let op1 = stack.(sp-4) and op2 = stack.(sp-2) in     
@@ -181,14 +189,14 @@ let execute_prog prog =
     )
   | Loda -> (* Load an index of a global array, first element on stack is address of array, next element is index of array *)
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
-    if (stack.(sp-1) <> 3) then raise(Failure("Type error: Array index must be an integer!")) else
+    if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer!")) else
     let i = stack.(sp-2)
     and elem_index = stack.(sp-4) in
     let var_type_id = globals.(i) in
     let elem_size = 
       (
         match var_type_id with
-          6 -> 2  (* int *)
+          1 -> 2  (* int *)
         | 7 -> 40 (* string *)
         | 8 -> 13 (* Brick *)
         | 9 -> 11 (* Player *)
@@ -198,7 +206,7 @@ let execute_prog prog =
       )
     in
     (match var_type_id with
-        6 -> (* Arrayint *)
+        1 -> (* Arrayint *)
           stack.(sp) <- globals.(i-2-elem_size*elem_index);
           stack.(sp+1) <- globals.(i-1-elem_size*elem_index);
           exec fp (sp+2) (pc+1)
@@ -226,7 +234,7 @@ let execute_prog prog =
     )
   | Stra -> (* Store a value into global array index, top of stack is array address, next is array index, then value to store *)
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
-    if (stack.(sp-1) <> 3) then raise(Failure("Type error: Array index must be an integer.")) else
+    if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
     let array_address = stack.(sp-2)
     and obj_id = stack.(sp-5) 
     and offset = stack.(sp-4) in
@@ -430,7 +438,7 @@ let execute_prog prog =
     )
   | Sfpa -> (* Store into index of array the next item on stack after index *)
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else 
-    if (stack.(sp-3) <> 3) then raise(Failure("Type error: Array index must be an integer.")) else 
+    if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else 
     let i = stack.(sp-2) in (* array address *)
     let obj_id = stack.(sp-5) 
     and loffset = stack.(sp-4)
@@ -550,7 +558,7 @@ let execute_prog prog =
            stack.(base) <- sp5;
            exec new_fp (base+5) new_pc
            )*)
-      | _ -> raise(Failure("Unmatched type!!"));
+      | _ -> raise(Failure("Unmatched type in Rts!!"));
       );
 
 
@@ -558,6 +566,8 @@ let execute_prog prog =
   | Beq i   -> exec fp (sp-1) (pc + if stack.(sp-2) =  0 then i else 1)
   | Bne i   -> exec fp (sp-1) (pc + if stack.(sp-2) != 0 then i else 1)
   | Bra i   -> exec fp sp (pc+i)
+
+  | Make    -> exec fp (sp-1) (pc+1)
 
   (* Lodf and Strf *)
   | OpenWin -> (* Opens graphical display *) 
@@ -574,7 +584,7 @@ let execute_prog prog =
     if (stack.(sp-1) <> 1) then 
       raise(Failure("Cannot apply 'Not' to non-int")) else
         if (stack.(sp-2) = 1) then stack.(sp-2) <- 0
-        else if stack.(sp-2) = 2 then stack.(sp-2) <- 1
+        else if stack.(sp-2) = 0 then stack.(sp-2) <- 1
         else raise(Failure("'Not' can only apply to 1 or 0"));
       exec fp sp (pc+1)
 

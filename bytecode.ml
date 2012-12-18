@@ -18,6 +18,7 @@ type bstmt =
   | Beq of int            (* Branch relative if top-of-stack is zero *)
   | Bne of int            (* Branch relative if top-of-stack is non-zero *)
   | Bra of int            (* Branch relative *)
+  | Make                  (* Shift stack pointer by 1 *)
   | OpenWin               (* Opens a display window *)
   | CloseWin              (* Closes the display window *)
   | DrawPlayer            (* Draws a player object on top of the stack *)
@@ -58,6 +59,7 @@ let string_of_stmt = function
   | Bne(i) -> "Bne " ^ string_of_int i
   | Beq(i) -> "Beq " ^ string_of_int i
   | Bra(i) -> "Bra " ^ string_of_int i
+  | Make   -> "Make"
   | Lfpa -> "Lfpa"
   | Sfpa -> "Sfpa"
   | Loda -> "Loda"

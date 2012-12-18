@@ -176,19 +176,19 @@ let translate (globals, functions) =
              with Not_found -> try [Litint (StringMap.find varray env.global_index)]
              with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
           @ expr b @ expr g @ expr r
-          @ [Litint 3]
+          @ [Litint 3] @ [Make]
 
       | Player (r, g, b, varray, y) ->
           expr y @ (try [Lfp (StringMap.find varray env.local_index)]
                     with Not_found -> try [Lod (StringMap.find varray env.global_index)]
                     with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
           @ expr b @ expr g @ expr r
-          @ [Litint 4]
+          @ [Litint 4] @ [Make]
 
       | Map (width, height, generator) ->
           (try [Litint (StringMap.find generator env.function_index)]
            with Not_found -> raise (Failure ("undeclared function " ^ generator))) 
-          @ expr height @ expr width @ [Litint 5]
+          @ expr height @ expr width @ [Litint 5] @ [Make]
 
       | Array (array_type) -> (* Push an empty array onto stack with type identifier on top *)
           let rec initializeEmptyArray size lst =
@@ -197,23 +197,25 @@ let translate (globals, functions) =
             (
               match array_type with
                   "int" ->
-                    (initializeEmptyArray 200 []) @ [Litint 6]
+                    (initializeEmptyArray 200 []) @ [Litint 6] @ [Make]
               |   "string" ->
-                    (initializeEmptyArray 4000 []) @ [Litint 7]
+                    (initializeEmptyArray 4000 []) @ [Litint 7] @ [Make]
               |   "Brick" ->
-                    (initializeEmptyArray 1301 []) @ [Litint 8]
+                    (initializeEmptyArray 1301 []) @ [Litint 8] @ [Make]
               |   "Player" ->
-                    (initializeEmptyArray 1101 []) @ [Litint 9]
+                    (initializeEmptyArray 1101 []) @ [Litint 9] @ [Make]
               |   "Map" -> 
-                    (initializeEmptyArray 701 []) @ [Litint 10]
+                    (initializeEmptyArray 701 []) @ [Litint 10] @ [Make]
               | _ -> raise (Failure ("Invalid array type " ^ array_type)) 
             )
       | AAccess(a, i) -> 
+          (*print_endline("i " ^ string_of_expr i); print_endline("a " ^ a);*)
           expr i @ 
           (try [Litint (StringMap.find a env.local_index)] @ [Lfpa]
           with Not_found -> try[Litint (StringMap.find a env.global_index)] @ [Loda]
           with Not_found -> raise (Failure ("undeclared variable" ^ a)))
       | AAssign(a, i, e) ->
+          (*print_endline("i " ^ string_of_expr i); print_endline("a " ^ a); print_endline("e " ^ string_of_expr e);*)
           expr e @ expr i @
           (try [Litint (StringMap.find a env.local_index)] @ [Sfpa]
           with Not_found -> try [Litint (StringMap.find a env.global_index)] @ [Stra]
