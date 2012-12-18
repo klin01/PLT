@@ -140,13 +140,13 @@ let translate (globals, functions) =
   let global_indexes = string_map_pairs StringMap.empty (enum 1 0 globals) in
 
   (* Assign indexes to function names *)
-  let built_in_functions = StringMap.add "draw" (-1) StringMap.empty in
-  let built_in_functions = StringMap.add "run" (-2) built_in_functions in
+  let built_in_functions = StringMap.add "DrawPlayer" (-1) StringMap.empty in
+  let built_in_functions = StringMap.add "Run" (-2) built_in_functions in
   let built_in_functions = StringMap.add "printint" (-3) built_in_functions in
   let built_in_functions = StringMap.add "printstring" (-4) built_in_functions in
-  let built_in_functions = StringMap.add "printarray" (-5) built_in_functions in
-  let built_in_functions = StringMap.add "dumpstack" (-6) built_in_functions in
-  let built_in_functions = StringMap.add "push" (-7) built_in_functions in
+  let built_in_functions = StringMap.add "dumpstack" (-5) built_in_functions in
+  let built_in_functions = StringMap.add "Push" (-6) built_in_functions in
+  let built_in_functions = StringMap.add "CallGenerator" (-7) built_in_functions in
 
   let function_indexes = string_map_pairs built_in_functions
       (enum_func 1 1 (List.map (fun f -> f.fname) functions)) in
@@ -233,8 +233,25 @@ let translate (globals, functions) =
                                   with Not_found -> try [Litint 2] @ [Litint (StringMap.find base env.global_index)]
                                   with Not_found -> raise (Failure ("undeclared variable " ^ base)))
                                @ [StrRef]) *)
-          
-      | Call (fname, actuals) ->
+      | Call (fname, actuals) -> 
+          if (fname = "Run") then
+            let actualVars = expr actuals in
+            if (List.length actualVars) <> 2 then raise(Failure("The function run expects 2 parameters.")) else
+            let loadMap = [List.hd actualVars]
+            and loadPlayer = [List.nth 1 (expr actuals)] in
+            let whilebody = (loadPlayer @ [CheckUserInput]
+                            @ (
+                                let strPlayer = (match actuals with
+                                                    hd :: tl -> (match (List.nth tl 0) with
+                                                                    Id(x) -> expr Id(x)
+                                                                    AAccess(a, i) -> expr AAccess(a, i)
+                                                                )) in
+                                strPlayer
+                              )
+                            @ loadPlayer @ (expr Call("DrawPlayer", [List.nth actuals 1])) @ (expr Call("CallGenerator", [List.nth actuals 0]))) in
+            [loadMap] @ [OpenWin] @ [Bra (List.length whilebody)] @ whilebody @ [CheckCollision] @ [Bne -((List.length whilebody) + 1)]
+          else
+          (try
            (List.concat (List.map expr (List.rev actuals))) @
            (try [Jsr (StringMap.find fname env.function_index)]   
             with Not_found -> raise (Failure ("undefined function " ^ fname)))

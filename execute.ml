@@ -277,7 +277,7 @@ let execute_prog prog =
           exec fp (sp) (pc+1)
       | _ -> raise(Failure("Type error: Attempt to store array of unknown type."))
     )
-  | Lfp -> (* Load a local variable *)
+  | Lfp i -> (* Load a local variable *)
       let var_type_id = stack.(fp+i) in
       (
           match var_type_id with
@@ -391,15 +391,11 @@ let execute_prog prog =
         | _ -> raise(Failure("Type error: Unmatched type error!"))
       )
   | Lfpa -> (* Load index of local array, based on next integer on stack *)
-    if (stack.(sp-1) <> 1) then raise(Failure("Array address must be an integer."))  
-    else if (stack.(sp-3) <> 1) then raise(Failure("Array index must be an integer.")) else
-
-    and loffset = stack.(sp-4) (* element index *)
-    and i = stack.(sp-2) in
-
-    if (stack.(sp-1) <> 1 ) then raise(Failure("Type error: Array index must be an integer.")) else
-    let obj_id = stack.(fp+i)
-    and loffset = stack.(sp-2) in
+    if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
+    if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
+    let i = stack.(sp-2) (* array address *)
+    and obj_id = stack.(fp+i)
+    and loffset = stack.(sp-4) in
     ( 
       match obj_id with
         6 -> (* Arrayint *)
@@ -408,22 +404,23 @@ let execute_prog prog =
           exec fp (sp+2) (pc+1)
       | 7 -> (* Arraystring *)
           for j=0 to 39 do
-            stack.(sp+j) <- stack.(fp+i-40+j)
+            stack.(sp+j) <- stack.(fp+i-40+j-loffset*40)
           done;
           exec fp (sp+40) (pc+1)
       | 8 -> (* ArrayBrick *)
           for j=0 to 12 do
-            stack.(sp+j) <- stack.(fp+i-13+j)
+            stack.(sp+j) <- stack.(fp+i-13+j-loffset*13)
           done;
           exec fp (sp+13) (pc+1)
       | 9 -> (* ArrayPlayer *)
           for j=0 to 10 do
             stack.(sp+j) <- stack.(fp+i-11+j)
+            stack.(sp+j) <- stack.(fp+i-11+j-loffset*11)
           done;
           exec fp (sp+11) (pc+1)
       | 10 -> (* ArrayMap *)
           for j=0 to 6 do
-            stack.(sp+j) <- stack.(fp+i-7+j)
+            stack.(sp+j) <- stack.(fp+i-7+j-loffset*7)
           done;
           exec fp (sp+7) (pc+1)
       | 0 -> (* Uninitialized array *)
@@ -431,15 +428,13 @@ let execute_prog prog =
       | _ -> raise(Failure("Type error: Attempt to access index of array of unknown type."))
     )
   | Sfpa -> (* Store into index of array the next item on stack after index *)
-    if (stack.(sp-1) <> 1) then raise(Failure("Array address must be an integer."))  
-    else if (stack.(sp-3) <> 1) then raise(Failure("Array index must be an integer.")) else
-    
-    let var_type_id = stack.(sp-5) (* Type of the object that will be assigned to
-                                    the array index *)
-    and loffset = stack.(sp-4) (* element index *)
-    and array_type_id = stack.(fp+stack.(sp-2))
-    and i = stack.(sp-2) in
-    if (var_type_id <> (match array_type_id with
+    if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else 
+    if (stack.(sp-3) <> 3) then raise(Failure("Type error: Array index must be an integer.")) else 
+    let i = stack.(sp-2) (* array address *)
+    and obj_id = stack.(sp-5) 
+    and loffset = stack.(sp-4)
+    and array_type_id = stack.(fp+i) in
+    if (obj_id <> (match array_type_id with
                       6 -> 1
                     | 7 -> 2
                     | 8 -> 3
@@ -452,34 +447,34 @@ let execute_prog prog =
     ( 
       match array_type_id with
         6 -> (* Arrayint *)
-           stack.(fp+i-1-2*loffset) <- stack.(sp-1-2); 
-           stack.(fp+i-2-2*loffset) <- stack.(sp-2-2); 
+           stack.(fp+i-1-2*loffset) <- stack.(sp-4); 
+           stack.(fp+i-2-2*loffset) <- stack.(sp-1-4); 
            exec fp (sp) (pc+1)
       | 7 -> (* Arraystring *)
           for j=1 to 40 do
-            stack.(fp+i-j-40*loffset) <- stack.(sp-j-2)
+            stack.(fp+i-j-40*loffset) <- stack.(sp-j+1-4)
           done;
           exec fp (sp) (pc+1)
       | 8 -> (* ArrayBrick *)
           for j=1 to 13 do
-            stack.(fp+i-j-13*loffset) <- stack.(sp-j-2)
+            stack.(fp+i-j-13*loffset) <- stack.(sp-j+1-4)
           done;
           exec fp (sp) (pc+1)
       | 9 -> (* ArrayPlayer *)
           for j=1 to 11 do
-            stack.(fp+i-j-11*loffset) <- stack.(sp-j-2)
+            stack.(fp+i-j-11*loffset) <- stack.(sp-j+1-4)
           done;
           exec fp (sp) (pc+1)
       | 10 -> (* ArrayMap *)
           for j=1 to 7 do
-            stack.(fp+i-j-7*loffset) <- stack.(sp-j-2)
+            stack.(fp+i-j-7*loffset) <- stack.(sp-j+1-4)
           done;
           exec fp (sp) (pc+1)
       | _ -> raise(Failure("Type error: Attempt to store value into array of unknown type."))
     )
-  | Jsr(-1) -> (* draw *) 
+  | Jsr(-1) -> (* DrawPlayer *) 
       print_endline "You've just drawn something!" ; exec fp sp (pc+1)
-  | Jsr(-2) -> (* run *)
+  | Jsr(-2) -> (* Run *)
       print_endline "You've just started running your program!" ; exec fp sp (pc+1)
   | Jsr(-3) -> (* printint *)
       print_endline (string_of_int stack.(sp-2)) ; exec fp sp (pc+1)
@@ -490,40 +485,10 @@ let execute_prog prog =
               let rec buildStr remaining str = if (remaining > 2) then
                   buildStr (remaining-1) ((Char.escaped (char_of_int (stack.(sp-remaining-2)))) ^ str) in
                   print_endline (buildStr strLen "")
-  | Jsr(-5) -> (* printarray *)
-      let var_type_id = stack.(sp-1) in
-      (
-          match var_type_id with
-              6 ->  (* Arrayint *)
-                let rec printnextint p =
-                  let var_type = stack.(sp-p) in 
-                  ( 
-                    match var_type with
-                        1 -> print_endline (string_of_int (stack.(sp-p-1)))
-                    |   0 -> print_endline "Array has not been initialized."
-                    |   _ -> printnextint (sp-2)
-                  ) in
-                  printnextint 2;
-          |   7 ->  (* Arraystring *)
-                let rec printnextint p =
-                  let var_type = stack.(sp-p) in 
-                  ( 
-                    match var_type with
-                        2 -> let strLen = stack.(sp-p-2) in
-                                let rec buildStr remaining stp str = if (remaining > 2) then
-                                    buildStr (remaining-1) ((Char.escaped (char_of_int (stack.(stp-remaining-2)))) ^ str) in
-                                    print_endline (buildStr strLen (sp-p) "")
-                    |   0 -> print_endline "Array has not been initialized."
-                    |   _ -> printnextint (sp-40)
-                  ) in
-                  printnextint 2;
-          |   8 ->  (* ArrayBrick *)
-          |   9 ->  (* ArrayPlayer *)
-          |   10 -> (* ArrayMap *)
-      )
-  | Jsr(-6) -> (* dumpstack *)
+  | Jsr(-5) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
-  | Jsr(-7) -> (* push *)
+  | Jsr(-6) -> (* Push *)
+  | Jsr(-7) -> (* CallGenerator function of map on top of stack *)
   | Jsr i   -> stack.(sp)   <- pc + 1       ; exec fp (sp+1) i
   | Ent i   -> stack.(sp)   <- fp           ; exec sp (sp+i+1) (pc+1)
   | Rts i   -> let new_fp = stack.(fp) and new_pc = stack.(fp-1) in
@@ -537,91 +502,8 @@ let execute_prog prog =
       Graphics.open_graph ""; exec fp (sp) (pc+1)
   | CloseWin -> (* Closes graphical display *)
       Graphics.clear_graph (); exec fp (sp) (pc+1)
-
-  | MakeB ->
-        let v1 = stack.(sp-1)  (* 3 *)
-        and v2 = stack.(sp-3)  (* R *)
-        and v3 = stack.(sp-5)  (* G *)
-        and v4 = stack.(sp-7)  (* B *)
-        and v5 = stack.(sp-9)  (* varray address *)
-        and v6 = stack.(sp-11) (* x *)
-        and v7 = stack.(sp-13) (* y *)
-
-        in
-        if ((v1 <> 1) || (v2 <> 1) || (v3 <> 1) || (v4 <> 1) || (v5 <> 1) || (v6 <> 1) || (v7 <> 1)) then 
-          raise(Failure("MakeB type check error!")) else
-          ( 
-            stack.(sp-1) <- stack.(sp-2);
-            stack.(sp-2) <- stack.(sp-4);
-            stack.(sp-3) <- stack.(sp-6);
-            stack.(sp-4) <- stack.(sp-8);
-            stack.(sp-5) <- stack.(sp-10);
-            stack.(sp-6) <- stack.(sp-12);
-            stack.(sp-7) <- stack.(sp-14);
-            exec fp sp (pc+1)
-          )
-
-  | MakeP ->      
-        let v1 = stack.(sp-1)  (* 4 *)
-        and v2 = stack.(sp-3)  (* R *)
-        and v3 = stack.(sp-5)  (* G *)
-        and v4 = stack.(sp-7)  (* B *)
-        and v5 = stack.(sp-9)  (* varray address *)
-        and v6 = stack.(sp-11) (* y *)
-
-        in
-        if ((v1 <> 1) || (v2 <> 1) || (v3 <> 1) || (v4 <> 1) || (v5 <> 1) || (v6 <> 1)) then 
-          raise(Failure("MakeB type check error!")) else
-          ( 
-            stack.(sp-1) <- stack.(sp-2);
-            stack.(sp-2) <- stack.(sp-4);
-            stack.(sp-3) <- stack.(sp-6);
-            stack.(sp-4) <- stack.(sp-8);
-            stack.(sp-5) <- stack.(sp-10);
-            stack.(sp-6) <- stack.(sp-12);
-            stack.(sp-7) <- stack.(sp-14);
-            exec fp sp (pc+1)
-          )
-
-  | MakeM ->
-        let v1 = stack.(sp-1)  (* 5 *)
-        and v2 = stack.(sp-3)  (* generator ID address *)
-        and v3 = stack.(sp-5)  (* height *)
-        and v4 = stack.(sp-7)  (* width *)
-
-        in
-        if ((v1 <> 1) || (v2 <> 1) || (v3 <> 1) || (v4 <> 1)) then 
-          raise(Failure("MakeB type check error!")) else
-          ( 
-            stack.(sp-1) <- stack.(sp-2);
-            stack.(sp-2) <- stack.(sp-4);
-            stack.(sp-3) <- stack.(sp-6);
-            stack.(sp-4) <- stack.(sp-8);
-            exec fp sp (pc+1)
-          )
-
-  | Move ->
-      (* Get change in x, and change in y, replace x and y in object on stack *)
-      let movex = stack.(sp-2) in
-      let movey = stack.(sp-4) in
-      let obj_id = stack.(sp-5) in
-      (
-          match obj_id with
-              1 ->  raise (IllegalMove)
-            | 2 ->  raise (IllegalMove)
-
-            | 3 -> (* Moves x and y for brick *)
-                  stack.(sp-10) <- (stack.(sp-10) + movex)
-                  stack.(sp-11) <- (stack.(sp-10) + movey)
-                  exec fp sp (pc+1)
-
-            | 4 -> (* Only moves y coordinate for player *)
-                  stack.(sp-10) <- (stack.(sp-10) + movey)
-                  exec fp sp (pc+1)
-                  
-            | 5 -> raise (IllegalMove)
-            | _ -> raise(Failure("Unmatched type!!")))
-
+  | CheckCollision -> (* Put a boolean on top of stack depending on whether there is a collision of player and bricks *)
+  | DrawPlayer -> (* Draws the player on top of the stack *)
   
   | Hlt     -> ()
 
