@@ -1,9 +1,8 @@
-
+Brick $b1;
 Array int $vertices;
+
 function $main : void ()
 {
-	Brick $b1;
-
 	$vertices : new Array int;
 
 	$vertices[0] : 567;
