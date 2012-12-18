@@ -131,7 +131,7 @@ let execute_prog prog =
                 stack.(sp+j) <- globals.(i-700+j)
               done;
               exec fp (sp+701) (pc+1)
-          | _ -> raise(Failure("Type error: Attempt to load unknown type!"))
+          | _ -> print_endline(string_of_int var_type_id); raise(Failure("Type error: Attempt to load unknown type!"))
         ) 
   | Str i -> (* Store a global variable variable *)
     let var_type_id = stack.(sp-1) in
@@ -336,7 +336,7 @@ let execute_prog prog =
                 stack.(sp+j) <- stack.(fp+i-200+j)
               done;
               exec fp (sp+201) (pc+1)
-          | 7 -> (* Arraystring *)
+          | 7 -> (* Arrayƒstring *)
               for j=0 to 4000 do
                 stack.(sp+j) <- stack.(fp+i-4000+j)
               done;
@@ -361,6 +361,11 @@ let execute_prog prog =
           | _ -> raise(Failure("Type error: Attempt to load variable of unknown type.")))
       
   | Sfp i   -> 
+  print_endline ("sfp " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
+                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+
       let obj_id = stack.(sp-1) in
       ( 
         match obj_id with
@@ -414,7 +419,7 @@ let execute_prog prog =
               stack.(fp+i-j) <- stack.(sp-j-1)
             done;
             exec fp (sp) (pc+1)
-        | _ -> raise(Failure("Type error: Unmatched type error!"))
+        | _ -> print_endline (string_of_int obj_id); raise(Failure("Type error: Unmatched type error!"))
       )
   | Lfpa -> (* Load index of local array, based on next integer on stack *)
 
@@ -464,10 +469,10 @@ let execute_prog prog =
     )
   | Sfpa -> (* Store into index of array the next item on stack after index *)
 
-        print_endline ("sfpa" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+        (*print_endline ("sfpa" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
                   ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
                   ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;*)
 
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else 
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else 
@@ -493,22 +498,22 @@ let execute_prog prog =
            exec fp (sp) (pc+1)
       | 7 -> (* Arraystring *)
           for j=1 to 40 do
-            stack.(fp+i-j-40*loffset) <- stack.(sp-j+1-4)
+            stack.(fp+i-j-40*loffset) <- stack.(sp-j-4)
           done;
           exec fp (sp) (pc+1)
       | 8 -> (* ArrayBrick *)
           for j=1 to 13 do
-            stack.(fp+i-j-13*loffset) <- stack.(sp-j+1-4)
+            stack.(fp+i-j-13*loffset) <- stack.(sp-j-4)
           done;
           exec fp (sp) (pc+1)
       | 9 -> (* ArrayPlayer *)
           for j=1 to 11 do
-            stack.(fp+i-j-11*loffset) <- stack.(sp-j+1-4)
+            stack.(fp+i-j-11*loffset) <- stack.(sp-j-4)
           done;
           exec fp (sp) (pc+1)
       | 10 -> (* ArrayMap *)
           for j=1 to 7 do
-            stack.(fp+i-j-7*loffset) <- stack.(sp-j+1-4)
+            stack.(fp+i-j-7*loffset) <- stack.(sp-j-4)
           done;
           exec fp (sp) (pc+1)
       | _ -> raise(Failure("Type error: Attempt to store value into array of unknown type."))

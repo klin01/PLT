@@ -79,6 +79,9 @@ let rec string_of_expr = function
   | Assign(v, e) ->  v ^ " : " ^ string_of_expr e
   | AAssign(a, i, e) ->  a ^ "[" ^ string_of_expr i ^ "] : " ^ string_of_expr e
   | AAccess(a, i) ->  a ^ "[" ^ string_of_expr i ^ "]"
+  | AAccessByRef (a, i) -> a ^ "[" ^ string_of_expr i ^ "]"
+  | AAssignByRef (a, i, e) -> a ^ "[" ^ string_of_expr i ^ "] : " ^ string_of_expr e
+  | AssignToRef (s, e) -> s ^ ":" ^ string_of_expr e
   | Call(f, el) ->
        f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Not(e1) -> "!" ^ string_of_expr e1

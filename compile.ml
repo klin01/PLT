@@ -180,8 +180,8 @@ let translate (globals, functions) =
           @ [Litint 3] @ [Make]
 
       | Player (r, g, b, varray, y) ->
-          expr y @ (try [Lfp (StringMap.find varray env.local_index)]
-                    with Not_found -> try [Lod (StringMap.find varray env.global_index)]
+          expr y @ (try [Litint (StringMap.find varray env.local_index)]
+                    with Not_found -> try [Litint (StringMap.find varray env.global_index)]
                     with Not_found -> raise (Failure ("undeclared Player " ^ varray)))
           @ expr b @ expr g @ expr r
           @ [Litint 4] @ [Make]
@@ -255,6 +255,7 @@ let translate (globals, functions) =
         )
 
       | Assign (s, e) ->
+          print_endline ("assign addr " ^ s ^ " " ^ (string_of_int (StringMap.find s env.local_index)));
            expr e @
           (try [Sfp (StringMap.find s env.local_index)]
           with Not_found -> try [Str (StringMap.find s env.global_index)]
