@@ -1,4 +1,4 @@
-./testall.sh: line 148: CheckFail: not found
+./testall.sh: line 137: CheckFail: not found
 
 ###### Testing test-arith1
 ./testall.sh: line 68: [0: not found

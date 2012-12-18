@@ -73,33 +73,22 @@ Check() {
 
 	echo -n "refence: $createref"
 	if [ $createref -eq 1 ] ; then
+			# This part makes reference files!
+
 		echo -n "Creating $reffile.reference"
 		generatedfiles="$generatedfiles ${basename}.reference" &&
 		Run "$RETROCRAFT" "-c" "<" $1 ">" ${reffile}.reference
 	else
 		if [ $createref -eq 0 ] ; then
+			# This section runs the code against the existing reference
+			# and return OK if the results are the same.
+
 			echo -n "Testing $reffile.rc against $reffile.reference"
 			generatedfiles="$generatedfiles ${basename}.c.out" &&
 			Run "$RETROCRAFT" "-c" "<" $1 ">" ${basename}.c.out &&
 			Compare ${basename}.c.out ${reffile}.reference ${basename}.c.diff
 		fi
 	fi
-
-    # COMMENT this when generate reference!
-    # This section runs the code against the existing reference
-    # and return OK if the results are the same.
-	#
-	# echo -n "Testing $reffile.rc against $reffile.reference"
-    #generatedfiles="$generatedfiles ${basename}.c.out" &&
-   # Run "$RETROCRAFT" "-c" "<" $1 ">" ${basename}.c.out &&
-    #Compare ${basename}.c.out ${reffile}.reference ${basename}.c.diff
-
-    # UNCOMMENT this part to make reference files!
-	# COMMENT the part above when making reference too!
-    #
-	# echo -n "Creating $reffile.reference"
-    # generatedfiles="$generatedfiles ${basename}.reference" &&
-    # Run "$RETROCRAFT" "-c" "<" $1 ">" ${reffile}.reference
 
     # Report the status and clean up the generated files
 
