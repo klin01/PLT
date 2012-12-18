@@ -210,8 +210,8 @@ let translate (globals, functions) =
             )
       | AAccess(a, i) -> 
           expr i @ 
-          (try [Lfpa (StringMap.find a env.local_index)]
-          with Not_found -> try[Loda (StringMap.find a env.global_index)]
+          (try [Litint (StringMap.find a env.local_index)] @ [Lfpa]
+          with Not_found -> try[Litint (StringMap.find a env.global_index)] @ [Loda]
           with Not_found -> raise (Failure ("undeclared variable" ^ a)))
       | AAssign(a, i, e) ->
           expr e @ expr i @
@@ -242,14 +242,13 @@ let translate (globals, functions) =
                                 let strPlayer = (match actuals with
                                                     hd :: tl -> (match (List.nth tl 0) with
                                                                     Id(x) -> expr Id(x)
-                                                                    AAccess(a, i) -> expr AAccess(a, i)
+                                                                  | AAccess(a, i) -> expr AAccess(a, i)
                                                                 )) in
                                 strPlayer
                               )
                             @ loadPlayer @ (expr Call("DrawPlayer", [List.nth actuals 1])) @ (expr Call("CallGenerator", [List.nth actuals 0]))) in
             [loadMap] @ [OpenWin] @ [Bra ((List.length whilebody)+1)] @ whilebody @ loadPlayer @ [CheckCollision] @ [Bne -((List.length whilebody) + 1)]
           else
-          (try
            (List.concat (List.map expr (List.rev actuals))) @
            (try [Jsr (StringMap.find fname env.function_index)]   
             with Not_found -> raise (Failure ("undefined function " ^ fname)))
