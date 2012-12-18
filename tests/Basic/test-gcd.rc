@@ -1,6 +1,13 @@
 function $gcd : int (int $a, int $b) {
-	
-  return $a;
+
+	while ($a != $b) 
+	{
+		if ($a > $b) 
+			$a -: $b;
+		else
+			$b -: $a;
+	}
+  	return $a;
 }
 
 function $main : void ()

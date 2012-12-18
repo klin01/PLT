@@ -1,147 +1,123 @@
-./testall.sh: line 117: CheckFail: command not found
+./testall_Hua.sh: line 120: CheckFail: command not found
 
 ###### Testing test-arith1
 ./retrocraft -c < tests/Basic/test-arith1.rc > test-arith1.c.out
-diff -b test-arith1.c.out tests/Basic/test-arith1.rc > test-arith1.c.diff
-FAILED test-arith1.c.out differs from tests/Basic/test-arith1.rc
-###### FAILED
+diff -b test-arith1.c.out tests/Basic/test-arith1.reference > test-arith1.c.diff
+###### SUCCESS
 
 ###### Testing test-arith2
 ./retrocraft -c < tests/Basic/test-arith2.rc > test-arith2.c.out
-diff -b test-arith2.c.out tests/Basic/test-arith2.rc > test-arith2.c.diff
-FAILED test-arith2.c.out differs from tests/Basic/test-arith2.rc
-###### FAILED
+diff -b test-arith2.c.out tests/Basic/test-arith2.reference > test-arith2.c.diff
+###### SUCCESS
 
 ###### Testing test-arith3
 ./retrocraft -c < tests/Basic/test-arith3.rc > test-arith3.c.out
-diff -b test-arith3.c.out tests/Basic/test-arith3.rc > test-arith3.c.diff
-FAILED test-arith3.c.out differs from tests/Basic/test-arith3.rc
-###### FAILED
+diff -b test-arith3.c.out tests/Basic/test-arith3.reference > test-arith3.c.diff
+###### SUCCESS
 
 ###### Testing test-fib
 ./retrocraft -c < tests/Basic/test-fib.rc > test-fib.c.out
-diff -b test-fib.c.out tests/Basic/test-fib.rc > test-fib.c.diff
-FAILED test-fib.c.out differs from tests/Basic/test-fib.rc
-###### FAILED
+diff -b test-fib.c.out tests/Basic/test-fib.reference > test-fib.c.diff
+###### SUCCESS
 
 ###### Testing test-for1
 ./retrocraft -c < tests/Basic/test-for1.rc > test-for1.c.out
-diff -b test-for1.c.out tests/Basic/test-for1.rc > test-for1.c.diff
-FAILED test-for1.c.out differs from tests/Basic/test-for1.rc
-###### FAILED
+diff -b test-for1.c.out tests/Basic/test-for1.reference > test-for1.c.diff
+###### SUCCESS
 
 ###### Testing test-func1
 ./retrocraft -c < tests/Basic/test-func1.rc > test-func1.c.out
-diff -b test-func1.c.out tests/Basic/test-func1.rc > test-func1.c.diff
-FAILED test-func1.c.out differs from tests/Basic/test-func1.rc
-###### FAILED
+diff -b test-func1.c.out tests/Basic/test-func1.reference > test-func1.c.diff
+###### SUCCESS
 
 ###### Testing test-func2
 ./retrocraft -c < tests/Basic/test-func2.rc > test-func2.c.out
-diff -b test-func2.c.out tests/Basic/test-func2.rc > test-func2.c.diff
-FAILED test-func2.c.out differs from tests/Basic/test-func2.rc
-###### FAILED
+diff -b test-func2.c.out tests/Basic/test-func2.reference > test-func2.c.diff
+###### SUCCESS
 
 ###### Testing test-func3
 ./retrocraft -c < tests/Basic/test-func3.rc > test-func3.c.out
-diff -b test-func3.c.out tests/Basic/test-func3.rc > test-func3.c.diff
-FAILED test-func3.c.out differs from tests/Basic/test-func3.rc
-###### FAILED
+diff -b test-func3.c.out tests/Basic/test-func3.reference > test-func3.c.diff
+###### SUCCESS
 
 ###### Testing test-gcd
 ./retrocraft -c < tests/Basic/test-gcd.rc > test-gcd.c.out
-diff -b test-gcd.c.out tests/Basic/test-gcd.rc > test-gcd.c.diff
-FAILED test-gcd.c.out differs from tests/Basic/test-gcd.rc
-###### FAILED
+diff -b test-gcd.c.out tests/Basic/test-gcd.reference > test-gcd.c.diff
+###### SUCCESS
 
 ###### Testing test-global1
 ./retrocraft -c < tests/Basic/test-global1.rc > test-global1.c.out
-diff -b test-global1.c.out tests/Basic/test-global1.rc > test-global1.c.diff
-FAILED test-global1.c.out differs from tests/Basic/test-global1.rc
-###### FAILED
+diff -b test-global1.c.out tests/Basic/test-global1.reference > test-global1.c.diff
+###### SUCCESS
 
 ###### Testing test-hello
 ./retrocraft -c < tests/Basic/test-hello.rc > test-hello.c.out
-diff -b test-hello.c.out tests/Basic/test-hello.rc > test-hello.c.diff
-FAILED test-hello.c.out differs from tests/Basic/test-hello.rc
-###### FAILED
+diff -b test-hello.c.out tests/Basic/test-hello.reference > test-hello.c.diff
+###### SUCCESS
 
 ###### Testing test-if1
 ./retrocraft -c < tests/Basic/test-if1.rc > test-if1.c.out
-diff -b test-if1.c.out tests/Basic/test-if1.rc > test-if1.c.diff
-FAILED test-if1.c.out differs from tests/Basic/test-if1.rc
-###### FAILED
+diff -b test-if1.c.out tests/Basic/test-if1.reference > test-if1.c.diff
+###### SUCCESS
 
 ###### Testing test-if2
 ./retrocraft -c < tests/Basic/test-if2.rc > test-if2.c.out
-diff -b test-if2.c.out tests/Basic/test-if2.rc > test-if2.c.diff
-FAILED test-if2.c.out differs from tests/Basic/test-if2.rc
-###### FAILED
+diff -b test-if2.c.out tests/Basic/test-if2.reference > test-if2.c.diff
+###### SUCCESS
 
 ###### Testing test-if3
 ./retrocraft -c < tests/Basic/test-if3.rc > test-if3.c.out
-diff -b test-if3.c.out tests/Basic/test-if3.rc > test-if3.c.diff
-FAILED test-if3.c.out differs from tests/Basic/test-if3.rc
-###### FAILED
+diff -b test-if3.c.out tests/Basic/test-if3.reference > test-if3.c.diff
+###### SUCCESS
 
 ###### Testing test-if4
 ./retrocraft -c < tests/Basic/test-if4.rc > test-if4.c.out
-diff -b test-if4.c.out tests/Basic/test-if4.rc > test-if4.c.diff
-FAILED test-if4.c.out differs from tests/Basic/test-if4.rc
-###### FAILED
+diff -b test-if4.c.out tests/Basic/test-if4.reference > test-if4.c.diff
+###### SUCCESS
 
 ###### Testing test-ops1
 ./retrocraft -c < tests/Basic/test-ops1.rc > test-ops1.c.out
-diff -b test-ops1.c.out tests/Basic/test-ops1.rc > test-ops1.c.diff
-FAILED test-ops1.c.out differs from tests/Basic/test-ops1.rc
-###### FAILED
+diff -b test-ops1.c.out tests/Basic/test-ops1.reference > test-ops1.c.diff
+###### SUCCESS
 
 ###### Testing test-var1
 ./retrocraft -c < tests/Basic/test-var1.rc > test-var1.c.out
-diff -b test-var1.c.out tests/Basic/test-var1.rc > test-var1.c.diff
-FAILED test-var1.c.out differs from tests/Basic/test-var1.rc
-###### FAILED
+diff -b test-var1.c.out tests/Basic/test-var1.reference > test-var1.c.diff
+###### SUCCESS
 
 ###### Testing test-while1
 ./retrocraft -c < tests/Basic/test-while1.rc > test-while1.c.out
-diff -b test-while1.c.out tests/Basic/test-while1.rc > test-while1.c.diff
-FAILED test-while1.c.out differs from tests/Basic/test-while1.rc
-###### FAILED
+diff -b test-while1.c.out tests/Basic/test-while1.reference > test-while1.c.diff
+###### SUCCESS
 
 ###### Testing test-array1
 ./retrocraft -c < tests/Array/test-array1.rc > test-array1.c.out
-diff -b test-array1.c.out tests/Array/test-array1.rc > test-array1.c.diff
-FAILED test-array1.c.out differs from tests/Array/test-array1.rc
-###### FAILED
+diff -b test-array1.c.out tests/Array/test-array1.reference > test-array1.c.diff
+###### SUCCESS
 
 ###### Testing test-array2
 ./retrocraft -c < tests/Array/test-array2.rc > test-array2.c.out
-diff -b test-array2.c.out tests/Array/test-array2.rc > test-array2.c.diff
-FAILED test-array2.c.out differs from tests/Array/test-array2.rc
-###### FAILED
+diff -b test-array2.c.out tests/Array/test-array2.reference > test-array2.c.diff
+###### SUCCESS
 
 ###### Testing test-array3
 ./retrocraft -c < tests/Array/test-array3.rc > test-array3.c.out
-diff -b test-array3.c.out tests/Array/test-array3.rc > test-array3.c.diff
-FAILED test-array3.c.out differs from tests/Array/test-array3.rc
-###### FAILED
+diff -b test-array3.c.out tests/Array/test-array3.reference > test-array3.c.diff
+###### SUCCESS
 
 ###### Testing test-array4
 ./retrocraft -c < tests/Array/test-array4.rc > test-array4.c.out
-diff -b test-array4.c.out tests/Array/test-array4.rc > test-array4.c.diff
-FAILED test-array4.c.out differs from tests/Array/test-array4.rc
-###### FAILED
+diff -b test-array4.c.out tests/Array/test-array4.reference > test-array4.c.diff
+###### SUCCESS
 
 ###### Testing test-array5
 ./retrocraft -c < tests/Array/test-array5.rc > test-array5.c.out
-diff -b test-array5.c.out tests/Array/test-array5.rc > test-array5.c.diff
-FAILED test-array5.c.out differs from tests/Array/test-array5.rc
-###### FAILED
+diff -b test-array5.c.out tests/Array/test-array5.reference > test-array5.c.diff
+###### SUCCESS
 
 ###### Testing test-obj1
 ./retrocraft -c < tests/Array/test-obj1.rc > test-obj1.c.out
-diff -b test-obj1.c.out tests/Array/test-obj1.rc > test-obj1.c.diff
-FAILED test-obj1.c.out differs from tests/Array/test-obj1.rc
+Fatal error: exception Failure("Type error: Attempt to access index of array of unknown type.")
 ###### FAILED
 
 ###### Testing test-obj2
