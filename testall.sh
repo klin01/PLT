@@ -115,22 +115,19 @@ Check() {
     fi
 }
 
-while getopts kdpsh c; do
+while getopts ":rkh" c; do
     case $c in
-	r) # Generate reference files
-	    createref=1
-	    ;;
-	k) # Keep intermediate files
-	    keep=1
+	r) 
+		createref=1
 		;;
-	h) # Help
-	    Usage
-	    ;;
+	k) 
+		keep=1
+		;;
+	h) 
+		Usage
+		;;
     esac
 done
-
-echo -n "!!keep: $keep"
-echo -n "!!refence: $createref"
 
 shift `expr $OPTIND - 1`
 
