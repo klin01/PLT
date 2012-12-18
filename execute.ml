@@ -492,8 +492,66 @@ let execute_prog prog =
   | Jsr(-7) -> (* CallGenerator function of map on top of stack *)
   | Jsr i   -> stack.(sp)   <- pc + 1       ; exec fp (sp+1) i
   | Ent i   -> stack.(sp)   <- fp           ; exec sp (sp+i+1) (pc+1)
-  | Rts i   -> let new_fp = stack.(fp) and new_pc = stack.(fp-1) in
-               stack.(fp-i-1) <- stack.(sp-1) ; exec new_fp (fp-i) new_pc
+  | Rts i   -> 
+    let new_fp = stack.(fp) and new_pc = stack.(fp-1) and base = fp-i-1 in 
+    (
+      let obj_id = stack.(sp-1) in
+      match obj_id with
+        (* Int *) 
+        1 -> (stack.(base+1) <- stack.(sp-1);  (* Construct an int on top of stack*)
+              stack.(base) <- stack.(sp-2);
+              exec new_fp (base+2) new_pc)
+    (*  | 2 ->
+          let sp_temp = Array.make 30 0 in
+          for j=0 to 29 do
+            sp_temp.(j) <- stack.(sp+j-30)
+          done;
+          for j=0 to 29 do
+            stack.(base+j) <- sp_temp.(j)
+          done;
+          exec new_fp (base+30) new_pc
+      
+      | 3 -> let sp1 = stack.(sp-1) 
+           and sp2 = stack.(sp-2) 
+           and sp3 = stack.(sp-3) 
+           and sp4 = stack.(sp-4) 
+           and sp5 = stack.(sp-5) in
+           (stack.(base+4) <- sp1;  (* Construct an int on top of stack*)
+           stack.(base+3) <- sp2;
+           stack.(base+2) <- sp3;
+           stack.(base+1) <- sp4;
+           stack.(base) <- sp5;
+           exec new_fp (base+5) new_pc
+           )
+      | 4 -> let sp1 = stack.(sp-1) 
+           and sp2 = stack.(sp-2) 
+           and sp3 = stack.(sp-3) 
+           and sp4 = stack.(sp-4) 
+           and sp5 = stack.(sp-5) in
+           (stack.(base+4) <- sp1;  (* Construct an int on top of stack*)
+           stack.(base+3) <- sp2;
+           stack.(base+2) <- sp3;
+           stack.(base+1) <- sp4;
+           stack.(base) <- sp5;
+           exec new_fp (base+5) new_pc
+           )
+      | 5 -> let sp1 = stack.(sp-1) 
+           and sp2 = stack.(sp-2) 
+           and sp3 = stack.(sp-3) 
+           and sp4 = stack.(sp-4) 
+           and sp5 = stack.(sp-5) in
+           (stack.(base+4) <- sp1;  (* Construct an int on top of stack*)
+           stack.(base+3) <- sp2;
+           stack.(base+2) <- sp3;
+           stack.(base+1) <- sp4;
+           stack.(base) <- sp5;
+           exec new_fp (base+5) new_pc
+           )*)
+      | _ -> raise(Failure("Unmatched type!!"));
+      );
+
+
+
   | Beq i   -> exec fp (sp-1) (pc + if stack.(sp-2) =  0 then i else 1)
   | Bne i   -> exec fp (sp-1) (pc + if stack.(sp-2) != 0 then i else 1)
   | Bra i   -> exec fp sp (pc+i)

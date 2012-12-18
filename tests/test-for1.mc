@@ -1,6 +1,7 @@
-int $i;
+
 function $main : void ()
 {
+int $i;
   $printstring("start");
   $printstring("Should print 1 to 4");
   for ($i : 0 ; $i < 5 ; $i +: 1) {
