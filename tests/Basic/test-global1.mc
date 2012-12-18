@@ -13,15 +13,15 @@ function $printb : void ()
 
 function $incab : void ()
 {
-  $a = $a + 1;
-  $b = $b + 1;
+  $a : $a + 1;
+  $b : $b + 1;
 }
 
 function $main : void ()
 {
-  $printstring("Test global var. Should print 43 22, then 44 23");
-  $a = 42;
-  $b = 21;
+  $printstring("Should print 43 22, then 44 23");
+  $a : 43;
+  $b : 22;
   $printa();
   $printb();
   $incab();
