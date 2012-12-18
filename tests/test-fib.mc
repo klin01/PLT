@@ -7,20 +7,20 @@ function $fib : int (int $x)
 function $main : void ()
 {
 	$printstring("Should be 1");
-	$printint( fib(0) );
+	$printint( $fib(0) );
 
 	$printstring("Should be 1");
-	$printint( fib(1) );
+	$printint( $fib(1) );
 
 	$printstring("Should be 1");
-	$printint( fib(2) );
+	$printint( $fib(2) );
 
 	$printstring("Should be 2");
-	$printint( fib(3) );
+	$printint( $fib(3) );
 
 	$printstring("Should be 3");
-	$printint( fib(4) );
+	$printint( $fib(4) );
 	
 	$printstring("Should be 5");
-	$printint( fib(5) );
+	$printint( $fib(5) );
 }

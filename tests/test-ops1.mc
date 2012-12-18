@@ -11,13 +11,15 @@ function $main : void ()
   $printint(99);
   $printint(-100);
 
-    $printstring("Should be 0, 1, 99, 1, 0, 99, 1, 1, 0, 99, 0, 1, 99, 0, 1, 1")
-  $printint(1 == 2);
-  $printint(1 == 1);
+    $printstring("Should be 0, 1, 99, 1, 0, 99");
+  $printint(1 = 2);
+  $printint(1 = 1);
   $printint(99);
   $printint(1 != 2);
   $printint(1 != 1);
   $printint(99);
+
+  $printstring("Should be 1, 1, 0, 99, 0, 1, 99, 0, 1, 1");
   $printint(1 < 2);
   $printint(2 < 1);
   $printint(99);
@@ -31,4 +33,6 @@ function $main : void ()
   $printint(1 >= 2);
   $printint(1 >= 1);
   $printint(2 >= 1);
+
+  $printstring("Bye Bye :3");
 }

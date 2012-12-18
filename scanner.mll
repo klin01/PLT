@@ -8,11 +8,11 @@ rule token = parse
 | '{' { LBRACE } | '}' { RBRACE }
 | '[' { LBRACK } | ']' { RBRACK }
 | ';' { SEMI } | ',' { COMMA } | '.' { REF }
+| "+:" { SHORTADD } | "-:" { SHORTMINUS }
+| "*:" { SHORTTIMES } | "/:" { SHORTDIVIDE }
 | '+' { PLUS } | '-' { MINUS }
 | '*' { TIMES } | '/' { DIVIDE }
 | ':' { ASSIGN } | '=' { EQ }
-| "+:" { SHORTADD } | "-:" { SHORTMINUS }
-| "*:" { SHORTTIMES } | "/:" { SHORTDIVIDE }
 | '%' { MOD } | '^' { EXP }
 | "!=" { NEQ } | '<' { LT }
 | "<=" { LEQ } | '>' { GT }

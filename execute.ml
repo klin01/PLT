@@ -474,12 +474,15 @@ let execute_prog prog =
       print_endline (string_of_int stack.(sp-2)) ; exec fp sp (pc+1)
   | Jsr(-4) -> (* printstring *)
       let var_type_id = stack.(sp-1) in
+
       if var_type_id <> 2 then raise (Failure("Type error: Unable to call printstring on nonstring."))
       else let strLen = stack.(sp-2) in
-              let rec buildStr remaining str = if (remaining > 2) then
+              let rec buildStr remaining str = if (remaining > 0) then
                   buildStr (remaining-1) ((Char.escaped (char_of_int (stack.(sp-remaining-2)))) ^ str) else
                   str in
-                  print_endline (buildStr strLen "")
+                  print_endline (buildStr strLen "");
+                  exec fp (sp) (pc+1)
+
   | Jsr(-5) -> (* printarray *)
       let var_type_id = stack.(sp-1) in
       (
@@ -519,7 +522,7 @@ let execute_prog prog =
   | Ent i   -> stack.(sp)   <- fp           ; exec sp (sp+i+1) (pc+1)
   | Rts i   -> let new_fp = stack.(fp) and new_pc = stack.(fp-1) in
                stack.(fp-i-1) <- stack.(sp-1) ; exec new_fp (fp-i) new_pc
-  | Beq i   -> exec fp (sp-1) (pc + if stack.(sp-1) =  0 then i else 1)
+  | Beq i   -> exec fp (sp-1) (pc + if stack.(sp-2) =  0 then i else 1)
   | Bne i   -> exec fp (sp-1) (pc + if stack.(sp-1) != 0 then i else 1)
   | Bra i   -> exec fp sp (pc+i)
 
