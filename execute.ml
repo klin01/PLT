@@ -523,7 +523,7 @@ let execute_prog prog =
   | Rts i   -> let new_fp = stack.(fp) and new_pc = stack.(fp-1) in
                stack.(fp-i-1) <- stack.(sp-1) ; exec new_fp (fp-i) new_pc
   | Beq i   -> exec fp (sp-1) (pc + if stack.(sp-2) =  0 then i else 1)
-  | Bne i   -> exec fp (sp-1) (pc + if stack.(sp-1) != 0 then i else 1)
+  | Bne i   -> exec fp (sp-1) (pc + if stack.(sp-2) != 0 then i else 1)
   | Bra i   -> exec fp sp (pc+i)
 
   (* Lodf and Strf *)

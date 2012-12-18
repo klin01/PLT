@@ -230,11 +230,11 @@ let translate (globals, functions) =
           1 -> [Litint 0]
         | 0 -> [Litint 1]
         | _ -> raise (Failure ("'Not' cannot operate on" ^ e))) *)
-      (*| Assign (s, e) ->
+      | Assign (s, e) ->
           expr e @
-          try [Sfp (StringMap.find s env.local_index)]
+          (try [Sfp (StringMap.find s env.local_index)]
           with Not_found -> try [Str (StringMap.find s env.global_index)]
-          with Not_found -> raise (Failure ("undeclared variable " ^ s)) *)
+          with Not_found -> raise (Failure ("undeclared variable " ^ s))) 
       | Call (fname, actuals) ->
            (List.concat (List.map expr (List.rev actuals))) @
            (try [Jsr (StringMap.find fname env.function_index)]   
