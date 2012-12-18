@@ -282,8 +282,8 @@ let execute_prog prog =
       (
           match var_type_id with
             1 -> (* int *)
-              stack.(sp) <- stack.(fp+i-1);
-              stack.(sp+1) <- stack.(fp+i);
+              stack.(sp) <- stack.(fp+i-1); (* value *)
+              stack.(sp+1) <- stack.(fp+i); (* type *)
               exec fp (sp+2) (pc+1)
           | 2 -> (* string *)
               for j=0 to 39 do
@@ -390,7 +390,13 @@ let execute_prog prog =
             exec fp (sp) (pc+1)
         | _ -> raise(Failure("Type error: Unmatched type error!"))
       )
-  | Lfpa i -> (* Load index of local array, based on next integer on stack *)
+  | Lfpa -> (* Load index of local array, based on next integer on stack *)
+    if (stack.(sp-1) <> 1) then raise(Failure("Array address must be an integer."))  
+    else if (stack.(sp-3) <> 1) then raise(Failure("Array index must be an integer.")) else
+
+    and loffset = stack.(sp-4) (* element index *)
+    and i = stack.(sp-2) in
+
     if (stack.(sp-1) <> 1 ) then raise(Failure("Type error: Array index must be an integer.")) else
     let obj_id = stack.(fp+i)
     and loffset = stack.(sp-2) in
@@ -406,30 +412,34 @@ let execute_prog prog =
           done;
           exec fp (sp+40) (pc+1)
       | 8 -> (* ArrayBrick *)
+          for j=0 to 12 do
+            stack.(sp+j) <- stack.(fp+i-13+j)
+          done;
+          exec fp (sp+13) (pc+1)
+      | 9 -> (* ArrayPlayer *)
+          for j=0 to 10 do
+            stack.(sp+j) <- stack.(fp+i-11+j)
+          done;
+          exec fp (sp+11) (pc+1)
+      | 10 -> (* ArrayMap *)
           for j=0 to 6 do
             stack.(sp+j) <- stack.(fp+i-7+j)
           done;
           exec fp (sp+7) (pc+1)
-      | 9 -> (* ArrayPlayer *)
-          for j=0 to 5 do
-            stack.(sp+j) <- stack.(fp+i-6+j)
-          done;
-          exec fp (sp+5) (pc+1)
-      | 10 -> (* ArrayMap *)
-          for j=0 to 3 do
-            stack.(sp+j) <- stack.(fp+i-4+j)
-          done;
-          exec fp (sp+4) (pc+1)
       | 0 -> (* Uninitialized array *)
           raise(Failure("Attempt to access index of uninitialized array."))
       | _ -> raise(Failure("Type error: Attempt to access index of array of unknown type."))
     )
-  | Sfpa i -> (* Store into index of array the next item on stack after index *)
-    if (stack.(sp-1) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else 
-    let obj_id = stack.(sp-3) 
-    and loffset = stack.(sp-2)
-    and array_type_id = stack.(fp+i) in
-    if (obj_id <> (match array_type_id with
+  | Sfpa -> (* Store into index of array the next item on stack after index *)
+    if (stack.(sp-1) <> 1) then raise(Failure("Array address must be an integer."))  
+    else if (stack.(sp-3) <> 1) then raise(Failure("Array index must be an integer.")) else
+    
+    let var_type_id = stack.(sp-5) (* Type of the object that will be assigned to
+                                    the array index *)
+    and loffset = stack.(sp-4) (* element index *)
+    and array_type_id = stack.(fp+stack.(sp-2))
+    and i = stack.(sp-2) in
+    if (var_type_id <> (match array_type_id with
                       6 -> 1
                     | 7 -> 2
                     | 8 -> 3
@@ -451,18 +461,18 @@ let execute_prog prog =
           done;
           exec fp (sp) (pc+1)
       | 8 -> (* ArrayBrick *)
-          for j=1 to 7 do
-            stack.(fp+i-j-7*loffset) <- stack.(sp-j-2)
+          for j=1 to 13 do
+            stack.(fp+i-j-13*loffset) <- stack.(sp-j-2)
           done;
           exec fp (sp) (pc+1)
       | 9 -> (* ArrayPlayer *)
-          for j=1 to 6 do
-            stack.(fp+i-j-6*loffset) <- stack.(sp-j-2)
+          for j=1 to 11 do
+            stack.(fp+i-j-11*loffset) <- stack.(sp-j-2)
           done;
           exec fp (sp) (pc+1)
       | 10 -> (* ArrayMap *)
-          for j=1 to 4 do
-            stack.(fp+i-j-4*loffset) <- stack.(sp-j-2)
+          for j=1 to 7 do
+            stack.(fp+i-j-7*loffset) <- stack.(sp-j-2)
           done;
           exec fp (sp) (pc+1)
       | _ -> raise(Failure("Type error: Attempt to store value into array of unknown type."))

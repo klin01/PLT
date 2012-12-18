@@ -235,29 +235,9 @@ let translate (globals, functions) =
         | 0 -> [Litint 1]
         | _ -> raise (Failure ("'Not' cannot operate on" ^ e)))
       | Assign (s, e) ->
-        (match s with
-          Id(aStr) ->
-            if String.find aStr "$.color" then 
-              (match e with
-                  LiteralString(eStr) -> 
-                    let colors = Str.split(Str.regexp("[ \t]+"))(eStr) in
-                      try let address = StringMap.find aStr env.local_index in
-                        [Litint int_of_string (List.nth(colors)(0))] @ [Sfp address] @
-                        [Litint int_of_string (List.nth(colors)(1))] @ [Sfp address-2] @
-                        [Litint int_of_string (List.nth(colors)(2))] @ [Sfp address-4]
-                      with Not_found ->
-                      try let address = StringMap.find aStr env.global_index in
-                        [Litint int_of_string (List.nth(colors)(0))] @ [Str address] @
-                        [Litint int_of_string (List.nth(colors)(1))] @ [Str address-2] @
-                        [Litint int_of_string (List.nth(colors)(2))] @ [Str address-4]
-                  | Id()
-              )
-            else   
-            try [Sfp (StringMap.find (expr s) env.local_index)]
-            with Not_found -> try [Str (StringMap.find s env.global_index)]
-            with Not_found -> raise (Failure ("undeclared variable " ^ s))
-          | _ -> raise (Failure ("Assignment must be made to variable"))
-        )
+          try [Sfp (StringMap.find (expr s) env.local_index)]
+          with Not_found -> try [Str (StringMap.find s env.global_index)]
+          with Not_found -> raise (Failure ("undeclared variable " ^ s))
     (*     | Ref(base, child) -> [Litstr child]
                                @ (try [Litint 1] @ [Litint (StringMap.find base env.local_index)]
                                   with Not_found -> try [Litint 2] @ [Litint (StringMap.find base env.global_index)]
