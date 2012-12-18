@@ -51,13 +51,17 @@ let rec enum stride n = function
         (n + 1, hd.varname ^ ".$y" ) ::
         (n + 3, hd.varname ^ ".$x" ) ::
         (n + 5, hd.varname ^ ".$vertices") ::
-        (n + 11, hd.varname ^ ".$color") ::
+        (n + 7, hd.varname ^ ".$colorB") ::
+        (n + 9, hd.varname ^ ".$colorG") ::
+        (n + 11, hd.varname ^ ".$colorR") ::
         (n + 12, hd.varname) :: enum stride (n+stride * 13) tl
           (* Brick size : 3 * 2 int (color), 1 * 2int for vertex array, 2 * 2 for x and y, 1 int for type (3) = 13 *) 
       | "Player" -> 
         (n + 1,     hd.varname ^ ".$y") ::
         (n + 3, hd.varname ^ ".$vertices") ::
-        (n + 9, hd.varname ^ ".$color") ::
+        (n + 5, hd.varname ^ ".$colorB") ::
+        (n + 7, hd.varname ^ ".$colorG") ::
+        (n + 9, hd.varname ^ ".$colorR") ::
         (n + 10, hd.varname) :: enum stride (n+stride * 11) tl 
           (* Player size :  3 * 2 int (color), 1 * 2 int for vertex array, 1 * 2 int (y), 1 for type (4) = 11 *)
       | "Map" ->    
@@ -80,12 +84,16 @@ let rec enum stride n = function
         (n - 11, hd.varname ^ ".$y" ) ::
         (n - 9, hd.varname ^ ".$x" ) ::
         (n - 7, hd.varname ^ ".$vertices") ::
-        (n - 1, hd.varname ^ ".$color") ::
+        (n - 5, hd.varname ^ ".$colorB") ::
+        (n - 3, hd.varname ^ ".$colorG") ::
+        (n - 1, hd.varname ^ ".$colorR") ::
         (n, hd.varname) :: enum stride (n+stride * 13) tl 
       | "Player" -> 
         (n - 9, hd.varname ^ ".$y" ) ::
         (n - 7, hd.varname ^ ".$vertices") ::
-        (n - 1, hd.varname ^ ".$color") ::
+        (n - 5, hd.varname ^ ".$colorB") ::
+        (n - 3, hd.varname ^ ".$colorG") ::
+        (n - 1, hd.varname ^ ".$colorR") ::
         (n, hd.varname) :: enum stride (n+stride * 11) tl 
       | "Map" ->    
         (n - 5, hd.varname ^ ".$generator" ) ::
@@ -105,7 +113,7 @@ let rec enum_func stride n = function
   | hd::tl -> (n, hd) :: enum_func stride (n+stride) tl
 
 let total_varsize a vlist = 
-   List.fold_left (fun a b -> a + (match b.vtype with
+   List.fold_left (fun a b -> a + (match b.vartype with
                     "int" -> 2  
                   | "string" -> 40
                   | "Brick" -> 13
@@ -141,7 +149,7 @@ let translate (globals, functions) =
   let built_in_functions = StringMap.add "push" (-7) built_in_functions in
 
   let function_indexes = string_map_pairs built_in_functions
-      (enum 1 1 (List.map (fun f -> f.fname) functions)) in
+      (enum_func 1 1 (List.map (fun f -> f.fname) functions)) in
 
   (* Translate a function in AST form into a list of bytecode statements *)
   let translate env fdecl =
@@ -159,32 +167,29 @@ let translate (globals, functions) =
       | Id s ->
           (try [Lfp (StringMap.find s env.local_index)]
            with Not_found -> try [Lod (StringMap.find s env.global_index)]
-           with Not_found -> try [Lodf (StringMap.find s env.function_index)]
+           (*with Not_found -> try [Lodf (StringMap.find s env.function_index)]*)
            with Not_found -> raise (Failure ("undeclared variable " ^ s)))
 
-      | Brick (color, varray, x, y) ->
+      | Brick (r, g, b, varray, x, y) ->
           expr y @ expr x 
           @ (try [Litint (StringMap.find varray env.local_index)]
              with Not_found -> try [Litint (StringMap.find varray env.global_index)]
              with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
-          @ (let colorlits = (List.map (fun a -> [Litint (int_of_string a)]) (string_split color))
-             in if ((List.length colorlits) = 3) then colorlits
-                else raise (Failure ("incorrect color string passed in : \"" ^ color ^ "\"")))
-          @ [Litint 3] @ [MakeB]
+          @ expr b @ expr g @ expr r
+          @ [Litint 3]
 
-      | Player (color, varray, y) ->
+      | Player (r, g, b, varray, y) ->
           expr y @ (try [Lfp (StringMap.find varray env.local_index)]
                     with Not_found -> try [Lod (StringMap.find varray env.global_index)]
                     with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
-          @ (let colorlits = (List.map (fun a -> [Litint (int_of_string a)]) (string_split color))
-             in if ((List.length colorlits) = 3) then colorlits
-                else raise (Failure ("incorrect color string passed in : \"" ^ color ^ "\"")))
-          @ [Litint 4] @ [MakeP]
+          @ expr b @ expr g @ expr r
+          @ [Litint 4]
 
       | Map (width, height, generator) ->
           (try [Litint (StringMap.find generator env.function_index)]
            with Not_found -> raise (Failure ("undeclared function " ^ generator))) 
-          @ expr height @ expr width @ [Litint 5] @ [MakeM]
+          @ expr height @ expr width @ [Litint 5]
+
       | Array (array_type) -> (* Push an empty array onto stack with type identifier on top *)
           let rec initializeEmptyArray size lst =
             if (size > 0) then initializeEmptyArray (size-1) ([Litint 0] @ lst)
@@ -201,23 +206,9 @@ let translate (globals, functions) =
                     (initializeEmptyArray 1101 []) @ [Litint 9]
               |   "Map" -> 
                     (initializeEmptyArray 701 []) @ [Litint 10]
+              | _ -> raise (Failure ("Invalid array type " ^ array_type)) 
             )
-      (*| Ref (base, child) ->
-        let childTypeIndex = 
-          (match child with
-            "$vertices" -> 1
-            | "$color" -> 2
-            | "$x" -> 3
-            | "$y" -> 4
-            | "$height" -> 5
-            | "$width" -> 6
-            | "$generator" -> 7) 
-          [Litint childTypeIndex]
-          @ (try [Lfp (StringMap.find base env.local_index)]
-           with Not_found -> try [Lod (StringMap.find base env.global_index)]
-           with Not_found -> raise (Failure ("undeclared variable " ^ s))) 
-          @ [LodRef]
-      *)
+
       | AAccess(a, i) -> 
           expr i @ 
           (try [Litint (StringMap.find a env.local_index)] @ [Lfpa]
@@ -225,17 +216,16 @@ let translate (globals, functions) =
           with Not_found -> raise (Failure ("undeclared variable" ^ a)))
       | AAssign(a, i, e) ->
           expr e @ expr i @         
-          (try [Litint (StringMap.find aStr env.local_index)] @ [Sfpa]
-          with Not_found -> try [Litint (StringMap.find aStr env.global_index)] @ [Stra]
-          with Not_found -> raise (Failure ("undeclared variable" ^ aStr)))
+          (try [Litint (StringMap.find a env.local_index)] @ [Sfpa]
+          with Not_found -> try [Litint (StringMap.find a env.global_index)] @ [Stra]
+          with Not_found -> raise (Failure ("undeclared variable" ^ a)))
       | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
       | Not (e) -> 
-        (match e with
-          1 -> [Litint 0]
-        | 0 -> [Litint 1]
-        | _ -> raise (Failure ("'Not' cannot operate on" ^ e)))
+        (*TODO:below current errors*)
+        if expr e then [Litint 0] else [Litint 1]
       | Assign (s, e) ->
-          try [Sfp (StringMap.find (expr s) env.local_index)]
+          expr e @
+          try [Sfp (StringMap.find s env.local_index)]
           with Not_found -> try [Str (StringMap.find s env.global_index)]
           with Not_found -> raise (Failure ("undeclared variable " ^ s))
     (*     | Ref(base, child) -> [Litstr child]
@@ -244,7 +234,7 @@ let translate (globals, functions) =
                                   with Not_found -> raise (Failure ("undeclared variable " ^ base)))
                                @ [StrRef]) *)
           
-      | Call (fname, actuals) -> (try
+      | Call (fname, actuals) ->
            (List.concat (List.map expr (List.rev actuals))) @
            (try [Jsr (StringMap.find fname env.function_index)]   
             with Not_found -> raise (Failure ("undefined function " ^ fname)))
@@ -255,8 +245,8 @@ let translate (globals, functions) =
       | Expr e       -> expr e @ [Drp]
       | Return e     -> expr e @ [Rts num_formals]
       | If (p, t, f) -> let t' = stmt t and f' = stmt f in
-                         expr p @ [Beq(2 + List.length t')] @
-                         t' @ [Bra(1 + List.length f')] @ f'
+                         (expr p @ [Beq(2 + List.length t')] @
+                         t' @ [Bra(1 + List.length f')] @ f')
       | For (e1, e2, e3, b) -> stmt (Block([Expr(e1); While(e2, Block([b; Expr(e3)]))]))
       | While (e, b) -> let b' = stmt b and e' = expr e in
                          [Bra (1+ List.length b')] @ b' @ e' @

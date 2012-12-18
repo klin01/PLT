@@ -349,17 +349,17 @@ let execute_prog prog =
             exec fp (sp) (pc+1)
 
         | 3 -> (* Brick *)
-            for j=0 to 6 do
+            for j=0 to 12 do
               stack.(fp+i-j) <- stack.(sp-j-1)
             done;
             exec fp (sp) (pc+1)
         | 4 -> (* Player *)
-            for j=0 to 5 do
+            for j=0 to 10 do
               stack.(fp+i-j) <- stack.(sp-j-1)
             done;
             exec fp (sp) (pc+1)
         | 5 -> (* Map *)
-            for j=0 to 3 do
+            for j=0 to 6 do
               stack.(fp+i-j) <- stack.(sp-j-1)
             done;
             exec fp (sp) (pc+1)
@@ -374,17 +374,17 @@ let execute_prog prog =
             done;
             exec fp (sp) (pc+1)
         | 8 -> (* ArrayBrick *)
-            for j=0 to 700 do
+            for j=0 to 1300 do
               stack.(fp+i-j) <- stack.(sp-j-1)
             done;
             exec fp (sp) (pc+1)
         | 9 -> (* ArrayPlayer *)
-            for j=0 to 600 do
+            for j=0 to 1100 do
               stack.(fp+i-j) <- stack.(sp-j-1)
             done;
             exec fp (sp) (pc+1)
         | 10 -> (* ArrayMap *)
-            for j=0 to 400 do
+            for j=0 to 700 do
               stack.(fp+i-j) <- stack.(sp-j-1)
             done;
             exec fp (sp) (pc+1)

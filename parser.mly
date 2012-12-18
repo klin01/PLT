@@ -100,12 +100,14 @@ expr:
     LITERALINT            { LiteralInt($1) }
   | LITERALSTRING         { LiteralString($1) }
   | ID LBRACK expr RBRACK { AAccess($1, $3) }
-  | NEW BRICK LPAREN LITERALSTRING COMMA ID COMMA expr COMMA expr RPAREN  
-                          { Brick(LiteralString($4), $6, $8, $10) }
+  | NEW BRICK LPAREN 
+    expr COMMA expr COMMA expr COMMA ID COMMA expr COMMA expr RPAREN
+                          /* r, g, b, varray, x, y */
+                          { Brick($4, $6, $8, $10, $12, $14) }
   | NEW MAP LPAREN expr COMMA expr COMMA ID RPAREN 
                           { Map($4, $6, $8) }
-  | NEW PLAYER LPAREN LITERALSTRING COMMA ID COMMA expr RPAREN 
-                          { Player(LiteralString($4), $6, $8) }
+  | NEW PLAYER LPAREN expr COMMA expr COMMA expr COMMA ID COMMA expr RPAREN 
+                          { Player($4, $6, $8, $10, $12) }
   | NEW ARRAY TYPE        { Array($3) }
   | NEW ARRAY BRICK       { Array("Brick") }
   | NEW ARRAY PLAYER      { Array("Player") }

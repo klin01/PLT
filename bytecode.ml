@@ -5,17 +5,13 @@ type bstmt =
   | Bin of Ast.op (* Perform arithmetic on top of stack *)
   | Lod of int    (* Fetch global variable *)
   | Str of int    (* Store global variable *)
-  | Loda of int   (* Load global array variable *)
-  | Stra of int   (* Stores global array variable *)
-  | Lodf of int   (* Fetch function?? *)
-  | Strf of int   (* Store function?? *)
+  | Loda          (* Load global array variable *)
+  | Stra          (* Stores global array variable *)
   | Lfp of int    (* Load frame pointer relative *)
   | Sfp of int    (* Store frame pointer relative *)
-  | Lfpa of int   (* This is the start index of this array variable. Index is evaluated and 
+  | Lfpa          (* This is the start index of this array variable. Index is evaluated and 
                     put on top of stack in an int structure. *)
-  | Sfpa of int   (* Stores frame pointer of array *)
-  | StrRef        (* Store pointer to reference of object *)
-  | LodRef of int (* Load pointer to reference of object *)
+  | Sfpa          (* Stores frame pointer of array *)
   | Jsr of int    (* Call function by absolute address *)
   | Ent of int    (* Push FP, FP -> SP, SP += i *)
   | Rts of int    (* Restore FP, SP, consume formals, push result *)
@@ -28,7 +24,6 @@ type bstmt =
   | MakeM         (* Take top 3 variables on stack and make a new map *)
   | MakeP         (* Take top 5 variables on stack and make a new player *)
   | Move          (* Move object on the stack by x and y (two integers on the stack above the object) *)
-  | Ref           (* Take two variables below in stack and access as parent and child *)
   | Hlt           (* Terminate *)
 
 type prog = {
@@ -52,6 +47,8 @@ let string_of_stmt = function
   | Bin(Ast.Leq) -> "Leq"
   | Bin(Ast.Greater) -> "Gt"
   | Bin(Ast.Geq) -> "Geq"
+  | Bin(Ast.And) -> "And"
+  | Bin(Ast.Or) -> "Or"
   | Lod(i) -> "Lod " ^ string_of_int i
   | Str(i) -> "Str " ^ string_of_int i
   | Lfp(i) -> "Lfp " ^ string_of_int i
@@ -62,10 +59,10 @@ let string_of_stmt = function
   | Bne(i) -> "Bne " ^ string_of_int i
   | Beq(i) -> "Beq " ^ string_of_int i
   | Bra(i) -> "Bra " ^ string_of_int i
-  | Lfpa(i) -> "Lfpa " ^ string_of_int i
-  | Sfpa(i) -> "Sfpa " ^ string_of_int i
-  | Loda(i) -> "Loda " ^ string_of_int i
-  | Stra(i) -> "Stra " ^ string_of_int i
+  | Lfpa -> "Lfpa"
+  | Sfpa -> "Sfpa"
+  | Loda -> "Loda"
+  | Stra -> "Stra"
   | OpenWin -> "OpenWin"
   | CloseWin -> "CloseWin"
   | MakeB -> "MakeB"
