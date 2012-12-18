@@ -222,14 +222,43 @@ let translate (globals, functions) =
           (try [Litint (StringMap.find a env.local_index)] @ [Sfpa]
           with Not_found -> try [Litint (StringMap.find a env.global_index)] @ [Stra]
           with Not_found -> raise (Failure ("AAssign: undeclared array " ^ a)))
+       | AAccessByRef(a, i) -> 
+          print_endline("a access" ^ a);
+          expr i @ 
+          (try [Lfp (StringMap.find a env.local_index)] @ [Lfpa]
+          with Not_found -> try[Lod (StringMap.find a env.global_index)] @ [Loda]
+          with Not_found -> raise (Failure ("AAccessByRef: undeclared array " ^ a)))
+      | AAssignByRef(a, i, e) ->
+          print_endline("a assign" ^ a);
+          (*print_endline("i " ^ string_of_expr i); print_endline("a " ^ a); print_endline("e " ^ string_of_expr e);*)
+          expr e @ expr i @
+          (try [Lfp (StringMap.find a env.local_index)] @ [Sfpa]
+          with Not_found -> try [Lod (StringMap.find a env.global_index)] @ [Stra]
+          with Not_found -> raise (Failure ("AAssignByRef: undeclared array " ^ a)))
       | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
       | Not(e) -> 
         expr e @ [Nt]
-      | Assign (s, e) ->
-          expr e @
+      | AssignToRef (s, e) ->
+        (match e with 
+          Id(str) -> print_endline("assign to ref" ^ s);
+            (try [Litint (StringMap.find str env.local_index)]
+            with Not_found -> try [Litint (StringMap.find str env.global_index)]
+            with Not_found -> raise (Failure ("undeclared Id " ^ str))) @
+            (try [Sfp (StringMap.find s env.local_index)]
+            with Not_found -> try [Str (StringMap.find s env.global_index)]
+            with Not_found -> raise (Failure ("AssignToRef: undeclared variable " ^ s)))     
+          | _ ->
+           expr e @
           (try [Sfp (StringMap.find s env.local_index)]
           with Not_found -> try [Str (StringMap.find s env.global_index)]
-          with Not_found -> raise (Failure ("Binop: undeclared variable " ^ s)))
+          with Not_found -> raise (Failure ("Assign: undeclared variable " ^ s)))
+        )
+
+      | Assign (s, e) ->
+           expr e @
+          (try [Sfp (StringMap.find s env.local_index)]
+          with Not_found -> try [Str (StringMap.find s env.global_index)]
+          with Not_found -> raise (Failure ("Assign: undeclared variable " ^ s)))
     (*     | Ref(base, child) -> [Litstr child]
                                @ (try [Litint 1] @ [Litint (StringMap.find base env.local_index)]
                                   with Not_found -> try [Litint 2] @ [Litint (StringMap.find base env.global_index)]

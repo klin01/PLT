@@ -200,6 +200,7 @@ let execute_prog prog =
     let i = stack.(sp-2)
     and elem_index = stack.(sp-4) in
     let var_type_id = globals.(i) in
+    let cnst_offset = 4 in
     (*print_endline ("var type id" ^ string_of_int globals.(i));*)
     let elem_size = 
       (
@@ -221,24 +222,24 @@ let execute_prog prog =
           exec fp (sp-2) (pc+1)
       | 7 -> (* Arraystring *)
           for j=0 to 39 do
-            stack.(sp+j) <- globals.(i-40-elem_size*elem_index+j)
+            stack.(sp+j-cnst_offset) <- globals.(i-40-elem_size*elem_index+j)
           done;
-          exec fp (sp+40) (pc+1)
+          exec fp (sp+40-cnst_offset) (pc+1)
       | 8 -> (* ArrayBrick *)
           for j=0 to 12 do
-            stack.(sp+j) <- globals.(i-13-elem_size*elem_index+j)
+            stack.(sp+j-cnst_offset) <- globals.(i-13-elem_size*elem_index+j)
           done;
-          exec fp (sp+13) (pc+1)
+          exec fp (sp+13-cnst_offset) (pc+1)
       | 9 -> (* ArrayPlayer *)
           for j=0 to 10 do
-            stack.(sp+j) <- globals.(i-11-elem_size*elem_index+j)
+            stack.(sp+j-cnst_offset) <- globals.(i-11-elem_size*elem_index+j)
           done;
-          exec fp (sp+11) (pc+1)
+          exec fp (sp+11-cnst_offset) (pc+1)
       | 10 -> (* ArrayMap *)
           for j=0 to 6 do
-            stack.(sp+j) <- globals.(i-7-elem_size*elem_index+j)
+            stack.(sp+j-cnst_offset) <- globals.(i-7-elem_size*elem_index+j)
           done;
-          exec fp (sp+7) (pc+1) 
+          exec fp (sp+7-cnst_offset) (pc+1) 
       | _ -> raise(Failure("Type error: Global variable accessed is of unknown type."))
     )
   | Stra -> (* Store a value into global array index, top of stack is array address, next is array index, then value to store *)
@@ -424,9 +425,13 @@ let execute_prog prog =
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
     let i = stack.(sp-2) in (* array address *)
+    let cnst_offset = 4 in
     let obj_id = stack.(fp+i)
     and loffset = stack.(sp-4) in
     ( 
+      print_endline(string_of_int stack.(fp+i) ^ " " ^ string_of_int stack.(fp+i+1) 
+        ^ " " ^ string_of_int stack.(fp+i+2) ^ " " ^ string_of_int stack.(fp+i+3)
+        ^ " " ^ string_of_int stack.(fp+i+4) ^ " " ^ string_of_int stack.(fp+i+4));
       match obj_id with
       (* TODO: Change 7 to 10 offsets by 4 *)
         6 -> (* Arrayint *)
@@ -435,25 +440,24 @@ let execute_prog prog =
           exec fp (sp-2) (pc+1)
       | 7 -> (* Arraystring *)
           for j=0 to 39 do
-            stack.(sp+j) <- stack.(fp+i-40+j-loffset*40)
+            stack.(sp+j-cnst_offset) <- stack.(fp+i-40+j-loffset*40)
           done;
-          exec fp (sp+40) (pc+1)
+          exec fp (sp+40-cnst_offset) (pc+1)
       | 8 -> (* ArrayBrick *)
           for j=0 to 12 do
-            stack.(sp+j) <- stack.(fp+i-13+j-loffset*13)
+            stack.(sp+j-cnst_offset) <- stack.(fp+i-13+j-loffset*13)
           done;
-          exec fp (sp+13) (pc+1)
+          exec fp (sp+13-cnst_offset) (pc+1)
       | 9 -> (* ArrayPlayer *)
           for j=0 to 10 do
-            stack.(sp+j) <- stack.(fp+i-11+j);
-            stack.(sp+j) <- stack.(fp+i-11+j-loffset*11);
+            stack.(sp+j-cnst_offset) <- stack.(fp+i-11+j-loffset*11);
           done;
-          exec fp (sp+11) (pc+1)
+          exec fp (sp+11-cnst_offset) (pc+1)
       | 10 -> (* ArrayMap *)
           for j=0 to 6 do
-            stack.(sp+j) <- stack.(fp+i-7+j-loffset*7)
+            stack.(sp+j-cnst_offset) <- stack.(fp+i-7+j-loffset*7)
           done;
-          exec fp (sp+7) (pc+1)
+          exec fp (sp+7-cnst_offset) (pc+1)
       | 0 -> (* Uninitialized array *)
           raise(Failure("Attempt to access index of uninitialized array."))
       | _ -> raise(Failure("Type error: Attempt to access index of array of unknown type."))

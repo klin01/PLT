@@ -12,8 +12,11 @@ type expr =
   | Map of expr * expr * string          (* construct Map: Map(height, width, generator function) *)
   | AAccess of string * expr             (* array access: AAccess(arrayname, index) *)
   | AAssign of string * expr * expr      (* assign value to index of array: AAssign(arrayid, index, value) *)
+  | AAccessByRef of string * expr             (* array access: AAccess(arrayname, index) *)
+  | AAssignByRef of string * expr * expr      (* assign value to index of array: AAssign(arrayid, index, value) *)
   | Binop of expr * op * expr          (* binary operations: Binop(value, operator, value) *)
   | Not of expr                          (* boolean negation *)
+  | AssignToRef of string * expr       (* assign value to variable *)
   | Assign of string * expr              (* assign value to variable *)
   | Call of string * expr list           (* Call functions *)
   | Noexpr

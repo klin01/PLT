@@ -131,11 +131,11 @@ expr:
   | ID                                      { Id($1) }
   | ID REF ID                               { Id($1 ^ "." ^ $3) }
   | ID ASSIGN expr                          { Assign($1, $3) }
-  | ID REF ID ASSIGN expr                   { Assign(($1 ^ "." ^ $3), $5) }
+  | ID REF ID ASSIGN expr                   { AssignToRef(($1 ^ "." ^ $3), $5) } /* Assignment for regular cases and the special case: reference = &obj */
   | ID LBRACK expr RBRACK                         { AAccess($1, $3) }
   | ID LBRACK expr RBRACK ASSIGN expr             { AAssign($1, $3, $6) }
-  | ID REF ID LBRACK expr RBRACK                  { AAccess(($1 ^ "." ^ $3), $5) }        /* Array w/in a struct: $brick1.vertices[0] */
-  | ID REF ID LBRACK expr RBRACK ASSIGN expr      { AAssign(($1 ^ "." ^ $3), $5, $8) }
+  | ID REF ID LBRACK expr RBRACK                  { AAccessByRef(($1 ^ "." ^ $3), $5) }        /* Array w/in a struct: $brick1.vertices[0] */
+  | ID REF ID LBRACK expr RBRACK ASSIGN expr      { AAssignByRef(($1 ^ "." ^ $3), $5, $8) }
   | ID LPAREN actuals_opt RPAREN      { Call($1, $3) }
   | LPAREN expr RPAREN                { $2 }
 
