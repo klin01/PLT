@@ -219,14 +219,18 @@ let translate (globals, functions) =
           with Not_found -> try [Litint (StringMap.find a env.global_index)] @ [Stra]
           with Not_found -> raise (Failure ("undeclared variable" ^ a)))
       | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
-      | Not (e) -> 
-        (*TODO:below current errors*)
-        if expr e then [Litint 0] else [Litint 1]
+      | Not(e) -> 
+        expr e @ [Nt]
       | Assign (s, e) ->
           expr e @
-          try [Sfp (StringMap.find s env.local_index)]
+          (try [Sfp (StringMap.find s env.local_index)]
           with Not_found -> try [Str (StringMap.find s env.global_index)]
-          with Not_found -> raise (Failure ("undeclared variable " ^ s))
+          with Not_found -> raise (Failure ("undeclared variable " ^ s)))
+    (*     | Ref(base, child) -> [Litstr child]
+                               @ (try [Litint 1] @ [Litint (StringMap.find base env.local_index)]
+                                  with Not_found -> try [Litint 2] @ [Litint (StringMap.find base env.global_index)]
+                                  with Not_found -> raise (Failure ("undeclared variable " ^ base)))
+                               @ [StrRef]) *)
       | Call (fname, actuals) -> 
           if (fname = "Run") then
             let actualVars = expr actuals in
@@ -285,7 +289,7 @@ let translate (globals, functions) =
       (fun (l,i) f -> (i :: l, (i + List.length f))) ([],0) func_bodies in
   let func_offset = Array.of_list (List.rev fun_offset_list) in
 
-  { num_globals = (total_varsize 0 globals);
+  { globals_size = total_varsize 0 globals;
     (* Concatenate the compiled functions and replace the function
        indexes in Jsr statements with PC values *)
     text = Array.of_list (List.map (function 

@@ -563,7 +563,37 @@ let execute_prog prog =
       Graphics.clear_graph (); exec fp (sp) (pc+1)
   | CheckCollision -> (* Put a boolean on top of stack depending on whether there is a collision of player and bricks *)
   | DrawPlayer -> (* Draws the player on top of the stack *)
-  
+
+  | Move ->
+      (* Get change in x, and change in y, replace x and y in object on stack *)
+      let movex = stack.(sp-2) in
+      let movey = stack.(sp-4) in
+      let obj_id = stack.(sp-5) in
+      (
+          match obj_id with
+              1 ->  raise (IllegalMove)
+            | 2 ->  raise (IllegalMove)
+
+            | 3 -> (* Moves x and y for brick *)
+                  stack.(sp-10) <- (stack.(sp-10) + movex)
+                  stack.(sp-11) <- (stack.(sp-10) + movey)
+                  exec fp sp (pc+1)
+
+            | 4 -> (* Only moves y coordinate for player *)
+                  stack.(sp-10) <- (stack.(sp-10) + movey)
+                  exec fp sp (pc+1)
+                  
+            | 5 -> raise (IllegalMove)
+            | _ -> raise(Failure("Unmatched type!!")))
+
+  | Nt ->
+    if (stack.(sp-1) <> 1) then 
+      raise(Failure("Cannot apply 'Not' to non-int")) else
+      (if stack.(sp-2) = 1 then stack.(sp-2) <- 0
+        else if stack.(sp-2) = 2 then stack.(sp-2) <- 1
+        else raise(Failure("'Not' can only apply to 1 or 0")))
+      exec fp sp (pc+1)
+
   | Hlt     -> ()
 
   in exec 0 0 0

@@ -23,10 +23,11 @@ type bstmt =
   | DrawPlayer            (* Draws a player object on top of the stack *)
   | CheckCollision        (* Checks if the player object has collided with anyone *)
   | Hlt                   (* Terminate *)
+  | Nt
 
 type prog = {
-    num_globals : int;          (* Number of global variables *)
-    text : bstmt array;         (* Code for all the functions *)
+    globals_size : int;   (* Number of global variables *)
+    text : bstmt array; (* Code for all the functions *)
   }
 
 let string_of_stmt = function
@@ -65,10 +66,11 @@ let string_of_stmt = function
   | DrawPlayer -> "DrawPlayer"
   | OpenWin -> "OpenWin"
   | CloseWin -> "CloseWin"
+  | Nt -> "Not"
   | Hlt    -> "Hlt"
 
 let string_of_prog p =
-  string_of_int p.num_globals ^ " global variables\n" ^
+  string_of_int p.globals_size ^ " global variables\n" ^
   let funca = Array.mapi
       (fun i s -> string_of_int i ^ " " ^ string_of_stmt s) p.text
   in String.concat "\n" (Array.to_list funca)

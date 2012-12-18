@@ -10,7 +10,6 @@ type expr =
   | Player of expr * expr * expr * string * expr       (* construct Player: Player(r, g, b, array of points, y) *)
   | Array of string
   | Map of expr * expr * string          (* construct Map: Map(height, width, generator function) *)
-  | Ref of expr * expr                 (* reference properties of object: Ref(parent, child) *)
   | AAccess of string * expr             (* array access: AAccess(arrayname, index) *)
   | AAssign of string * expr * expr      (* assign value to index of array: AAssign(arrayid, index, value) *)
   | Binop of expr * op * expr          (* binary operations: Binop(value, operator, value) *)
