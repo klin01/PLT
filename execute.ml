@@ -12,7 +12,7 @@ let explode s =
 (* Execute the program *)
 let execute_prog prog =
   let stack = Array.make 16384 0
-  and globals = Array.make prog.globals_size 0 in
+  and globals = Array.make prog.num_globals 0 in
 
   let rec exec fp sp pc = match prog.text.(pc) with
     Litint i  -> stack.(sp) <- i ; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1) 
@@ -46,7 +46,7 @@ let execute_prog prog =
         | 4 -> exec fp (sp-6) (pc+1)
         | 5 -> exec fp (sp-4) (pc+1)
         | _ -> raise(Failure("Unmatched type!!")))
-      )
+      
   | Bin op -> 
       let op1 = stack.(sp-4) and op2 = stack.(sp-2) in     
       stack.(sp-4) <- (let boolean i = if i then 1 else 0 in
@@ -55,7 +55,7 @@ let execute_prog prog =
       | Sub     -> op1 - op2
       | Mult    -> op1 * op2
       | Div     -> op1 / op2
-      | Mod     -> op1 % op2
+      | Mod     -> op1 mod op2
       | Equal   -> boolean (op1 =  op2)
       | Neq     -> boolean (op1 != op2)
       | Less    -> boolean (op1 <  op2)
@@ -249,31 +249,29 @@ let execute_prog prog =
     else
     ( 
       match var_type_id with
-        6 -> (* Arrayint *)
-          globals.(i-2-2*offset) <- stack.(sp-2-2)
-          globals.(i-1-2*offset) <- stack.(sp-1-2)
+        6 -> 
           for j=1 to 2 do
-            globals.(i-j-2*offset) <- stack.(sp-j-2)
+            globals.(i-j-2*loffset) <- stack.(sp-j-2)
           done;
           exec fp (sp) (pc+1)
       | 7 -> (* Arraystring *)
           for j=1 to 40 do
-            globals.(i-j-40*offset) <- stack.(sp-j-2)
+            globals.(i-j-40*loffset) <- stack.(sp-j-2)
           done;
           exec fp (sp) (pc+1)
       | 8 -> (* ArrayBrick *)
           for j=1 to 7 do
-            globals.(i-j-7*offset) <- stack.(sp-j-2)
+            globals.(i-j-7*loffset) <- stack.(sp-j-2)
           done;
           exec fp (sp) (pc+1)
       | 9 -> (* ArrayPlayer *)
           for j=1 to 6 do
-            globals.(i-j-6*offset) <- stack.(sp-j-2)
+            globals.(i-j-6*loffset) <- stack.(sp-j-2)
           done;
           exec fp (sp) (pc+1)
       | 10 -> (* ArrayMap *)
           for j=1 to 4 do
-            globals.(i-j-4*offset) <- stack.(sp-j-2)
+            globals.(i-j-4*loffset) <- stack.(sp-j-2)
           done;
           exec fp (sp) (pc+1)
       | _ -> raise(Failure("Type error: Attempt to store array of unknown type."))
@@ -334,7 +332,7 @@ let execute_prog prog =
           | 0 -> (* Uninitialized variable *)
               raise(Failure("Attempt to load uninitialized local variable."))  
           | _ -> raise(Failure("Type error: Attempt to load variable of unknown type.")))
-      )
+      
   | Sfp i   -> 
       let obj_id = stack.(sp-1) in
       ( 
@@ -436,8 +434,8 @@ let execute_prog prog =
                     | 8 -> 3
                     | 9 -> 4
                     | 10 -> 5
-                    | 0 -> raise (Failure("Attempt to store value into uninitialized array."
-                    | _ -> raise (Failure("Type error: Attempt to access array of unknown type."))))))
+                    | 0 -> raise (Failure("Attempt to store value into uninitialized array."))
+                    | _ -> raise (Failure("Type error: Attempt to access array of unknown type."))))
       then raise(Failure("Type mismatch: Attempt to store value of mismatched type into local array."))
     else
     ( 
@@ -479,7 +477,8 @@ let execute_prog prog =
       if var_type_id <> 2 then raise (Failure("Type error: Unable to call printstring on nonstring."))
       else let strLen = stack.(sp-2) in
               let rec buildStr remaining str = if (remaining > 2) then
-                  buildStr (remaining-1) ((Char.escaped (char_of_int (stack.(sp-remaining-2)))) ^ str) in
+                  buildStr (remaining-1) ((Char.escaped (char_of_int (stack.(sp-remaining-2)))) ^ str) else
+                  str in
                   print_endline (buildStr strLen "")
   | Jsr(-5) -> (* printarray *)
       let var_type_id = stack.(sp-1) in
@@ -502,20 +501,21 @@ let execute_prog prog =
                     match var_type with
                         2 -> let strLen = stack.(sp-p-2) in
                                 let rec buildStr remaining stp str = if (remaining > 2) then
-                                    buildStr (remaining-1) ((Char.escaped (char_of_int (stack.(stp-remaining-2)))) ^ str) in
+                                    buildStr (remaining-1) stp ((Char.escaped (char_of_int (stack.(stp-remaining-2)))) ^ str) else
+                                    str in
                                     print_endline (buildStr strLen (sp-p) "")
                     |   0 -> print_endline "Array has not been initialized."
                     |   _ -> printnextint (sp-40)
                   ) in
                   printnextint 2;
-          |   8 ->  (* ArrayBrick *)
-          |   9 ->  (* ArrayPlayer *)
-          |   10 -> (* ArrayMap *)
+        (*  |   8 ->  (* ArrayBrick *)
+            |   9 ->  (* ArrayPlayer *)
+            |   10 ->  ArrayMap *)
       )
   | Jsr(-6) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
-  | Jsr(-7) -> (* push *)
-  | Jsr i   -> stack.(sp)   <- pc + 1       ; exec fp (sp+1) i
+ (* | Jsr(-7) ->  push *)
+  | Jsr i   -> stack.(sp) <- (pc + 1) ; exec fp (sp+1) i
   | Ent i   -> stack.(sp)   <- fp           ; exec sp (sp+i+1) (pc+1)
   | Rts i   -> let new_fp = stack.(fp) and new_pc = stack.(fp-1) in
                stack.(fp-i-1) <- stack.(sp-1) ; exec new_fp (fp-i) new_pc
@@ -591,7 +591,7 @@ let execute_prog prog =
             exec fp sp (pc+1)
           )
 
-  | Move ->
+(*  | Move ->
       (* Get change in x, and change in y, replace x and y in object on stack *)
       let movex = stack.(sp-2) in
       let movey = stack.(sp-4) in
@@ -611,7 +611,7 @@ let execute_prog prog =
                   exec fp sp (pc+1)
                   
             | 5 -> raise (IllegalMove)
-            | _ -> raise(Failure("Unmatched type!!")))
+            | _ -> raise(Failure("Unmatched type!!"))) *)
 
   
   | Hlt     -> ()

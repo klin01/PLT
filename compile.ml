@@ -105,7 +105,7 @@ let rec enum_func stride n = function
   | hd::tl -> (n, hd) :: enum_func stride (n+stride) tl
 
 let total_varsize a vlist = 
-   List.fold_left (fun a b -> a + (match b.vtype with
+   List.fold_left (fun a b -> a + (match b.vartype with
                     "int" -> 2  
                   | "string" -> 40
                   | "Brick" -> 7
@@ -141,7 +141,7 @@ let translate (globals, functions) =
   let built_in_functions = StringMap.add "push" (-7) built_in_functions in
 
   let function_indexes = string_map_pairs built_in_functions
-      (enum 1 1 (List.map (fun f -> f.fname) functions)) in
+      (enum_func 1 1 (List.map (fun f -> f.fname) functions)) in
 
   (* Translate a function in AST form into a list of bytecode statements *)
   let translate env fdecl =
@@ -167,24 +167,21 @@ let translate (globals, functions) =
           @ (try [Litint (StringMap.find varray env.local_index)]
              with Not_found -> try [Litint (StringMap.find varray env.global_index)]
              with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
-          @ (let colorlits = (List.map (fun a -> [Litint (int_of_string a)]) (string_split color))
-             in if ((List.length colorlits) = 3) then colorlits
-                else raise (Failure ("incorrect color string passed in : \"" ^ color ^ "\"")))
+          @ [Litint 0] @ [Litint 0] @ [Litint 0]
           @ [Litint 3] @ [MakeB]
 
       | Player (color, varray, y) ->
           expr y @ (try [Lfp (StringMap.find varray env.local_index)]
                     with Not_found -> try [Lod (StringMap.find varray env.global_index)]
                     with Not_found -> raise (Failure ("undeclared variable " ^ varray)))
-          @ (let colorlits = (List.map (fun a -> [Litint (int_of_string a)]) (string_split color))
-             in if ((List.length colorlits) = 3) then colorlits
-                else raise (Failure ("incorrect color string passed in : \"" ^ color ^ "\"")))
+          @ [Litint 0] @ [Litint 0] @ [Litint 0]
           @ [Litint 4] @ [MakeP]
 
       | Map (width, height, generator) ->
           (try [Litint (StringMap.find generator env.function_index)]
            with Not_found -> raise (Failure ("undeclared function " ^ generator))) 
           @ expr height @ expr width @ [Litint 5] @ [MakeM]
+
       | Array (array_type) -> (* Push an empty array onto stack with type identifier on top *)
           let rec initializeEmptyArray size lst =
             if (size > 0) then initializeEmptyArray (size-1) ([Litint 0] @ lst)
@@ -202,7 +199,7 @@ let translate (globals, functions) =
               |   "Map" -> 
                     (initializeEmptyArray 400 []) @ [Litint 10]
             )
-      | Ref (base, child) ->
+     (* | Ref (base, child) ->
         let childTypeIndex = 
           (match child with
             "$vertices" -> 1
@@ -211,25 +208,24 @@ let translate (globals, functions) =
             | "$y" -> 4
             | "$height" -> 5
             | "$width" -> 6
-            | "$generator" -> 7) 
+            | "$generator" -> 7) in
           [Litint childTypeIndex]
           @ (try [Lfp (StringMap.find base env.local_index)]
            with Not_found -> try [Lod (StringMap.find base env.global_index)]
-           with Not_found -> raise (Failure ("undeclared variable " ^ s))) 
-          @ [LodRef]
-
+           with Not_found -> raise (Failure ("undeclared variable " ^ s))) @ [LodRef]
+*)
       | AAccess(a, i) -> 
           expr i @ 
-          (try [Litint (StringMap.find a env.local_index)] @ [Lfpa]
-          with Not_found -> try[Litint (StringMap.find a env.global_index)] @ [Loda]
+          (try [Lfpa (StringMap.find a env.local_index)]
+          with Not_found -> try[Loda (StringMap.find a env.global_index)]
           with Not_found -> raise (Failure ("undeclared variable" ^ a)))
       | AAssign(a, i, e) ->
           expr e @ expr i @         
-          (try [Litint (StringMap.find aStr env.local_index)] @ [Sfpa]
-          with Not_found -> try [Litint (StringMap.find aStr env.global_index)] @ [Stra]
-          with Not_found -> raise (Failure ("undeclared variable" ^ aStr)))
+          (try [Sfpa (StringMap.find a env.local_index)]
+          with Not_found -> try [Stra (StringMap.find a env.global_index)]
+          with Not_found -> raise (Failure ("undeclared variable" ^ a)))
       | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
-      | Not (e) -> 
+  (*    | Not (e) -> 
         (match e with
           1 -> [Litint 0]
         | 0 -> [Litint 1]
@@ -242,14 +238,14 @@ let translate (globals, functions) =
                   LiteralString(eStr) -> 
                     let colors = Str.split(Str.regexp("[ \t]+"))(eStr) in
                       try let address = StringMap.find aStr env.local_index in
-                        [Litint int_of_string (List.nth(colors)(0))] @ [Sfp address] @
-                        [Litint int_of_string (List.nth(colors)(1))] @ [Sfp address-2] @
-                        [Litint int_of_string (List.nth(colors)(2))] @ [Sfp address-4]
+                        [Litint (int_of_string (List.nth colors 0))] @ [Sfp address] @
+                        [Litint (int_of_string (List.nth colors 1))] @ [Sfp address-2] @
+                        [Litint (int_of_string (List.nth colors 2))] @ [Sfp address-4]
                       with Not_found ->
                       try let address = StringMap.find aStr env.global_index in
-                        [Litint int_of_string (List.nth(colors)(0))] @ [Str address] @
-                        [Litint int_of_string (List.nth(colors)(1))] @ [Str address-2] @
-                        [Litint int_of_string (List.nth(colors)(2))] @ [Str address-4]
+                        [Litint (int_of_string (List.nth colors 0))] @ [Sfp address] @
+                        [Litint (int_of_string (List.nth colors 1))] @ [Sfp address-2] @
+                        [Litint (int_of_string (List.nth colors 2))] @ [Sfp address-4]
                   | Id()
               )
             else   
@@ -257,14 +253,9 @@ let translate (globals, functions) =
             with Not_found -> try [Str (StringMap.find s env.global_index)]
             with Not_found -> raise (Failure ("undeclared variable " ^ s))
           | _ -> raise (Failure ("Assignment must be made to variable"))
-        )
-    (*     | Ref(base, child) -> [Litstr child]
-                               @ (try [Litint 1] @ [Litint (StringMap.find base env.local_index)]
-                                  with Not_found -> try [Litint 2] @ [Litint (StringMap.find base env.global_index)]
-                                  with Not_found -> raise (Failure ("undeclared variable " ^ base)))
-                               @ [StrRef]) *)
+        ) *)
           
-      | Call (fname, actuals) -> (try
+      | Call (fname, actuals) ->
            (List.concat (List.map expr (List.rev actuals))) @
            (try [Jsr (StringMap.find fname env.function_index)]   
             with Not_found -> raise (Failure ("undefined function " ^ fname)))
@@ -304,7 +295,7 @@ let translate (globals, functions) =
       (fun (l,i) f -> (i :: l, (i + List.length f))) ([],0) func_bodies in
   let func_offset = Array.of_list (List.rev fun_offset_list) in
 
-  { globals_size = total_varsize globals;
+  { num_globals = (total_varsize 0 globals);
     (* Concatenate the compiled functions and replace the function
        indexes in Jsr statements with PC values *)
     text = Array.of_list (List.map (function 

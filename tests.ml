@@ -51,18 +51,18 @@ let rec string_of_expr = function
   | LiteralString(l) -> "\"" ^ l ^ "\""
   | Id(s) -> s
   | Brick(c, a, x, y) -> 
-    "Brick(" ^ string_of_expr c ^ 
-      ", " ^ string_of_expr a ^ 
+    "Brick(" ^  c ^ 
+      ", " ^  a ^ 
       ", " ^ string_of_expr x ^
       ", " ^ string_of_expr y ^ ")"
   | Player(c, a, y) ->
     "Player(" ^ string_of_expr c ^
-      ", " ^ string_of_expr a ^
+      ", " ^  a ^
       ", " ^ string_of_expr y ^ ")"
   | Map(i1, i2, e) ->
     "Map(" ^ string_of_expr i1 ^
       ", " ^ string_of_expr i2 ^
-      ", " ^ string_of_expr e ^ ")"
+      ", " ^  e ^ ")"
   | Ref(s1, s2) ->
     string_of_expr s1 ^ "." ^ string_of_expr s2
   | Binop(e1, o, e2) ->
@@ -74,11 +74,11 @@ let rec string_of_expr = function
       | Or -> "||" | Mod -> "%" | Exp -> "^") ^ " " ^
       string_of_expr e2
   | Array(a) -> "new Array " ^ a 
-  | Assign(v, e) -> string_of_expr v ^ " : " ^ string_of_expr e
-  | AAssign(a, i, e) -> string_of_expr a ^ "[" ^ string_of_expr i ^ "] : " ^ string_of_expr e
-  | AAccess(a, i) -> string_of_expr a ^ "[" ^ string_of_expr i ^ "]"
+  | Assign(v, e) ->  v ^ " : " ^ string_of_expr e
+  | AAssign(a, i, e) ->  a ^ "[" ^ string_of_expr i ^ "] : " ^ string_of_expr e
+  | AAccess(a, i) ->  a ^ "[" ^ string_of_expr i ^ "]"
   | Call(f, el) ->
-      string_of_expr f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Not(e1) -> "!" ^ string_of_expr e1
   | Noexpr -> ""
 

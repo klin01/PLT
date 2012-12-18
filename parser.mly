@@ -101,7 +101,7 @@ expr:
   | LITERALSTRING         { LiteralString($1) }
   | ID LBRACK expr RBRACK { AAccess($1, $3) }
   | NEW BRICK LPAREN LITERALSTRING COMMA ID COMMA expr COMMA expr RPAREN  
-                          { Brick(LiteralString($4), $6, $8, $10) }
+                          { Brick($4, $6, $8, $10) }
   | NEW MAP LPAREN expr COMMA expr COMMA ID RPAREN 
                           { Map($4, $6, $8) }
   | NEW PLAYER LPAREN LITERALSTRING COMMA ID COMMA expr RPAREN 

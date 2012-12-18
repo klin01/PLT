@@ -3,8 +3,20 @@ OBJS = ast.cmo scanner.cmo parser.cmo bytecode.cmo compile.cmo execute.cmo
 COMPILER = microc.cmo
 TESTS = tests.cmo runtest.cmo
 
+CONF=-I +threads
+LIBS=$(WITHGRAPHICS) $(WITHUNIX) $(WITHTHREADS)
+
+# Default setting of the WITH* variables. Should be changed if your
+# local libraries are not found by the compiler.
+WITHGRAPHICS =graphics.cma -cclib -lgraphics -cclib -L/usr/X11R6/lib -cclib -lX11
+
+WITHTHREADS =threads.cma -cclib -lthreads
+
+WITHUNIX =unix.cma -cclib -lunix
+
+
 compiler : $(OBJS) $(COMPILER)
-	ocamlc -o retrocraft $(OBJS) $(COMPILER)
+	ocamlc $(CONF) -o retrocraft $(LIBS) $(OBJS) $(COMPILER)
 
 runtests : $(OBJS) $(TESTS)
 	ocamlc -o runtests $(OBJS) $(TESTS)
@@ -38,14 +50,16 @@ compile.cmo: bytecode.cmo ast.cmo
 compile.cmx: bytecode.cmx ast.cmx 
 execute.cmo: bytecode.cmo ast.cmo 
 execute.cmx: bytecode.cmx ast.cmx 
-interpret.cmo: ast.cmo 
-interpret.cmx: ast.cmx 
-microc.cmo: scanner.cmo parser.cmi interpret.cmo execute.cmo compile.cmo \
-    bytecode.cmo ast.cmo 
-microc.cmx: scanner.cmx parser.cmx interpret.cmx execute.cmx compile.cmx \
-    bytecode.cmx ast.cmx 
+#interpret.cmo: ast.cmo 
+#interpret.cmx: ast.cmx 
+microc.cmo: scanner.cmo parser.cmi execute.cmo compile.cmo \
+    bytecode.cmo ast.cmo tests.cmo
+microc.cmx: scanner.cmx parser.cmx execute.cmx compile.cmx \
+    bytecode.cmx ast.cmx tests.cmx
 parser.cmo: ast.cmo parser.cmi 
 parser.cmx: ast.cmx parser.cmi 
 scanner.cmo: parser.cmi 
 scanner.cmx: parser.cmx 
 parser.cmi: ast.cmo 
+tests.cmo:
+tests.cmx:

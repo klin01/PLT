@@ -6,7 +6,7 @@ type expr =
     LiteralInt of int                  (* Integers *)
   | LiteralString of string            (* Strings *)
   | Id of string                       (* reference a variable *)
-  | Brick of expr * string * expr * expr (* construct a Brick: Brick(color, array of points, x, y) *)
+  | Brick of string * string * expr * expr (* construct a Brick: Brick(color, array of points, x, y) *)
   | Player of expr * string * expr       (* construct Player: Player(color, array of points, y) *)
   | Array of string
   | Map of expr * expr * string          (* construct Map: Map(height, width, generator function) *)
