@@ -101,7 +101,7 @@ in
 
 let gameState = {winWidth=800; winHeight=600; 
                 winBgColor=(color_from_rgb 255 255 255);
-                block1_x=500; block1_y=200; block1_size=150; 
+                block1_x=850; block1_y=200; block1_size=150; 
                 block1_color=(color_from_rgb 20 20 20);
                 player_x=50; player_y=300; player_size=50;
                 player_color=(color_from_rgb 123 12 200);};
