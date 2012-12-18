@@ -8,10 +8,10 @@ function $fun : int (int $x, int $y)
 function $main : void ()
 {
   int $i;
-  $i = 1;
+  $i : 1;
 
-  $printstring("I am not sure what it should print.. 1? 2? 3?");
-  $fun($i = 2, $i = $i + 1);
+  $printstring("I am not sure");
+  $fun($i:5, $i:$i + 2);
 
   $printint( $i );
 

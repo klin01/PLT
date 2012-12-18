@@ -63,6 +63,7 @@ let string_of_stmt = function
   | Loda -> "Loda"
   | Stra -> "Stra"
   | CheckCollision -> "CheckCollision"
+  | CheckUserInput -> "CheckUserInput"
   | DrawPlayer -> "DrawPlayer"
   | OpenWin -> "OpenWin"
   | CloseWin -> "CloseWin"

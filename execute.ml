@@ -22,6 +22,7 @@ let execute_prog prog =
      let split_trim = Str.split(Str.regexp "\"") trimmed  in *)
       let ascii_list = List.rev (List.map Char.code (explode str)) in
         let length = List.length ascii_list in
+          if (length > 38) then raise(Failure("The maximum string length allowed is 38.")) else
           let diff = 38 - length in
             let rec fill_string remaining = 
               if (remaining > 0) then 
@@ -480,7 +481,6 @@ let execute_prog prog =
       print_endline (string_of_int stack.(sp-2)) ; exec fp sp (pc+1)
   | Jsr(-4) -> (* printstring *)
       let var_type_id = stack.(sp-1) in
-
       if var_type_id <> 2 then raise (Failure("Type error: Unable to call printstring on nonstring."))
       else let strLen = stack.(sp-2) in
               let rec buildStr remaining str = if (remaining > 0) then

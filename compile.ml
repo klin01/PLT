@@ -140,13 +140,13 @@ let translate (globals, functions) =
   let global_indexes = string_map_pairs StringMap.empty (enum 1 0 globals) in
 
   (* Assign indexes to function names *)
-  let built_in_functions = StringMap.add "DrawPlayer" (-1) StringMap.empty in
-  let built_in_functions = StringMap.add "Run" (-2) built_in_functions in
-  let built_in_functions = StringMap.add "printint" (-3) built_in_functions in
-  let built_in_functions = StringMap.add "printstring" (-4) built_in_functions in
-  let built_in_functions = StringMap.add "dumpstack" (-5) built_in_functions in
-  let built_in_functions = StringMap.add "Push" (-6) built_in_functions in
-  let built_in_functions = StringMap.add "CallGenerator" (-7) built_in_functions in
+  let built_in_functions = StringMap.add "$DrawPlayer" (-1) StringMap.empty in
+  let built_in_functions = StringMap.add "$Run" (-2) built_in_functions in
+  let built_in_functions = StringMap.add "$printint" (-3) built_in_functions in
+  let built_in_functions = StringMap.add "$printstring" (-4) built_in_functions in
+  let built_in_functions = StringMap.add "$dumpstack" (-5) built_in_functions in
+  let built_in_functions = StringMap.add "$Push" (-6) built_in_functions in
+  let built_in_functions = StringMap.add "$CallGenerator" (-7) built_in_functions in
 
   let function_indexes = string_map_pairs built_in_functions
       (enum_func 1 1 (List.map (fun f -> f.fname) functions)) in
