@@ -8,3 +8,6 @@ COMPILE INSTRUCTION
 
 Example:
 ./microc -b < tests/test-gcd.mc > test-gcd.b.out
+
+In Shell Script,
+Uncomment an indicated part to generate test reference (ONCE code cleaned)
