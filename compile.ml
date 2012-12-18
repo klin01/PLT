@@ -48,55 +48,55 @@ let rec enum stride n = function
         "int" ->    (n + 1, hd.varname) :: enum stride (n+stride * 2) tl
       | "string" -> (n + 39, hd.varname) :: enum stride (n+stride * 40) tl 
       | "Brick" ->
-        (n,     hd.varname ^ ".$y" ) ::
-        (n + 1, hd.varname ^ ".$x" ) ::
-        (n + 2, hd.varname ^ ".$vertices") ::
-        (n + 5, hd.varname ^ ".$color") ::
-        (n + 6, hd.varname) :: enum stride (n+stride * 7) tl
-          (* Brick size : 3 int (color), 1 int for vertex array, 2 for x and y, 1 int for type (3) = 7 *) 
+        (n + 1, hd.varname ^ ".$y" ) ::
+        (n + 3, hd.varname ^ ".$x" ) ::
+        (n + 5, hd.varname ^ ".$vertices") ::
+        (n + 11, hd.varname ^ ".$color") ::
+        (n + 12, hd.varname) :: enum stride (n+stride * 13) tl
+          (* Brick size : 3 * 2 int (color), 1 * 2int for vertex array, 2 * 2 for x and y, 1 int for type (3) = 13 *) 
       | "Player" -> 
-        (n,     hd.varname ^ ".$y") ::
-        (n + 1, hd.varname ^ ".$vertices") ::
-        (n + 2, hd.varname ^ ".$color") ::
-        (n + 5, hd.varname) :: enum stride (n+stride * 6) tl 
-          (* Player size :  3 int (color), 1 int for vertex array, 1 int (y), 1 for type (4) = 6 *)
+        (n + 1,     hd.varname ^ ".$y") ::
+        (n + 3, hd.varname ^ ".$vertices") ::
+        (n + 9, hd.varname ^ ".$color") ::
+        (n + 10, hd.varname) :: enum stride (n+stride * 11) tl 
+          (* Player size :  3 * 2 int (color), 1 * 2 int for vertex array, 1 * 2 int (y), 1 for type (4) = 11 *)
       | "Map" ->    
-        (n,     hd.varname ^ ".$generator") ::
-        (n + 1, hd.varname ^ ".$height") ::
-        (n + 2, hd.varname ^ ".$width") ::
-        (n + 3, hd.varname) :: enum stride (n+stride * 4) tl 
-          (* Map size : 1 int for generator function, 2 x 1 int (h, w), 1 for type (5) = 4 *)
+        (n + 1,     hd.varname ^ ".$generator") ::
+        (n + 3, hd.varname ^ ".$height") ::
+        (n + 4, hd.varname ^ ".$width") ::
+        (n + 6, hd.varname) :: enum stride (n+stride * 7) tl 
+          (* Map size : 1 * 2 int for generator function, 2 x 2 int (h, w), 1 for type (5) = 7 *)
       | "Arrayint" ->    (n + 2*array_def_size-1, hd.varname) :: enum stride (n+stride * 2 * array_def_size + 1) tl
       | "Arraystring" -> (n + 40*array_def_size-1, hd.varname) :: enum stride (n+stride * 40 * array_def_size + 1) tl
-      | "ArrayBrick" ->  (n + 7*array_def_size-1, hd.varname) :: enum stride (n+stride * 7 * array_def_size + 1) tl
-      | "ArrayPlayer" -> (n + 6*array_def_size-1, hd.varname) :: enum stride (n+stride * 6 * array_def_size + 1) tl
-      | "ArrayMap" ->    (n + 4*array_def_size-1, hd.varname) :: enum stride (n+stride * 4 * array_def_size + 1) tl
+      | "ArrayBrick" ->  (n + 13*array_def_size-1, hd.varname) :: enum stride (n+stride * 13 * array_def_size + 1) tl
+      | "ArrayPlayer" -> (n + 11*array_def_size-1, hd.varname) :: enum stride (n+stride * 11 * array_def_size + 1) tl
+      | "ArrayMap" ->    (n + 7*array_def_size-1, hd.varname) :: enum stride (n+stride * 7 * array_def_size + 1) tl
       | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
     else
       match hd.vartype with
         "int" ->    (n, hd.varname) :: enum stride (n+stride * 2) tl
       | "string" -> (n, hd.varname) :: enum stride (n+stride * 40) tl 
       | "Brick" ->  
-        (n - 6, hd.varname ^ ".$y" ) ::
-        (n - 5, hd.varname ^ ".$x" ) ::
-        (n - 4, hd.varname ^ ".$vertices") ::
+        (n - 11, hd.varname ^ ".$y" ) ::
+        (n - 9, hd.varname ^ ".$x" ) ::
+        (n - 7, hd.varname ^ ".$vertices") ::
         (n - 1, hd.varname ^ ".$color") ::
-        (n, hd.varname) :: enum stride (n+stride * 7) tl 
+        (n, hd.varname) :: enum stride (n+stride * 13) tl 
       | "Player" -> 
-        (n - 5, hd.varname ^ ".$y" ) ::
-        (n - 4, hd.varname ^ ".$vertices") ::
+        (n - 9, hd.varname ^ ".$y" ) ::
+        (n - 7, hd.varname ^ ".$vertices") ::
         (n - 1, hd.varname ^ ".$color") ::
-        (n, hd.varname) :: enum stride (n+stride * 6) tl 
+        (n, hd.varname) :: enum stride (n+stride * 11) tl 
       | "Map" ->    
-        (n - 3, hd.varname ^ ".$generator" ) ::
-        (n - 2, hd.varname ^ ".$height" ) ::
-        (n - 1, hd.varname ^ ".$width") ::
-        (n, hd.varname) :: enum stride (n+stride * 4) tl 
+        (n - 5, hd.varname ^ ".$generator" ) ::
+        (n - 3, hd.varname ^ ".$width" ) ::
+        (n - 1, hd.varname ^ ".$height") ::
+        (n, hd.varname) :: enum stride (n+stride * 7) tl 
       | "Arrayint" ->    (n, hd.varname) :: enum stride (n+stride * 2 * array_def_size + 1) tl
       | "Arraystring" -> (n, hd.varname) :: enum stride (n+stride * 40 * array_def_size + 1) tl
-      | "ArrayBrick" ->  (n, hd.varname) :: enum stride (n+stride * 7 * array_def_size + 1) tl
-      | "ArrayPlayer" -> (n, hd.varname) :: enum stride (n+stride * 6 * array_def_size + 1) tl
-      | "ArrayMap" ->    (n, hd.varname) :: enum stride (n+stride * 4 * array_def_size + 1) tl
+      | "ArrayBrick" ->  (n, hd.varname) :: enum stride (n+stride * 13 * array_def_size + 1) tl
+      | "ArrayPlayer" -> (n, hd.varname) :: enum stride (n+stride * 11 * array_def_size + 1) tl
+      | "ArrayMap" ->    (n, hd.varname) :: enum stride (n+stride * 7 * array_def_size + 1) tl
       | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
 
 (* val enum : int -> 'a list -> (int * 'a) list *)
@@ -108,14 +108,14 @@ let total_varsize a vlist =
    List.fold_left (fun a b -> a + (match b.vtype with
                     "int" -> 2  
                   | "string" -> 40
-                  | "Brick" -> 7
-                  | "Player" -> 6
-                  | "Map" -> 4
+                  | "Brick" -> 13
+                  | "Player" -> 11
+                  | "Map" -> 7
                   | "Arrayint" -> array_def_size*2+1
                   | "Arraystring"  -> array_def_size*40+1
-                  | "ArrayBrick" -> array_def_size*7+1
-                  | "ArrayPlayer" -> array_def_size*6+1
-                  | "ArrayMap" -> array_def_size*4+1
+                  | "ArrayBrick" -> array_def_size*13+1
+                  | "ArrayPlayer" -> array_def_size*11+1
+                  | "ArrayMap" -> array_def_size*7+1
                   |  _ -> raise(Failure("Error in total_varsize"))
                   )) 0 vlist
 
@@ -196,13 +196,13 @@ let translate (globals, functions) =
               |   "string" ->
                     (initializeEmptyArray 4000 []) @ [Litint 7]
               |   "Brick" ->
-                    (initializeEmptyArray 700 []) @ [Litint 8]
+                    (initializeEmptyArray 1301 []) @ [Litint 8]
               |   "Player" ->
-                    (initializeEmptyArray 600 []) @ [Litint 9]
+                    (initializeEmptyArray 1101 []) @ [Litint 9]
               |   "Map" -> 
-                    (initializeEmptyArray 400 []) @ [Litint 10]
+                    (initializeEmptyArray 701 []) @ [Litint 10]
             )
-      | Ref (base, child) ->
+      (*| Ref (base, child) ->
         let childTypeIndex = 
           (match child with
             "$vertices" -> 1
@@ -217,7 +217,7 @@ let translate (globals, functions) =
            with Not_found -> try [Lod (StringMap.find base env.global_index)]
            with Not_found -> raise (Failure ("undeclared variable " ^ s))) 
           @ [LodRef]
-
+      *)
       | AAccess(a, i) -> 
           expr i @ 
           (try [Litint (StringMap.find a env.local_index)] @ [Lfpa]
