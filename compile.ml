@@ -243,7 +243,7 @@ let translate (globals, functions) =
                                 strPlayer
                               )
                             @ loadPlayer @ (expr Call("DrawPlayer", [List.nth actuals 1])) @ (expr Call("CallGenerator", [List.nth actuals 0]))) in
-            [loadMap] @ [OpenWin] @ [Bra (List.length whilebody)] @ whilebody @ [CheckCollision] @ [Bne -((List.length whilebody) + 1)]
+            [loadMap] @ [OpenWin] @ [Bra ((List.length whilebody)+1)] @ whilebody @ loadPlayer @ [CheckCollision] @ [Bne -((List.length whilebody) + 1)]
           else
           (try
            (List.concat (List.map expr (List.rev actuals))) @

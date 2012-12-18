@@ -5,15 +5,13 @@ type bstmt =
   | Bin of Ast.op         (* Perform arithmetic on top of stack *)
   | Lod of int            (* Fetch global variable *)
   | Str of int            (* Store global variable *)
-  | Loda of int           (* Load global array variable *)
-  | Stra of int           (* Stores global array variable *)
+  | Loda                  (* Load global array variable *)
+  | Stra                  (* Stores global array variable *)
   | Lfp of int            (* Load frame pointer relative *)
   | Sfp of int            (* Store frame pointer relative *)
-  | Lfpa of int           (* This is the start index of this array variable. Index is evaluated and 
+  | Lfpa                  (* This is the start index of this array variable. Index is evaluated and 
                              put on top of stack in an int structure. *)
-  | Sfpa of int           (* Stores frame pointer of array *)
-  | StrRef                (* Store pointer to reference of object *)
-  | LodRef of int         (* Load pointer to reference of object *)
+  | Sfpa                  (* Stores frame pointer of array *)
   | Jsr of int            (* Call function by absolute address *)
   | Ent of int            (* Push FP, FP -> SP, SP += i *)
   | Rts of int            (* Restore FP, SP, consume formals, push result *)
@@ -23,7 +21,7 @@ type bstmt =
   | OpenWin               (* Opens a display window *)
   | CloseWin              (* Closes the display window *)
   | DrawPlayer            (* Draws a player object on top of the stack *)
-  | CheckCollision of int (* Checks if the player object has collided with anyone *)
+  | CheckCollision        (* Checks if the player object has collided with anyone *)
   | Hlt                   (* Terminate *)
 
 type prog = {
@@ -63,12 +61,10 @@ let string_of_stmt = function
   | Sfpa -> "Sfpa"
   | Loda -> "Loda"
   | Stra -> "Stra"
+  | CheckCollision -> "CheckCollision"
+  | DrawPlayer -> "DrawPlayer"
   | OpenWin -> "OpenWin"
   | CloseWin -> "CloseWin"
-  | MakeB -> "MakeB"
-  | MakeM -> "MakeM"
-  | MakeP -> "MakeP"
-  | Move -> "Move"
   | Hlt    -> "Hlt"
 
 let string_of_prog p =
