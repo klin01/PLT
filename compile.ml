@@ -193,9 +193,9 @@ let translate (globals, functions) =
 
       | Array (array_type) -> (* Push an empty array onto stack with type identifier on top *)
           let rec initializeEmptyArray size lst =
-            if (size > 0) then initializeEmptyArray (size-1) ([Litint 0] @ lst)
-            else lst in
-            (
+            if (size > 0) then initializeEmptyArray (size-1) ([Litint 0] @ lst) else lst 
+          in
+          (
               match array_type with
                   "int" ->
                     (initializeEmptyArray 200 []) @ [Litint 6] @ [Make]
@@ -208,7 +208,7 @@ let translate (globals, functions) =
               |   "Map" -> 
                     (initializeEmptyArray 701 []) @ [Litint 10] @ [Make]
               | _ -> raise (Failure ("Invalid array type " ^ array_type)) 
-            )
+          )
       | AAccess(a, i) -> 
           print_endline("a access" ^ a);
           expr i @ 
