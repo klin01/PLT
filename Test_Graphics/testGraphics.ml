@@ -3,15 +3,19 @@ open Thread
 (* Somehow without line 4 I get an error... *)
 exception End;;
 
+type blockType = {
+  mutable block_x:int; 
+  mutable block_y:int; 
+  mutable block_size:int; 
+  mutable block_color:int;
+};;
+
 type state = {
   mutable winWidth:int; 
   mutable winHeight:int; 
   mutable winBgColor:int;
 
-  mutable block1_x:int; 
-  mutable block1_y:int; 
-  mutable block1_size:int; 
-  mutable block1_color:int;
+  mutable blockData:blockType list;
 
   mutable player_x:int; 
   mutable player_y:int;
@@ -45,7 +49,13 @@ let t_init s () =
   (*Graphics.set_color s.player_color;*)
   draw_player s.player_x s.player_y s.player_size s.player_color;
   (*Graphics.set_color s.block1_color;*)
-  draw_rectangle s.block1_x s.block1_y s.block1_size s.block1_color;
+  
+  List.iter (fun block -> (draw_rectangle block.block_x
+                                          block.block_y
+                                          block.block_size
+                                          block.block_color)) s.blockData;
+
+  (*draw_rectangle s.block1_x s.block1_y s.block1_size s.block1_color;*)
 in
 
 (* s is state *)
@@ -58,8 +68,8 @@ in
 let t_key s c =
   (*draw_player s.player_x s.player_y s.player_size s.player_color;*)
   (match c with
-    ' '   -> if s.player_y < s.winHeight - s.player_size then s.player_y <- s.player_y + 1;
-  | 'z'   -> if s.player_y > 0 then s.player_y <- s.player_y - 1;
+    ' '   -> if s.player_y < s.winHeight - s.player_size then s.player_y <- s.player_y + 2;
+  | 'z'   -> if s.player_y > 0 then s.player_y <- s.player_y - 3;
   | _     -> ());
 in
 
@@ -68,20 +78,49 @@ let t_updateFrame s () =
   Graphics.set_color s.winBgColor;
   Graphics.fill_rect 0 0 s.winWidth s.winHeight;
   
+  (*
   s.block1_x <- s.block1_x - 3;
   draw_rectangle s.block1_x s.block1_y s.block1_size s.block1_color;
+  *)
+
+    List.iter (fun block -> (block.block_x <- block.block_x - 3)) s.blockData;
+
+    List.iter (fun block -> (draw_rectangle block.block_x
+                                          block.block_y
+                                          block.block_size
+                                          block.block_color)) s.blockData;
 
   draw_player s.player_x s.player_y s.player_size s.player_color;
-
 in
   
 
 let t_except s ex = ();
 in
 
+let t_playerCollided s () = 
+  let check block =
+    if (s.player_x + s.player_size > block.block_x) then
+      if (((s.player_y + s.player_size > block.block_y) && (s.player_y < block.block_y)) || 
+            ((block.block_y + block.block_size > s.player_y) && (block.block_y < s.player_y))) then
+        true
+      else false
+    else false in
+  (*let collisionList = List.Map (fun block ->
+      if (s.player_x + s.player_size < block.block_x) then
+        if (((s.player_y + s.player_size > block.block_y) && (s.player_y < block.block_y)) || 
+            ((block.block_y + block.block_size > s.player_y) && (block.block_y < s.player_y)))
+        then true else false;
+      else false) s.blockData;*)
+  let result list = List.fold_left (fun a b -> a || b) false list in
+    let collisionList = List.map check s.blockData in
+      (*print_endline (string_of_bool (result collisionList));*)
+      result collisionList;
+in
+
+
 (*let i = ref 0; in*)
 
-let skel f_init f_end f_key (*f_mouse*)f_updateFrame f_except = 
+let skel f_init f_end f_key (*f_mouse*) f_updateFrame f_except f_playerCollided = 
   f_init ();
   try 
       while true do
@@ -90,6 +129,7 @@ let skel f_init f_end f_key (*f_mouse*)f_updateFrame f_except =
         try 
 
           if Graphics.key_pressed () then f_key (Graphics.read_key ());
+          if f_playerCollided () then f_end ();
 
         with 
              End -> raise End
@@ -97,12 +137,22 @@ let skel f_init f_end f_key (*f_mouse*)f_updateFrame f_except =
       done
   with 
       End  -> f_end ();
+
+in
+
+let block1 = { block_x=500; block_y=200; block_size=150; 
+                block_color=(color_from_rgb 20 20 20) }; in
+let block2 = { block_x=600; block_y=400; block_size=100; 
+                block_color=(color_from_rgb 150 20 120) }; in
+let block3 = { block_x=400; block_y=0; block_size=50; 
+                block_color=(color_from_rgb 20 120 20) }; in
+
+let blocks = [block1; block2; block3];
 in
 
 let gameState = {winWidth=800; winHeight=600; 
                 winBgColor=(color_from_rgb 255 255 255);
-                block1_x=850; block1_y=200; block1_size=150; 
-                block1_color=(color_from_rgb 20 20 20);
+                blockData=blocks;
                 player_x=50; player_y=300; player_size=50;
                 player_color=(color_from_rgb 123 12 200);};
 in
@@ -110,7 +160,7 @@ in
 let slate () =
     skel (t_init gameState) (t_end gameState)
          (t_key gameState) (t_updateFrame gameState) 
-         (t_except gameState); 
+         (t_except gameState) (t_playerCollided gameState); 
 in
 
 slate ();
