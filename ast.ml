@@ -13,7 +13,7 @@ type expr =
   | AAccess of string * expr             (* array access: AAccess(arrayname, index) *)
   | AAssign of string * expr * expr      (* assign value to index of array: AAssign(arrayid, index, value) *)
   | Binop of expr * op * expr          (* binary operations: Binop(value, operator, value) *)
-  | Not of expr                        (* boolean negation *)
+  | Not of expr                          (* boolean negation *)
   | Assign of string * expr              (* assign value to variable *)
   | Call of string * expr list           (* Call functions *)
   | Noexpr

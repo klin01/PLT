@@ -132,7 +132,7 @@ expr:
   | ID SHORTDIVIDE expr { Assign($1, Binop(Id($1), Div,  $3)) }
   | expr AND expr         { Binop($1, And, $3) }
   | expr OR  expr         { Binop($1, Or,  $3) }
-  | NOT LITERALINT                    { Not(LiteralInt($2)) }
+  | NOT expr                    { Not($2) }
   | ID LBRACK expr RBRACK ASSIGN expr { AAssign($1, $3, $6) }
   | ID ASSIGN expr                    { Assign($1, $3) }
   | ID REF ID ASSIGN expr             { Assign(($1 ^ "." ^ $3), $5) }
