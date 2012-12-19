@@ -1,36 +1,35 @@
-Array string $global;
-Array int $global2;
-int $x;
-Array int $bricks;
+Array string $globalstring;
+Array int $globalint;
 
 function $main: void() {
-	Array int $local;
-	Brick $b;
-	Player $y;
-	int $z;
-
-	$Push($local, 2);
-	$Push($local, 9);
-	$Push($global2, 99);
-	$Push($global2, 88);
-	$Push($global2, 88);
-	$global2[9] : 9;
-	//$local : new Array int;
-	$b : new Brick(0, 0, 0, $local, 1, 2);
-	$x : 3;
-	$z : ($x = 3);
-
-	$x : $ArrayCount($x);
+	Array int $localint;
+	Array string $localstring;
 	
-	$printint($x);
-	//$Push($global, 0);
-	/*$Push($global, 5);
-	$Push($local, 2);
+	$Push($localint, 1);
+	$Push($localint, 2);
+	$Push($localstring, "test3");
+	$Push($localstring, "test4");
+	$Push($localstring, "test5");
 
-	$printstring("Should print \"test\" and \"testing\".");
-	$printint($global[0]);
-	$printint($global[1]);
+	$Push($globalint, 6);
+	$Push($globalint, 7);
+	$Push($globalint, 8)
+	$Push($globalstring, "test9");
+	$Push($globalstring, "test10");
+	$Push($globalstring, "test11");
+	
+	$printstring("Expected: 1 2 test3 test4 test5");
+	$printint($localint[0]);
+	$printint($localint[1]);
+	$printstring($localstring[0]);
+	$printstring($localstring[1]);
+	$printstring($localstring[2]);
 
-	//$printstring("Should print 2.");
-	//$printint($local[0]);*/
+	$printstring("Expected 6 7 8 test9 test10 test11");
+	$printint($globalint[0]);
+	$printint($globalint[1]);
+	$printint($globalint[2]);
+	$printstring($globalstring[0]);
+	$printstring($globalstring[1]);
+	$printstring($globalstring[2]);
 }
