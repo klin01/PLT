@@ -818,7 +818,7 @@ let execute_prog prog =
         draw_polygon (fst !player) color;
 
 
-        Thread.join(Thread.create(Thread.delay)(120.0 /. 24.0));
+        Thread.join(Thread.create(Thread.delay)(60.0 /. 24.0));
 
        exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
@@ -837,8 +837,9 @@ let execute_prog prog =
   | Jsr(-5) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
   | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
-        print_endline ("Call generator") ;
+        
         let i = stack.(sp-7) in
+        print_endline ("Call generator" ^  " " ^ string_of_int i) ;
         stack.(sp)   <- pc + 1 ; exec fp (sp+1) i
   | Jsr(-7) -> (* Push function to push object on top of stack into array *)
       let varsize = (match (stack.(sp-1)) with
@@ -987,7 +988,11 @@ let execute_prog prog =
           | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
       in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
   | PrintScore -> (* Prints the user's current score *)
-        ()
+        print_endline ("pritn " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
+                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+
   | Nt ->
     if (stack.(sp-1) <> 1) then 
       raise(Failure("Cannot apply 'Not' to non-int")) else
