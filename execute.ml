@@ -1172,11 +1172,7 @@ let execute_prog prog =
           and r = stack.(i-3)
           and g = stack.(i-5)
           and b = stack.(i-7)
-          and addr = stack.(i-9) in
-
-      (*  print_endline ("scopre r g b " ^ string_of_int scope ^ " " ^ string_of_int r ^ " " ^ string_of_int g
-                  ^ " " ^ string_of_int b ^ " " ^ string_of_int addr);*)
-          
+          and addr = stack.(i-9) in    
           let rec make_coord_list n = 
             if (scope = -1) then (*LOCAL*)
               (
@@ -1199,16 +1195,14 @@ let execute_prog prog =
             )
           ) else []
       in 
-      let blocks1 = addToBricks (sp-1) in    
+      blocks1 = addToBricks (sp-1);    
 
-      print_endline (String.concat " " (List.map string_of_int ((List.hd blocks1).block_vertices)));
+      (*print_endline (String.concat " " (List.map string_of_int ((List.hd blocks1).block_vertices)));
 
         
-        draw_polygon ((List.hd blocks1).block_vertices) ((List.hd blocks1).block_color);
+      draw_polygon ((List.hd blocks1).block_vertices) ((List.hd blocks1).block_color);
 
-      Thread.join(Thread.create(Thread.delay)(3.0));
-
-
+      Thread.join(Thread.create(Thread.delay)(3.0)); *)
       exec fp sp (pc+1)
 
          
