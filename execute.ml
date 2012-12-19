@@ -1047,11 +1047,26 @@ let t_updateFrame s () =
   in
   List.iter (fun block -> ( block.block_vertices <- (wrapAround block.block_vertices))) s.blockData;
   if (s.reset = true) then
+    (*let find_wrap_length = (if List.length s.blockData <= 1 then s.winWidth else 
+         let rec findMinAmongAll current = function 
+        []  -> current
+        | hd::tl  -> if (find_min_x hd) < current then (findMinAmongAll (find_min_x hd) tl) else (findMinAmongAll current tl) in
+
+        let rec findMaxAmongAll current = function 
+        []  -> current
+        | hd::tl  -> if (find_max_x hd) > current then (findMaxAmongAll (find_max_x hd) tl) else (findMaxAmongAll current tl) in
+
+        
+          ((findMaxAmongAll 0 s.blockData) - (findMinAmongAll 100000 s.blockData))); in
+
+    List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x find_wrap_length block.block_vertices))) s.blockData;*)
     List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x (s.winWidth+s.winWidth) block.block_vertices))) s.blockData;
 
   (* End wrap map *)
 
   s.userscore <- s.userscore + 1;
+  draw_string 10 (s.winHeight-20) ("Score: " ^ string_of_int gameState.userscore);
+
   draw_polygon s.playerData.player_vertices s.playerData.player_color;
 in
   
