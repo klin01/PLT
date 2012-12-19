@@ -88,14 +88,16 @@ let color_from_rgb r g b =
 *)
 let rec trans_allVertices_x ex = function
   [] -> []
-  | px::py::tl -> (px + ex)::(py::(trans_allVertices_x ex tl));;
+  | px::py::tl -> (px + ex)::(py::(trans_allVertices_x ex tl))
+  | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates."));;
 
 (*
   Relatively translate all vertex given the translation distance ey
 *)
 let rec trans_allVertices_y ey = function
   [] -> []
-  | px::py::tl ->(px)::((py + ey)::(trans_allVertices_y ey tl));;
+  | px::py::tl ->(px)::((py + ey)::(trans_allVertices_y ey tl))
+  | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates."));;
 
 (*
   Given absolute location in x of the first vertex of the polygon,
@@ -105,7 +107,8 @@ let trans_allVertices_abs_x abx vlist =
   let distant = abx - (List.nth vlist 0) in
     let rec trans_abs_x dist = function
       [] -> []
-      | px::py::tl -> (px + dist)::(py::(trans_abs_x dist tl)) in
+      | px::py::tl -> (px + dist)::(py::(trans_abs_x dist tl))
+      | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates.")) in
         trans_abs_x distant vlist;;
 
 (*
@@ -116,25 +119,30 @@ let trans_allVertices_abs_y aby vlist =
   let distant = aby - (List.nth vlist 1) in
     let rec trans_abs_y dist = function
       [] -> []
-      | px::py::tl -> (px)::((py + dist)::(trans_abs_y dist tl)) in
+      | px::py::tl -> (px)::((py + dist)::(trans_abs_y dist tl))
+      | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates.")) in
         trans_abs_y distant vlist;;
 
 (* Given the start value and the list of vertices, compute max or min *)
 let rec find_max_y current = function
     []           -> current
-    | px::py::tl -> if (py > current) then (find_max_y py tl) else (find_max_y current tl);;
+    | px::py::tl -> if (py > current) then (find_max_y py tl) else (find_max_y current tl)
+    | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates."));;
 
 let rec find_min_y current = function
     []           -> current
-    | px::py::tl -> if (py < current) then (find_min_y py tl) else (find_min_y current tl);;
+    | px::py::tl -> if (py < current) then (find_min_y py tl) else (find_min_y current tl)
+    | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates."));;
 
 let rec find_max_x current = function
     []           -> current
-    | px::py::tl -> if (px > current) then (find_max_x px tl) else (find_max_x current tl);;
+    | px::py::tl -> if (px > current) then (find_max_x px tl) else (find_max_x current tl)
+    | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates."));;
 
 let rec find_min_x current = function
     []           -> current
-    | px::py::tl -> if (px < current) then (find_min_x px tl) else (find_min_x current tl);;
+    | px::py::tl -> if (px < current) then (find_min_x px tl) else (find_min_x current tl)
+    | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates."));;
 
 (*
   Given a list of vertex coordinates [x0, y0, x1, y1, ...] and color,
@@ -152,7 +160,8 @@ let draw_polygon vlist color =
 
   let rec buildTupleArray = function
     [] -> []
-    | px::py::tl -> (px,py)::(buildTupleArray tl)  
+    | px::py::tl -> (px,py)::(buildTupleArray tl)
+    | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates.")) 
   in
   Graphics.fill_poly (Array.of_list (buildTupleArray vlist));;
 
@@ -1108,12 +1117,10 @@ let execute_prog prog =
               (*print_endline (string_of_bool (result collisionList));*)
               result collisionList;
       in
-      let final_result = (t_playerCollided blocks1 || t_playerCollided blocks2);
+      let final_result = (t_playerCollided blocks1 || t_playerCollided blocks2) in
 
       stack.(sp) <- final_result; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
-      
-
       exec fp sp (pc+1)
   | DrawPlayer -> (* Draws the player on top of the stack *)
       let scope = stack.(sp-8)
@@ -1140,9 +1147,7 @@ let execute_prog prog =
           | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
       in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
   | ProcessBlocks -> (*Blocks are on the top of the stack*)
-
       let rec addToBricks i = 
-        
         if (stack.(i-1) = 3) then
           (
           let scope = stack.(i-8)

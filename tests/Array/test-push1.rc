@@ -20,7 +20,7 @@ function $main: void() {
 	$x : 3;
 	$z : ($x = 3);
 
-	$x : $ArrayCount($local);
+	$x : $ArrayCount($x);
 	
 	$printint($x);
 	//$Push($global, 0);
