@@ -219,7 +219,7 @@ let translate (globals, functions) =
           with Not_found -> try[Lod (StringMap.find a env.global_index)] @ [Loda]
           with Not_found -> raise (Failure ("AAccessByRef: undeclared array " ^ a)))
       | AAssignByRef(a, i, e) ->
-          print_endline("a assign" ^ a);
+          print_endline("a assign by ref" ^ a);
           (*print_endline("i " ^ string_of_expr i); print_endline("a " ^ a); print_endline("e " ^ string_of_expr e);*)
           expr e @ expr i @
           (try [Lfp (StringMap.find a env.local_index)] @ [Sfpa]
@@ -231,14 +231,15 @@ let translate (globals, functions) =
       | AssignToRef (s, e) ->
         let strLen = String.length s in 
         (match e with 
-          Id(str) -> print_endline("assign to ref" ^ s);
-            let sub = String.sub s (strLen-11) 10 in
+          Id(str) -> 
+            let sub = String.sub s (strLen-10) 10 in
+              (*print_endline("assign to ref " ^ s ^ " " ^ sub);*)
               if sub = ".$vertices" then
               (try [Litint (StringMap.find str env.local_index)]
               with Not_found -> try [Litint (StringMap.find str env.global_index)]
               with Not_found -> raise (Failure ("undeclared Id " ^ str)))  
             else
-            let sub2 = String.sub s (strLen-12) 11 in
+            let sub2 = String.sub s (strLen-11) 11 in
               if sub2 = ".$generator" then
               (try [Litint (StringMap.find str env.local_index)]
               with Not_found -> try [Litint (StringMap.find str env.global_index)]

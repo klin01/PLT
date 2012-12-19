@@ -56,7 +56,7 @@ let execute_prog prog =
     (* TODO: Are we putting type after the data onto the stack? *)
   | Drp ->
     let var_type_id = stack.(sp-1) in
-      (*print_endline("Drp" ^ string_of_int var_type_id);*)
+     
       (match var_type_id with
           1 -> exec fp (sp-2) (pc+1)
         | 2 -> exec fp (sp-40) (pc+1)
@@ -147,7 +147,7 @@ let execute_prog prog =
         ) 
   | Str i -> (* Store a global variable variable *)
     let var_type_id = stack.(sp-1) in
-    (
+    ( (*print_endline("str type " ^ string_of_int var_type_id);*)
       match var_type_id with
         1 -> (* int *)
           globals.(i-1) <- stack.(sp-2);
@@ -366,10 +366,10 @@ let execute_prog prog =
           | _ -> raise(Failure("Type error: Attempt to load variable of unknown type.")))
       
   | Sfp i   -> 
-  print_endline ("sfp " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+  (*print_endline ("sfp " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
                   ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
                   ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;*)
 
       let obj_id = stack.(sp-1) in
       ( 
@@ -428,10 +428,10 @@ let execute_prog prog =
       )
   | Lfpa -> (* Load index of local array, based on next integer on stack *)
 
-        print_endline ("lfpa" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+       (* print_endline ("lfpa" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
                   ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
                   ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;*)
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
     let i = stack.(sp-2) in (* array address *)
@@ -439,9 +439,6 @@ let execute_prog prog =
     let obj_id = stack.(fp+i)
     and loffset = stack.(sp-4) in
     ( 
-      print_endline(string_of_int stack.(fp+i) ^ " " ^ string_of_int stack.(fp+i+1) 
-        ^ " " ^ string_of_int stack.(fp+i+2) ^ " " ^ string_of_int stack.(fp+i+3)
-        ^ " " ^ string_of_int stack.(fp+i+4) ^ " " ^ string_of_int stack.(fp+i+4));
       match obj_id with
         6 -> (* Arrayint *)
           stack.(sp-4) <- stack.(fp+i-2-loffset*2); (* value *)
