@@ -19,7 +19,7 @@ type state = {
   mutable winBgColor:int;
 
   mutable blockData:blockType list;
-
+  mutable gravityFlag: int;
   mutable playerData:playerType;
 };;
 
@@ -41,7 +41,7 @@ in
 *)
 let rec trans_allVertices_y ey = function
   [] -> []
-  | px::py::tl -> (px)::((py + ey)::(trans_allVertices_y ey tl));
+  | px::py::tl ->(px)::((py + ey)::(trans_allVertices_y ey tl));
 in
 
 (*
@@ -174,8 +174,13 @@ let t_key s c =
 
     (match c with
       ' '   -> if max_y < s.winHeight then 
-                  s.playerData.player_vertices <- 
-                  (trans_allVertices_y 15 s.playerData.player_vertices)
+               (
+                  if (s.gravityFlag < 2) then
+                      s.gravityFlag <- 2;
+                        
+                  s.playerData.player_vertices <- (trans_allVertices_y s.gravityFlag s.playerData.player_vertices);
+                  s.gravityFlag <- (s.gravityFlag + 3);
+               )
                else
                   s.playerData.player_vertices <- 
                   (trans_allVertices_abs_y (s.winHeight - objectheight) s.playerData.player_vertices)
@@ -187,6 +192,9 @@ let t_key s c =
                   (trans_allVertices_abs_y 0 s.playerData.player_vertices)
       | _     -> ());
 in
+
+
+
 
 let t_updateFrame s () =
   Graphics.clear_graph ();
@@ -208,6 +216,22 @@ let t_updateFrame s () =
 
   List.iter (fun block -> (draw_polygon block.block_vertices
                                           block.block_color)) s.blockData;
+    
+  (* Gravitify *)
+  s.gravityFlag <- (s.gravityFlag - 1);
+  let max_y = find_max_y 0 s.playerData.player_vertices 
+  and min_y = find_min_y s.winHeight s.playerData.player_vertices in
+  let objectheight = (max_y - (List.nth s.playerData.player_vertices 1)) in
+      if (max_y > s.winHeight) then
+             s.playerData.player_vertices <- 
+                  (trans_allVertices_abs_y (s.winHeight - objectheight) s.playerData.player_vertices)
+      else
+        if (min_y > 0) then
+          s.playerData.player_vertices <- (trans_allVertices_y s.gravityFlag s.playerData.player_vertices)
+        else 
+          s.playerData.player_vertices <- 
+                  (trans_allVertices_abs_y 0 s.playerData.player_vertices);
+  (* End Gravitify *)
 
   draw_polygon s.playerData.player_vertices s.playerData.player_color;
 in
@@ -328,6 +352,7 @@ in
 let gameState = {winWidth=800; winHeight=600; 
                 winBgColor=(color_from_rgb 255 255 255);
                 blockData=blocks;
+                gravityFlag=0;
                 playerData=player};
 in
 
