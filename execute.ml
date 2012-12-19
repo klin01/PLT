@@ -340,8 +340,9 @@ let execute_prog prog =
     )
   | Lfp i -> (* Load a local variable *)
       let var_address = (if i = -32769 then
-        (if (stack.(sp-1) <> 1) then raise(Failure("Attempt to access invalid address.")) else
-        stack.(sp-2))
+        (if (stack.(sp-1) <> 1) then 
+          raise(Failure("Attempt to access invalid address.")) 
+        else stack.(sp-2))
       else i) in
       let var_type_id = stack.(fp+i) in
       (
@@ -367,7 +368,8 @@ let execute_prog prog =
               exec fp (sp+13) (pc+1)
           | 4 -> (* Player *)
               for j=0 to 10 do
-                stack.(sp+j) <- stack.(fp+var_address-10+j)
+                stack.(sp+j) <- stack.(fp+var_address-10+j);
+                print_endline (string_of_int j ^ " " ^ string_of_int stack.(sp+j));
               done;
               exec fp (sp+11) (pc+1)
           | 5 -> (* Map *)
@@ -624,7 +626,7 @@ let execute_prog prog =
         match obj_id with
           6 -> (* Arrayint *)
             stack.(sp-4) <- stack.(fp+i-2-loffset*2); (* value *)
-            stack.(sp+1-4) <- stack.(fp+i-1-loffset*2); (* type *)
+            stack.(sp-3) <- stack.(fp+i-1-loffset*2); (* type *)
             exec fp (sp-2) (pc+1)
         | 7 -> (* Arraystring *)
             for j=0 to 39 do
@@ -756,11 +758,40 @@ let execute_prog prog =
       ) else raise(Failure("Invalid array address type. Must be int."))
 
   | Jsr(-1) -> (* DrawPlayer *) 
-      print_endline "You've just drawn something!" ; exec fp sp (pc+1)
+      print_endline ("You've just drawn something!") ;
+      let scope = stack.(sp-8)
+      and addr = stack.(sp-9) 
+      and color = stack.(sp-3)*256*256 + stack.(sp-5)*256 + stack.(sp-7)
+      in
+
+     print_endline (string_of_int color);
+
+            (*print_endline ("draw " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
+                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ; *)
+      
+        let rec make_coord_list n = 
+          if (scope = -1) then (*LOCAL*)
+            (match stack.(fp+n) with
+                0 -> []
+              | 1 -> stack.(fp+n-1) :: make_coord_list (n-2)
+              | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(fp+n))))
+          else if (scope = 1) then (*GLOBAL*)
+            (match globals.(n) with
+              0 -> []
+            | 1 -> globals.(n-1) :: make_coord_list (n-2)
+            | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
+          else [] in
+        let coords = make_coord_list (addr-1) in  
+        print_endline (String.concat " " (List.map string_of_int coords));
+
+
+       exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
       print_endline "You've just started running your program!" ; exec fp sp (pc+1)
   | Jsr(-3) -> (* printint *)
-      if (stack.(sp-2) <> 1) then raise(Failure("The function $printint must take an integer value.")) else
+      if (stack.(sp-1) <> 1) then raise(Failure("The function $printint must take an integer value. Invalid type: " ^ string_of_int stack.(sp-2))) else
       print_endline (string_of_int stack.(sp-2)) ; exec fp sp (pc+1)
   | Jsr(-4) -> (* printstring *)
       let var_type_id = stack.(sp-1) in
@@ -857,7 +888,7 @@ let execute_prog prog =
       | _ -> raise(Failure("Unmatched type in Rts!!"));
       );
   | Beq i   -> exec fp (sp-1) (pc + if stack.(sp-2) =  0 then i else 1)
-  | Bne i   -> exec fp (sp-1) (pc + if stack.(sp-2) != 0 then i else 1)
+  | Bne i   -> print_endline ("checking branch" ^ " " ^ string_of_int (pc + if stack.(sp-2) != 0 then i else 1)); exec fp (sp-1) (pc + if stack.(sp-2) != 0 then i else 1)
   | Bra i   -> exec fp sp (pc+i)
   | Make id   -> 
     (match id with 
@@ -876,15 +907,41 @@ let execute_prog prog =
     )
   (* Lodf and Strf *)
   | OpenWin -> (* Opens graphical display *) 
-      Graphics.open_graph ""; Thread.join(Thread.create(Thread.delay)(240.0 /. 24.0)); exec fp (sp) (pc+1)
+      Graphics.open_graph ""; (* Thread.join(Thread.create(Thread.delay)(240.0 /. 24.0));*) exec fp (sp) (pc+1)
   | CloseWin -> (* Closes graphical display *)
       Graphics.clear_graph (); exec fp (sp) (pc+1)
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)
-        ()
+        print_endline ("checking collision");
+        stack.(sp) <- 1; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
-        ()
+        exec fp sp (pc+1)
   | DrawPlayer -> (* Draws the player on top of the stack *)
-        ()
+      let scope = stack.(sp-8)
+      and addr = stack.(sp-9) in
+
+      print_endline (string_of_int scope ^ " " ^ string_of_int addr);
+
+      print_endline ("draw " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
+                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+
+
+      if (scope = -1) then (*LOCAL*)
+        let rec make_coord_list n = 
+          (match stack.(fp+n) with
+            0 -> []
+          | 1 -> 1 :: make_coord_list (n-2)
+          | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(fp+n))))
+        in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
+      else if (scope = 1) then (*GLOBAL*)
+        let rec make_coord_list n = 
+          (match globals.(n) with
+            0 -> []
+          | 1 -> 1 :: make_coord_list (n-2)
+          | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
+      in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
+
   | PrintScore -> (* Prints the user's current score *)
         ()
   | Nt ->
