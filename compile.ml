@@ -24,6 +24,7 @@ type env = {
   ArrayBrick    : 8
   ArrayPlayer   : 9
   ArrayMap      : 10
+  function      : 11
 *)
 
 (*
@@ -60,19 +61,19 @@ let rec enum stride n = function
       | "Brick" ->
         (n + 1, hd.varname ^ ".$y" ) ::
         (n + 3, hd.varname ^ ".$x" ) ::
-        (n + 5, hd.varname ^ ".$vertices") ::
-        (n + 7, hd.varname ^ ".$colorB") ::
-        (n + 9, hd.varname ^ ".$colorG") ::
-        (n + 11, hd.varname ^ ".$colorR") ::
-        (n + 12, hd.varname) :: enum stride (n+stride * 13) tl
+        (n + 204, hd.varname ^ ".$vertices") ::
+        (n + 206, hd.varname ^ ".$colorB") ::
+        (n + 208, hd.varname ^ ".$colorG") ::
+        (n + 210, hd.varname ^ ".$colorR") ::
+        (n + 211, hd.varname) :: enum stride (n+stride * 212) tl
           (* Brick size : 3 * 2 int (color), 1 * 2int for vertex array, 2 * 2 for x and y, 1 int for type (3) = 13 *) 
       | "Player" -> 
         (n + 1,     hd.varname ^ ".$y") ::
-        (n + 3, hd.varname ^ ".$vertices") ::
-        (n + 5, hd.varname ^ ".$colorB") ::
-        (n + 7, hd.varname ^ ".$colorG") ::
-        (n + 9, hd.varname ^ ".$colorR") ::
-        (n + 10, hd.varname) :: enum stride (n+stride * 11) tl 
+        (n + 202, hd.varname ^ ".$vertices") ::
+        (n + 204, hd.varname ^ ".$colorB") ::
+        (n + 206, hd.varname ^ ".$colorG") ::
+        (n + 208, hd.varname ^ ".$colorR") ::
+        (n + 209, hd.varname) :: enum stride (n+stride * 210) tl 
           (* Player size :  3 * 2 int (color), 1 * 2 int for vertex array, 1 * 2 int (y), 1 for type (4) = 11 *)
       | "Map" ->    
         (n + 1,     hd.varname ^ ".$generator") ::
@@ -82,8 +83,8 @@ let rec enum stride n = function
           (* Map size : 1 * 2 int for generator function, 2 x 2 int (h, w), 1 for type (5) = 7 *)
       | "Arrayint" ->   (n + 2*array_def_size, hd.varname) :: enum stride (n+stride * 2 * array_def_size + 1) tl
       | "Arraystring" -> (n + 40*array_def_size, hd.varname) :: enum stride (n+stride * 40 * array_def_size + 1) tl
-      | "ArrayBrick" ->  (n + 13*array_def_size, hd.varname) :: enum stride (n+stride * 13 * array_def_size + 1) tl
-      | "ArrayPlayer" -> (n + 11*array_def_size, hd.varname) :: enum stride (n+stride * 11 * array_def_size + 1) tl
+      | "ArrayBrick" ->  (n + 212*array_def_size, hd.varname) :: enum stride (n+stride * 212 * array_def_size + 1) tl
+      | "ArrayPlayer" -> (n + 210*array_def_size, hd.varname) :: enum stride (n+stride * 212 * array_def_size + 1) tl
       | "ArrayMap" ->    (n + 7*array_def_size, hd.varname) :: enum stride (n+stride * 7 * array_def_size + 1) tl
       | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
     else
@@ -91,20 +92,20 @@ let rec enum stride n = function
         "int" ->    (n, hd.varname) :: enum stride (n+stride * 2) tl
       | "string" -> (n, hd.varname) :: enum stride (n+stride * 40) tl 
       | "Brick" ->  
-        (n - 11, hd.varname ^ ".$y" ) ::
-        (n - 9, hd.varname ^ ".$x" ) ::
+        (n - 210, hd.varname ^ ".$y" ) ::
+        (n - 208, hd.varname ^ ".$x" ) ::
         (n - 7, hd.varname ^ ".$vertices") ::
         (n - 5, hd.varname ^ ".$colorB") ::
         (n - 3, hd.varname ^ ".$colorG") ::
         (n - 1, hd.varname ^ ".$colorR") ::
-        (n, hd.varname) :: enum stride (n+stride * 13) tl 
+        (n, hd.varname) :: enum stride (n+stride * 212) tl 
       | "Player" -> 
-        (n - 9, hd.varname ^ ".$y" ) ::
+        (n - 208, hd.varname ^ ".$y" ) ::
         (n - 7, hd.varname ^ ".$vertices") ::
         (n - 5, hd.varname ^ ".$colorB") ::
         (n - 3, hd.varname ^ ".$colorG") ::
         (n - 1, hd.varname ^ ".$colorR") ::
-        (n, hd.varname) :: enum stride (n+stride * 11) tl 
+        (n, hd.varname) :: enum stride (n+stride * 210) tl 
       | "Map" ->    
         (n - 5, hd.varname ^ ".$generator" ) ::
         (n - 3, hd.varname ^ ".$height" ) ::
@@ -112,8 +113,8 @@ let rec enum stride n = function
         (n, hd.varname) :: enum stride (n+stride * 7) tl 
       | "Arrayint" ->   (n, hd.varname) :: enum stride (n+stride * 2 * array_def_size - 1) tl
       | "Arraystring" -> (n, hd.varname) :: enum stride (n+stride * 40 * array_def_size - 1) tl
-      | "ArrayBrick" ->  (n, hd.varname) :: enum stride (n+stride * 13 * array_def_size - 1) tl
-      | "ArrayPlayer" -> (n, hd.varname) :: enum stride (n+stride * 11 * array_def_size - 1) tl
+      | "ArrayBrick" ->  (n, hd.varname) :: enum stride (n+stride * 212 * array_def_size - 1) tl
+      | "ArrayPlayer" -> (n, hd.varname) :: enum stride (n+stride * 210 * array_def_size - 1) tl
       | "ArrayMap" ->    (n, hd.varname) :: enum stride (n+stride * 7 * array_def_size - 1) tl
       | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
 
@@ -131,24 +132,24 @@ let rec enumInitCommands stride n isLocal = function
       | "Brick" ->
         (Init (1, (n + 1), isLocal)) :: (* hd.varname ^ ".$y" *)
         (Init (1, (n + 3), isLocal)) :: (* hd.varname ^ ".$x" *)
-        (Init (-1, (n + 5), isLocal)) :: (* hd.varname ^ ".$vertices" *)
-        (Init (1, (n + 7), isLocal)) :: (* hd.varname ^ ".$colorB" *)
-        (Init (1, (n + 9), isLocal)) :: (* hd.varname ^ ".$colorG" *)
-        (Init (1, (n + 11), isLocal)) :: (* hd.varname ^ ".$colorR" *)
-        (Init (3, (n + 12), isLocal)) ::
-        enumInitCommands stride (n+stride * 13) isLocal tl
+        (Init (6, (n + 5), isLocal)) :: (* hd.varname ^ ".$vertices" *)
+        (Init (1, (n + 206), isLocal)) :: (* hd.varname ^ ".$colorB" *)
+        (Init (1, (n + 208), isLocal)) :: (* hd.varname ^ ".$colorG" *)
+        (Init (1, (n + 210), isLocal)) :: (* hd.varname ^ ".$colorR" *)
+        (Init (3, (n + 211), isLocal)) ::
+        enumInitCommands stride (n+stride * 212) isLocal tl
           (* Brick size : 3 * 2 int (color), 1 * 2int for vertex array, 2 * 2 for x and y, 1 int for type (3) = 13 *) 
       | "Player" -> 
         (Init (1, (n + 1), isLocal)) :: (* hd.varname ^ ".$y" *)
-        (Init (-1, (n + 3), isLocal)) :: (* hd.varname ^ ".$vertices" *)
-        (Init (1, (n + 5), isLocal)) :: (* hd.varname ^ ".$colorB" *)
-        (Init (1, (n + 7), isLocal)) :: (* hd.varname ^ ".$colorG" *)
-        (Init (1, (n + 9), isLocal)) :: (* hd.varname ^ ".$colorR" *)
-        (Init (4, (n + 10), isLocal)) ::
-        enumInitCommands stride (n+stride * 11) isLocal tl 
+        (Init (6, (n + 202), isLocal)) :: (* hd.varname ^ ".$vertices" *)
+        (Init (1, (n + 204), isLocal)) :: (* hd.varname ^ ".$colorB" *)
+        (Init (1, (n + 206), isLocal)) :: (* hd.varname ^ ".$colorG" *)
+        (Init (1, (n + 208), isLocal)) :: (* hd.varname ^ ".$colorR" *)
+        (Init (4, (n + 209), isLocal)) ::
+        enumInitCommands stride (n+stride * 210) isLocal tl 
           (* Player size :  3 * 2 int (color), 1 * 2 int for vertex array, 1 * 2 int (y), 1 for type (4) = 11 *)
       | "Map" ->    
-        (Init (-1, (n + 1), isLocal)) :: (* hd.varname ^ ".$generator" *)
+        (Init (11, (n + 1), isLocal)) :: (* hd.varname ^ ".$generator" *)
         (Init (1, (n + 3), isLocal)) :: (* hd.varname ^ ".$height" *)
         (Init (1, (n + 5), isLocal)) :: (* hd.varname ^ ".$width" *)
         (Init (5, (n + 6), isLocal)) :: 
@@ -161,11 +162,11 @@ let rec enumInitCommands stride n isLocal = function
         (Init (7, (n + 40*array_def_size), isLocal)) :: 
         enumInitCommands stride (n+stride * 40 * array_def_size + 1) isLocal tl
       | "ArrayBrick" ->  
-        (Init (8, (n + 13*array_def_size), isLocal)) :: 
-        enumInitCommands stride (n+stride * 13 * array_def_size + 1) isLocal tl
+        (Init (8, (n + 212*array_def_size), isLocal)) :: 
+        enumInitCommands stride (n+stride * 212 * array_def_size + 1) isLocal tl
       | "ArrayPlayer" -> 
-        (Init (9, (n + 11*array_def_size), isLocal)) :: 
-        enumInitCommands stride (n+stride * 11 * array_def_size + 1) isLocal tl
+        (Init (9, (n + 210*array_def_size), isLocal)) :: 
+        enumInitCommands stride (n+stride * 210 * array_def_size + 1) isLocal tl
       | "ArrayMap" ->    
         (Init (10, (n + 7*array_def_size), isLocal)) :: 
         enumInitCommands stride (n+stride * 7 * array_def_size + 1) isLocal tl
@@ -179,22 +180,22 @@ let rec enumInitCommands stride n isLocal = function
         (Init (2, n, isLocal)) :: 
         enumInitCommands stride (n+stride * 40) isLocal tl 
       | "Brick" ->  
-        (Init (1, (n - 11), isLocal)) :: (* hd.varname ^ ".$y" *)
-        (Init (1, (n - 9), isLocal)) :: (* hd.varname ^ ".$x" *)
-        (Init (-1, (n - 7), isLocal)) :: (* hd.varname ^ ".$vertices" *)
+        (Init (1, (n - 210), isLocal)) :: (* hd.varname ^ ".$y" *)
+        (Init (1, (n - 208), isLocal)) :: (* hd.varname ^ ".$x" *)
+        (Init (6, (n - 7), isLocal)) :: (* hd.varname ^ ".$vertices" *)
         (Init (1, (n - 5), isLocal)) :: (* hd.varname ^ ".$colorB" *)
         (Init (1, (n - 3), isLocal)) :: (* hd.varname ^ ".$colorG" *)
         (Init (1, (n - 1), isLocal)) :: (* hd.varname ^ ".$colorR" *)
         (Init (3, (n), isLocal)) :: 
-        enumInitCommands stride (n+stride * 13) isLocal tl 
+        enumInitCommands stride (n+stride * 212) isLocal tl 
       | "Player" -> 
-        (Init (1, (n - 9), isLocal)) :: (* hd.varname ^ ".$y" *)
-        (Init (-1, (n - 7), isLocal)) :: (* hd.varname ^ ".$vertices" *)
+        (Init (1, (n - 208), isLocal)) :: (* hd.varname ^ ".$y" *)
+        (Init (6, (n - 7), isLocal)) :: (* hd.varname ^ ".$vertices" *)
         (Init (1, (n - 5), isLocal)) :: (* hd.varname ^ ".$colorB" *)
         (Init (1, (n - 3), isLocal)) :: (* hd.varname ^ ".$colorG" *)
         (Init (1, (n - 1), isLocal)) :: (* hd.varname ^ ".$colorR" *)
         (Init (5, (n), isLocal)) :: 
-        enumInitCommands stride (n+stride * 11) isLocal tl 
+        enumInitCommands stride (n+stride * 210) isLocal tl 
       | "Map" ->    
         (Init (-1, (n - 5), isLocal)) :: (* hd.varname ^ ".$generator" *)
         (Init (1, (n - 3), isLocal)) :: (* hd.varname ^ ".$height" *)
@@ -209,10 +210,10 @@ let rec enumInitCommands stride n isLocal = function
         enumInitCommands stride (n+stride * 40 * array_def_size - 1) isLocal tl
       | "ArrayBrick" ->  
         (Init (8, n, isLocal)) :: 
-        enumInitCommands stride (n+stride * 13 * array_def_size - 1) isLocal tl
+        enumInitCommands stride (n+stride * 212 * array_def_size - 1) isLocal tl
       | "ArrayPlayer" -> 
         (Init (9, n, isLocal)) :: 
-        enumInitCommands stride (n+stride * 11 * array_def_size - 1) isLocal tl
+        enumInitCommands stride (n+stride * 210 * array_def_size - 1) isLocal tl
       | "ArrayMap" ->    
         (Init (10, n, isLocal)) :: 
         enumInitCommands stride (n+stride * 7 * array_def_size - 1) isLocal tl
@@ -227,13 +228,13 @@ let total_varsize a vlist =
    List.fold_left (fun a b -> a + (match b.vartype with
                     "int" -> 2  
                   | "string" -> 40
-                  | "Brick" -> 13
-                  | "Player" -> 11
+                  | "Brick" -> 212
+                  | "Player" -> 210
                   | "Map" -> 7
                   | "Arrayint" -> array_def_size*2+1
                   | "Arraystring"  -> array_def_size*40+1
-                  | "ArrayBrick" -> array_def_size*13+1
-                  | "ArrayPlayer" -> array_def_size*11+1
+                  | "ArrayBrick" -> array_def_size*212+1
+                  | "ArrayPlayer" -> array_def_size*210+1
                   | "ArrayMap" -> array_def_size*7+1
                   |  _ -> raise(Failure("Error in total_varsize"))
                   )) 0 vlist
@@ -281,30 +282,18 @@ let translate (globals, functions) =
         LiteralInt i -> [Litint i] 
       | LiteralString i -> [Litstr i]
       | Id s ->
-          let sub = (if (String.length s) > 10 then String.sub s ((String.length s)-10) 10 else s) in
-              if sub = ".$vertices" then (* Account for case where only a reference to an array is stored i.e. $brick.$vertices *)
-                (try [Litint (StringMap.find s env.local_index)] @ [Lfp (-32769)]
-                 with Not_found -> try [Litint (StringMap.find s env.global_index)] @ [Lod (-32769)]
-                 (*with Not_found -> try [Lodf (StringMap.find s env.function_index)]*)
-                 with Not_found -> raise (Failure ("undeclared Id " ^ s)))
-              else
-                (try [Lfp (StringMap.find s env.local_index)]
-                 with Not_found -> try [Lod (StringMap.find s env.global_index)]
-                 with Not_found -> try [Litint (StringMap.find s env.function_index)]
-                 with Not_found -> raise (Failure ("undeclared Id " ^ s)))
-
+          (try [Lfp (StringMap.find s env.local_index)]
+           with Not_found -> try [Lod (StringMap.find s env.global_index)]
+           with Not_found -> try [Litint (StringMap.find s env.function_index)]
+           with Not_found -> raise (Failure ("undeclared Id " ^ s)))
       | Brick (r, g, b, varray, x, y) ->
           expr y @ expr x 
-          @ (try [Litint (StringMap.find varray env.local_index)] @ [Make 0] @ [Litint (-1)] @ [Make 0]
-             with Not_found -> try [Litint (StringMap.find varray env.global_index)]
-             with Not_found -> raise (Failure ("undeclared Brick " ^ varray)))
+          @ (expr varray)
           @ expr b @ expr g @ expr r
           @ [Litint 3] @ [Make 3]
 
       | Player (r, g, b, varray, y) ->
-          expr y @ (try [Litint (StringMap.find varray env.local_index)] @ [Make 0] @ [Litint (-1)] @ [Make 0]
-                    with Not_found -> try [Litint (StringMap.find varray env.global_index)]
-                    with Not_found -> raise (Failure ("undeclared Player " ^ varray)))
+          expr y @ (expr varray)
           @ expr b @ expr g @ expr r
           @ [Litint 4] @ [Make 4]
 
@@ -326,57 +315,21 @@ let translate (globals, functions) =
       | AAccess(a, i) -> 
           expr i @ 
           (try [Litint (StringMap.find a env.local_index)] @ [Lfpa]
-          with Not_found -> try[Litint (StringMap.find a env.global_index)] @ [Loda]
+          with Not_found -> try [Litint (StringMap.find a env.global_index)] @ [Loda]
           with Not_found -> raise (Failure ("AAccess: undeclared array " ^ a)))
       | AAssign(a, i, e) ->
           expr e @ expr i @
           (try [Litint (StringMap.find a env.local_index)] @ [Sfpa]
           with Not_found -> try [Litint (StringMap.find a env.global_index)] @ [Stra]
           with Not_found -> raise (Failure ("AAssign: undeclared array " ^ a)))
-       | AAccessByRef(a, i) -> 
-          expr i @ 
-          (try [Lfp (StringMap.find a env.local_index)] @ [Lref]
-          with Not_found -> try[Lod (StringMap.find a env.global_index)] @ [Lref]
-          with Not_found -> raise (Failure ("AAccessByRef: undeclared array " ^ a)))
-      | AAssignByRef(a, i, e) ->
-          expr e @ expr i @
-          (try [Lfp (StringMap.find a env.local_index)] @ [Sref]
-          with Not_found -> try [Lod (StringMap.find a env.global_index)] @ [Sref]
-          with Not_found -> raise (Failure ("AAssignByRef: undeclared array " ^ a)))
       | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
       | Not(e) -> 
         expr e @ [Nt]
-      | AssignToRef (s, e) ->
-        let strLen = String.length s in 
-        (match e with 
-          Id(str) -> 
-            let sub = String.sub s (strLen-10) 10 in
-              if sub = ".$vertices" then
-              (try [Litint (StringMap.find str env.local_index)] @ [Make 0] @ [Litint (-1)] @ [Make 0]
-              with Not_found -> try [Litint (StringMap.find str env.global_index)]
-              with Not_found -> raise (Failure ("undeclared Id " ^ str)))  
-            else
-            let sub2 = String.sub s (strLen-11) 11 in
-              if sub2 = ".$generator" then
-              (try [Litint (StringMap.find str env.local_index)] @ [Make 0] @ [Litint (-1)] @ [Make 0]
-              with Not_found -> try [Litint (StringMap.find str env.global_index)]
-              with Not_found -> raise (Failure ("undeclared Id " ^ str))) else expr e    
-          | _ -> expr e
-          
-        ) @ (try [Sfp (StringMap.find s env.local_index)]
-          with Not_found -> try [Str (StringMap.find s env.global_index)]
-          with Not_found -> raise (Failure ("Assign: undeclared variable " ^ s)))
-
       | Assign (s, e) ->
            expr e @
           (try [Sfp (StringMap.find s env.local_index)]
           with Not_found -> try [Str (StringMap.find s env.global_index)]
           with Not_found -> raise (Failure ("Assign: undeclared variable " ^ s)))
-    (*     | Ref(base, child) -> [Litstr child]
-                               @ (try [Litint 1] @ [Litint (StringMap.find base env.local_index)]
-                                  with Not_found -> try [Litint 2] @ [Litint (StringMap.find base env.global_index)]
-                                  with Not_found -> raise (Failure ("undeclared variable " ^ base)))
-                               @ [StrRef]) *)
       | Call (fname, actuals) -> 
           if (fname = "$Run") then
             let actualVars = (List.concat (List.map expr actuals)) in
@@ -385,12 +338,12 @@ let translate (globals, functions) =
             and loadPlayer = [List.nth actualVars 1] in
             loadMap @ (expr (Call("$CallGenerator", [List.nth actuals 0]))) @ [ProcessBlocks] @ loadPlayer @ (expr (Call("$DrawPlayer", [List.nth actuals 1]))) @ [Jsr (-2)]
           else
-          (if (fname = "$Push") then
+          if (fname = "$Push") then
             let actualBytes = (List.concat (List.map expr (List.rev actuals))) in
             [List.nth (List.tl actualBytes) 0] @ (match (List.nth (List.tl actualBytes) 0) with
-                Lod x -> [Litint 0] @ [Litint x]
-             |  Lfp x -> [Litint 1] @ [Litint x]
-             |  _ -> raise(Failure("Invalid array specified for Push function."))) 
+                                                      Lod x -> [Litint 0] @ [Litint x]
+                                                   |  Lfp x -> [Litint 1] @ [Litint x]
+                                                   |  _ -> raise(Failure("Invalid array specified for Push function."))) 
             @ [(List.hd actualBytes)] @ [Jsr (-7)] @ (let array_name = (match actuals with
                                                                          hd :: tl -> (match hd with
                                                                                           Id(x) -> x                                                                                                            
@@ -406,11 +359,11 @@ let translate (globals, functions) =
               if (List.length actuals) <> 1 then raise(Failure("You must specify a single integer argument for the function $GenerateRandomInt.")) else
               expr (List.hd actuals) @ [Jsr (-9)]
            else
-           ((StringMap.iter (fun a b -> print_endline (string_of_int b)) env.function_index);
-           (List.concat (List.map expr (List.rev actuals))) @
-           (try [Jsr (print_endline (fname ^ "--" ^ (string_of_int(StringMap.find fname env.function_index))); (StringMap.find fname env.function_index))]   
-            with Not_found -> raise (Failure ("undefined function " ^ fname)))
-          ))
+           (
+             (List.concat (List.map expr (List.rev actuals))) @
+             (try [Jsr (StringMap.find fname env.function_index)]   
+              with Not_found -> raise (Failure ("undefined function " ^ fname)))
+           )
       | Noexpr -> []
 
     in let rec stmt = function

@@ -109,20 +109,20 @@ expr:
   | expr LEQ    expr      { Binop($1, Leq,   $3) }
   | expr GT     expr      { Binop($1, Greater, $3) }
   | expr GEQ    expr      { Binop($1, Geq,     $3) }
-  | ID SHORTADD expr    { Assign($1, Binop(Id($1), Add,  $3)) }
-  | ID SHORTMINUS expr  { Assign($1, Binop(Id($1), Sub,  $3)) }
-  | ID SHORTTIMES expr  { Assign($1, Binop(Id($1), Mult, $3)) }
-  | ID SHORTDIVIDE expr { Assign($1, Binop(Id($1), Div,  $3)) }
+  | ID SHORTADD expr      { Assign($1, Binop(Id($1), Add,  $3)) }
+  | ID SHORTMINUS expr    { Assign($1, Binop(Id($1), Sub,  $3)) }
+  | ID SHORTTIMES expr    { Assign($1, Binop(Id($1), Mult, $3)) }
+  | ID SHORTDIVIDE expr   { Assign($1, Binop(Id($1), Div,  $3)) }
   | expr AND expr         { Binop($1, And, $3) }
   | expr OR  expr         { Binop($1, Or,  $3) }
   | NOT expr              { Not($2) }
   | NEW BRICK LPAREN 
-    expr COMMA expr COMMA expr COMMA ID COMMA expr COMMA expr RPAREN
+    expr COMMA expr COMMA expr COMMA expr COMMA expr COMMA expr RPAREN
                           /* r, g, b, varray, x, y */
                           { Brick($4, $6, $8, $10, $12, $14) }
   | NEW MAP LPAREN expr COMMA expr COMMA ID RPAREN 
                           { Map($4, $6, $8) }
-  | NEW PLAYER LPAREN expr COMMA expr COMMA expr COMMA ID COMMA expr RPAREN 
+  | NEW PLAYER LPAREN expr COMMA expr COMMA expr COMMA expr COMMA expr RPAREN 
                           { Player($4, $6, $8, $10, $12) }
   | NEW ARRAY TYPE        { Array($3) }
   | NEW ARRAY BRICK       { Array("Brick") }
@@ -131,11 +131,11 @@ expr:
   | ID                                      { Id($1) }
   | ID REF ID                               { Id($1 ^ "." ^ $3) }
   | ID ASSIGN expr                          { Assign($1, $3) }
-  | ID REF ID ASSIGN expr                   { AssignToRef(($1 ^ "." ^ $3), $5) } /* Assignment for regular cases and the special case: reference = &obj */
+  | ID REF ID ASSIGN expr                   { Assign(($1 ^ "." ^ $3), $5) } /* Assignment for regular cases and the special case: reference = &obj */
   | ID LBRACK expr RBRACK                         { AAccess($1, $3) }
   | ID LBRACK expr RBRACK ASSIGN expr             { AAssign($1, $3, $6) }
-  | ID REF ID LBRACK expr RBRACK                  { AAccessByRef(($1 ^ "." ^ $3), $5) }        /* Array w/in a struct: $brick1.vertices[0] */
-  | ID REF ID LBRACK expr RBRACK ASSIGN expr      { AAssignByRef(($1 ^ "." ^ $3), $5, $8) }
+  | ID REF ID LBRACK expr RBRACK                  { AAccess(($1 ^ "." ^ $3), $5) }        /* Array w/in a struct: $brick1.vertices[0] */
+  | ID REF ID LBRACK expr RBRACK ASSIGN expr      { AAssign(($1 ^ "." ^ $3), $5, $8) }
   | ID LPAREN actuals_opt RPAREN      { Call($1, $3) }
   | LPAREN expr RPAREN                { $2 }
 

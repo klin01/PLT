@@ -30,8 +30,6 @@ function $main : void () {
 
 	$v : new Array int;
 
-	
-
 	$v[0] : 50;
 	$v[1] : 50;
 	$v[2] : 100;

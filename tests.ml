@@ -54,14 +54,14 @@ let rec string_of_expr = function
     "Brick(" ^ string_of_expr r ^
       ", " ^ string_of_expr g ^
       ", " ^ string_of_expr b ^  
-      ", " ^  a ^ 
+      ", " ^ string_of_expr a ^ 
       ", " ^ string_of_expr x ^
       ", " ^ string_of_expr y ^ ")"
   | Player(r, g, b, a, y) ->
     "Player(" ^  string_of_expr r ^
       ", " ^ string_of_expr g ^
       ", " ^ string_of_expr b ^
-      ", " ^  a ^
+      ", " ^ string_of_expr a ^
       ", " ^ string_of_expr y ^ ")"
   | Map(i1, i2, e) ->
     "Map(" ^ string_of_expr i1 ^
@@ -79,9 +79,6 @@ let rec string_of_expr = function
   | Assign(v, e) ->  v ^ " : " ^ string_of_expr e
   | AAssign(a, i, e) ->  a ^ "[" ^ string_of_expr i ^ "] : " ^ string_of_expr e
   | AAccess(a, i) ->  a ^ "[" ^ string_of_expr i ^ "]"
-  | AAccessByRef (a, i) -> a ^ "[" ^ string_of_expr i ^ "]"
-  | AAssignByRef (a, i, e) -> a ^ "[" ^ string_of_expr i ^ "] : " ^ string_of_expr e
-  | AssignToRef (s, e) -> s ^ ":" ^ string_of_expr e
   | Call(f, el) ->
        f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Not(e1) -> "!" ^ string_of_expr e1

@@ -1,11 +1,26 @@
+Array int $playervertices;
+
 function $generateThis : Array Brick ()
 {
 	Array Brick $retArray;
-	Array int $vertices;
-	Brick $b1;
-	int $i;
-	int $j;
-	int $k;
+	Array int $brickvs;
+	int $boundingsize;
+	int $vertex_c;
+	int $i; int $j;
+	int $num_bricks;
+
+	$retArray : new Array Brick;
+	$boundingsize : 30;
+	$vertex_c : 5;
+	$num_bricks = 5;
+
+	for ($j : 0; $j < $num_bricks; $j +: 1) {
+		for ($i : 0; $i < $vertex_c; $i +: 1) {
+			$brickvs[$i*2] : $GenerateRandomInt($boundingsize);
+			$brickvs[$i*2+1] : $GenerateRandomInt($boundingsize);
+		}
+
+	}
 
 	$vertices : new Array int;
 	$vertices[0] : 0;
@@ -29,39 +44,27 @@ function $generateThis : Array Brick ()
 	return $retArray;
 }
 
-function $retMapArray : Array Map (int $total)
+function $buildPlayerVertices : void ($vertices)
 {
-	Array Map $retArray;
-	Map $m1;
 	int $i;
+	int $j;
 
-	$retArray : new Array Map;
-
-
-	for ($i : 0; $i < $total; $i +: 1){
-		$m1 : new Map (768, 1024, $generateThis);
-		$retArray[$i] : $m1;
+	$j : 30; //bounding box of 30 x 30
+	for ($i: 0; $i < 6; $i +: 1) {
+		$Push($vertices, $GenerateRandomInt($j)));
+		$Push($vertices, $GenerateRandomInt($j)));
 	}
-	return $retArray;
 }
 
 function $main : void ()
 {	
-	Array Map $mapArray;
 	Map $m;
+	Player $player;
 
-	int $i; int $total;
-	$total : 3;
+	$player : new Player(0,0,0, $vertices, 500);
+	$m : new Map(1000, 1000, $generator);
 
-	$mapArray: $retMapArray($total);
-
-	$printstring("printing returned array of maps");
-	for ($i : 0; $i < $total; $i +: 1) {
-		$m : $mapArray[$i];
-		$printstring("");
-		$printint($i);
-		$printint($m.$height);
-		$printint($m.$width);
-	}
+	$buildPlayerVertices($playervertices);
+	$Run($m, $player);
 
 }
