@@ -1,0 +1,11 @@
+function $retString : string () {
+		string $str;
+		$str : "hello world";
+		return $str;
+}
+
+
+function $main : void ()
+{
+	$printstring ($retString());
+}

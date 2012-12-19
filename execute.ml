@@ -544,17 +544,14 @@ let execute_prog prog =
         1 -> (stack.(base+1) <- stack.(sp-1);  (* Construct an int on top of stack*)
               stack.(base) <- stack.(sp-2);
               exec new_fp (base+2) new_pc)
-    (*  | 2 ->
-          let sp_temp = Array.make 30 0 in
-          for j=0 to 29 do
-            sp_temp.(j) <- stack.(sp+j-30)
-          done;
-          for j=0 to 29 do
-            stack.(base+j) <- sp_temp.(j)
-          done;
-          exec new_fp (base+30) new_pc
+      | 2 ->
+            (for j=0 to 39 do
+              stack.(base+j) <- stack.(sp-(40-j))
+            done;
+            exec new_fp (base+40) new_pc)
+          
       
-      | 3 -> let sp1 = stack.(sp-1) 
+     (* | 3 -> let sp1 = stack.(sp-1) 
            and sp2 = stack.(sp-2) 
            and sp3 = stack.(sp-3) 
            and sp4 = stack.(sp-4) 
