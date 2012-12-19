@@ -3,6 +3,7 @@ open Bytecode
 open Thread
 
 exception IllegalMove;;
+exception End;;
 
 type blockType = {
   mutable block_vertices:int list;
@@ -197,8 +198,8 @@ let execute_prog prog =
 
   and blocks = []
   (*and blocks2 = []*)
-  and player = {player_vertices = []; player_color = 0}
-  and gameState = {winWidth=(700); winHeight=(500); 
+  and player = {player_vertices = []; player_color = 0}; in
+  let gameState = {winWidth=(700); winHeight=(500); 
                   winBgColor=color_from_rgb 200 200 200;
                   reset=true;
                   gravityFlag=0;
@@ -1169,7 +1170,7 @@ in
 
 let player = { player_vertices=
                 [50; 300;
-                100; 200;
+                100; 300;
                 100; 350;
                 50; 350;
                 25; 360];
@@ -1454,7 +1455,7 @@ print_endline("Game End!");
             )
           ) else []
       in 
-      blocks1 = addToBricks (sp-1);    
+      blocks = addToBricks (sp-1);    
 
       (*print_endline (String.concat " " (List.map string_of_int ((List.hd blocks1).block_vertices)));
 
@@ -1471,8 +1472,9 @@ print_endline("Game End!");
       draw_string 0 stack.(sp-4) (string_of_int gameState.userscore);
 
       gameState.userscore = gameState.userscore + 1;
-      exec fp sp (pc+1)
 *)
+      exec fp sp (pc+1)
+
   | Nt ->
     if (stack.(sp-1) <> 1) then 
       raise(Failure("Cannot apply 'Not' to non-int")) else
