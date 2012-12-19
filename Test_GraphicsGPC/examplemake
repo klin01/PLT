@@ -1,0 +1,5 @@
+SOURCES = test.ml
+RESULT = test
+LIBDIRS = .
+LIBS = camlgpc
+-include OcamlMakefile

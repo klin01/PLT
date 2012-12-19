@@ -1,0 +1,23 @@
+# Build the pdf library as byte code and native code
+# Outputs pdfcaml.cmxa, pdfcaml.cma
+# and dllcamlpdf_stubs.so, libcamlpdf_stubs.a or similar 
+
+# OCaml and C source and interface files. Order matters.
+SOURCES = gpc.h gpc.c gpcml.c clip.ml clip.mli test.ml
+
+RESULT = camlgpc
+
+#Uncomment for debug build
+#OCAMLNCFLAGS = -g
+#OCAMLBCFLAGS = -g
+#CAMLLDFLAGS = -g
+
+all : native-code-library byte-code-library
+
+# Predefined generic makefile
+-include OCamlMakefile
+
+# Build the reference
+documents: clip.mli
+	mkdir -p doc/camlgpc/html; ocamldoc -html -d doc/camlgpc/html clip.mli
+
