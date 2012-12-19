@@ -178,7 +178,8 @@ let t_key s c =
   
   let max_y = find_max_y 0 s.playerData.player_vertices 
   and min_y = find_min_y s.winHeight s.playerData.player_vertices in
-  let objectheight = (max_y - (List.nth s.playerData.player_vertices 1)) in
+  (*let objectheight = (max_y - (List.nth s.playerData.player_vertices 1)) in*)
+  let objectheight = (max_y - min_y) in
 
     (match c with
       ' '   -> if max_y < s.winHeight then 
@@ -370,7 +371,7 @@ in
 
 let player = { player_vertices=
                 [50; 300;
-                100; 300;
+                100; 200;
                 100; 350;
                 50; 350;
                 25; 360];

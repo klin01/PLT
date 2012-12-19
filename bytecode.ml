@@ -27,6 +27,7 @@ type bstmt =
   | Litf of int
   | OpenWin               (* Opens a display window *)
   | CloseWin              (* Closes the display window *)
+  | StoreWindow           (* Store Width and Height or the window *)
   | DrawPlayer            (* Draws a player object on top of the stack *)
   | ProcessBlocks
   | CheckCollision        (* Checks if the player object has collided with anyone *)

@@ -396,7 +396,7 @@ let translate (globals, functions) =
                               )
                             @ (expr (Call("$DrawPlayer", [List.nth actuals 1]))) 
                             @ (expr (Call("$CallGenerator", [List.nth actuals 0])))) @ [ProcessBlocks] @ [PrintScore] in
-            loadMap @ [OpenWin] @ [Bra ((List.length whilebody)+1)] @ whilebody @ loadPlayer @ [CheckCollision] @ [Bne (-((List.length whilebody) + 2))]
+            loadMap @ [StoreWindow] @ [OpenWin] @ [Bra ((List.length whilebody)+1)] @ whilebody @ loadPlayer @ [CheckCollision] @ [Bne (-((List.length whilebody) + 2))]
           else
           (if (fname = "$Push") then
             let actualBytes = (List.concat (List.map expr (List.rev actuals))) in
