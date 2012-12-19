@@ -1,26 +1,43 @@
-/* Create global Map object */
-Array int $c;
+/* Create basic game */
+
+function $translateRect : Array int (Array int $arr, int $x, int $y) {
+	Array int $temp;
+	int $i;
+
+	for ($i:0; $i<8; $i+:2){
+		$temp[$i] : $arr[$i] + $x;
+		$temp[$i+1] : $arr[$i+1] + $y;
+	}
+
+	return $temp;
+}
 
 function $generate : Array Brick () {
-	Array Brick $b;
-	
-	Brick $b1;
+	Array Brick $br;
+	Array int $b;
+	Array int $c;
+	int $j;
 
-	$b: new Array Brick;
+	$br: new Array Brick;
 
 	$c : new Array int;
-	$c[0] : 250;
-	$c[1] : 50;
-	$c[2] : 300;
+	$c[0] : 100;
+	$c[1] : 100;
+	$c[2] : 200;
 	$c[3] : 100;
-	$c[4] : 250;
-	$c[5] : 100;
+	$c[4] : 200;
+	$c[5] : 200;
+	$c[6] : 100;
+	$c[7] : 200;
 
-	$b1 : new Brick(100,100,100,$c,250,50);
+	for ($j:0; $j<4; $j+:1){
+		$b : $translateRect($c, $j*100, 0);
+		$br[$j] : new Brick (200,150,150,$b,$b[0],$b[1]);
+		$b : $translateRect($c, $j*100+75, 200);
+		$br[$j+4] : new Brick (200,150,150,$b,$b[0],$b[1]);
+	}
 
-	$b[0] : $b1;
-
-	return $b;
+	return $br;
 }
 
 function $main : void () {
@@ -30,17 +47,19 @@ function $main : void () {
 
 	$v : new Array int;
 
-	$v[0] : 50;
-	$v[1] : 50;
+	$v[6] : 150;
+	$v[7] : 200;
 	$v[2] : 100;
-	$v[3] : 100;
-	$v[4] : 50;
-	$v[5] : 100;
+	$v[3] : 150;
+	$v[4] : 200;
+	$v[5] : 150;
+	$v[0] : 125;
+	$v[1] : 100;
+	$v[8] : 175;
+	$v[9] : 100;
 
-	$p : new Player(100,100,100,$v,50);
+	$p : new Player(200,100,100,$v,50);
 	$myMap : new Map(700,500,$generate);
-
-	$generate();
 
 	$Run($myMap, $p);
 }
