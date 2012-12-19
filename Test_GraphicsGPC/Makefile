@@ -14,6 +14,10 @@ WITHUNIX =unix.cma -cclib -lunix
 
 WITHGPC =camlgpc.cma -cclib -L.
 
+default: 
+	@make -f MakefileGPC
+	@make testGraphics
+
 testGraphics : $(OBJS)
 	ocamlc $(CONF) -o testGraphics $(LIBS) $(OBJS)
 
@@ -23,4 +27,4 @@ testGraphics : $(OBJS)
 .PHONY : clean
 clean :
 	rm -f testGraphics \
-	*.cmo *.cmi *.out *.diff
+	*.cmo *.cmi *.out *.diff *.a

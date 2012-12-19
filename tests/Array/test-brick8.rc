@@ -1,33 +1,33 @@
-/* Create global Brick object from previously initialized array. 
- 	Assign new vertices array with '.' referencing.*/
+function $retBrick : Brick () {
+	Brick $b;
+	Array int $vertices;
+	$vertices : new Array int;
 
-Brick $b1;
-Brick $b2;
+
+	$vertices[0] : 400;
+	$vertices[1] : 200;
+	$vertices[2] : 150;
+	$vertices[3] : 300;
+	
+	$b : new Brick (0,0,0, $vertices, 1, 1);
+
+
+	return $b;
+}
+
 
 function $main : void ()
 {
+	Brick $b;
 	Array int $vertices;
-	Array int $vertices2;
-
 	$vertices : new Array int;
-	$vertices2 : new Array int;
+	$b : $retBrick();
 
-	$vertices[0] : 567;
-	$vertices[1] : 420;
+	$printstring("Should print 400 200 150 300");
+	$printint ($b.$vertices[0]);
+	$printint ($b.$vertices[1]);
+	$printint ($b.$vertices[2]);
+	$printint ($b.$vertices[3]);
 
-	$vertices2[0] : 111;
-	$vertices2[1] : 222;
 
-	$b1 : new Brick(100,150,200,$vertices,20,30);
-	$b2 : new Brick(100,150,200,$vertices2,20,30);
-
-	$printstring("Global brick, prints 567 420");
-	$printint($b1.$vertices[0]);
-	$printint($b1.$vertices[1]);
-
-	$b1.$vertices : $vertices2;
-
-	$printstring("Global brick, prints 111 222");
-	$printint($b1.$vertices[0]);
-	$printint($b1.$vertices[1]);
 }
