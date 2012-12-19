@@ -1,0 +1,67 @@
+function $generateThis : Array Brick ()
+{
+	Array Brick $retArray;
+	Array int $vertices;
+	Brick $b1;
+	int $i;
+	int $j;
+	int $k;
+
+	$vertices : new Array int;
+	$vertices[0] : 0;
+	$vertices[1] : 0;
+	$vertices[2] : 10;
+	$vertices[3] : 10;
+	$j : -1;
+	$k : 0;
+
+	$retArray : new Array Brick;
+
+
+	for ($i : 0; $i < 20; $i +: 1){
+		if (($i % 5) = 0) {
+			$j *: -1;
+		}
+		$k +: $j;
+		$b1 : new Brick (0,0,0, $vertices, $i, $k);
+		$retArray[$i] : $b1;
+	}
+	return $retArray;
+}
+
+function $retMapArray : Array Map (int $total)
+{
+	Array Map $retArray;
+	Map $m1;
+	int $i;
+
+	$retArray : new Array Map;
+
+
+	for ($i : 0; $i < $total; $i +: 1){
+		$m1 : new Map (768, 1024, $generateThis);
+		$retArray[$i] : $m1;
+	}
+	return $retArray;
+}
+
+function $main : void ()
+{	
+	Array Map $mapArray;
+	Map $m;
+
+	int $i; int $total;
+	$total : 3;
+
+	$mapArray: $retMapArray($total);
+
+	$printstring("printing returned array of maps");
+	for ($i : 0; $i < $total; $i +: 1) {
+		$m : $mapArray[$i];
+		$printstring("");
+		$printint($i);
+		$printint($m.$height);
+		$printint($m.$width);
+	}
+
+}

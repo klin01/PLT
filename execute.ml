@@ -429,10 +429,10 @@ let execute_prog prog =
       )
   | Lfpa -> (* Load index of local array, based on next integer on stack *)
 
-       (* print_endline ("lfpa" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+       print_endline ("lfpa" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
                   ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
                   ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;*)
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
     let i = stack.(sp-2) in (* array address *)
@@ -541,53 +541,35 @@ let execute_prog prog =
     (
       let obj_id = stack.(sp-1) in
       match obj_id with
-        (* Int *) 
-        1 -> (stack.(base+1) <- stack.(sp-1);  (* Construct an int on top of stack*)
+        1 -> (* int *) 
+              (stack.(base+1) <- stack.(sp-1);  (* Construct an int on top of stack*)
               stack.(base) <- stack.(sp-2);
               exec new_fp (base+2) new_pc)
-      | 2 ->
+
+      | 2 -> (* string *)
             (for j=0 to 39 do
               stack.(base+j) <- stack.(sp-(40-j))
             done;
             exec new_fp (base+40) new_pc)
           
-      
-     (* | 3 -> let sp1 = stack.(sp-1) 
-           and sp2 = stack.(sp-2) 
-           and sp3 = stack.(sp-3) 
-           and sp4 = stack.(sp-4) 
-           and sp5 = stack.(sp-5) in
-           (stack.(base+4) <- sp1;  (* Construct an int on top of stack*)
-           stack.(base+3) <- sp2;
-           stack.(base+2) <- sp3;
-           stack.(base+1) <- sp4;
-           stack.(base) <- sp5;
-           exec new_fp (base+5) new_pc
-           )
-      | 4 -> let sp1 = stack.(sp-1) 
-           and sp2 = stack.(sp-2) 
-           and sp3 = stack.(sp-3) 
-           and sp4 = stack.(sp-4) 
-           and sp5 = stack.(sp-5) in
-           (stack.(base+4) <- sp1;  (* Construct an int on top of stack*)
-           stack.(base+3) <- sp2;
-           stack.(base+2) <- sp3;
-           stack.(base+1) <- sp4;
-           stack.(base) <- sp5;
-           exec new_fp (base+5) new_pc
-           )
-      | 5 -> let sp1 = stack.(sp-1) 
-           and sp2 = stack.(sp-2) 
-           and sp3 = stack.(sp-3) 
-           and sp4 = stack.(sp-4) 
-           and sp5 = stack.(sp-5) in
-           (stack.(base+4) <- sp1;  (* Construct an int on top of stack*)
-           stack.(base+3) <- sp2;
-           stack.(base+2) <- sp3;
-           stack.(base+1) <- sp4;
-           stack.(base) <- sp5;
-           exec new_fp (base+5) new_pc
-           )*)
+      | 3 -> (* Brick *)
+            (for j=0 to 11 do
+              stack.(base+j) <- stack.(sp-(12-j))
+            done;
+            exec new_fp (base+12) new_pc)
+
+      | 4 -> (* Player *)
+            (for j=0 to 9 do
+              stack.(base+j) <- stack.(sp-(10-j))
+            done;
+            exec new_fp (base+10) new_pc)
+
+      | 5 -> (* Map *)
+            (for j=0 to 5 do
+              stack.(base+j) <- stack.(sp-(6-j))
+            done;
+            exec new_fp (base+6) new_pc)
+
       | 6 -> (* Arrayint *)
             (for j=0 to 200 do
               stack.(base+j) <- stack.(sp-(201-j))

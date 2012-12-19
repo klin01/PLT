@@ -1,17 +1,19 @@
+Array int $vertices;
+Brick $b1;
+Brick $b;
+
 function $retBrickArray : Array Brick ()
 {
 	Array Brick $retArray;
-	Array int $vertices;
-	Brick $b1;
 	int $i;
 	int $j;
 	int $k;
 
 	$vertices : new Array int;
-	$vertices[0] : 0;
-	$vertices[1] : 0;
-	$vertices[2] : 10;
-	$vertices[3] : 10;
+	$vertices[0] : 1;
+	$vertices[1] : 2;
+	$vertices[2] : 3;
+	$vertices[3] : 4;
 	$j : -1;
 	$k : 0;
 
@@ -32,8 +34,6 @@ function $retBrickArray : Array Brick ()
 function $main : void ()
 {	
 	Array Brick $brickArray;
-	Brick $b;
-
 	int $i; int $total;
 	$total : 20;
 
@@ -46,6 +46,10 @@ function $main : void ()
 		$printint($b.$colorR);
 		$printint($b.$colorG);
 		$printint($b.$colorB);
+		$printint($b.$vertices[0]);
+		$printint($b.$vertices[1]);
+		$printint($b.$vertices[2]);
+		$printint($b.$vertices[3]);
 		$printint($b.$x);
 		$printint($b.$y);
 	}
