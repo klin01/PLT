@@ -40,6 +40,12 @@ let draw_rectangle x y size color =
   Graphics.fill_rect (x) (y) size size;
   in
 
+let draw_string x y str =
+  Graphics.moveto x y;
+  Graphics.set_text_size 300;
+  Graphics.draw_string str;
+  in
+
 (* s is state *)
 let t_init s () =
   Graphics.open_graph (" " ^ (string_of_int s.winWidth) ^ "x" ^
@@ -99,7 +105,7 @@ in
 
 let t_playerCollided s () = 
   let check block =
-    if (s.player_x + s.player_size > block.block_x) then
+    if ((s.player_x + s.player_size > block.block_x) && (s.player_x < block.block_x)) then
       if (((s.player_y + s.player_size > block.block_y) && (s.player_y < block.block_y)) || 
             ((block.block_y + block.block_size > s.player_y) && (block.block_y < s.player_y))) then
         true
@@ -142,7 +148,7 @@ in
 
 let block1 = { block_x=500; block_y=200; block_size=150; 
                 block_color=(color_from_rgb 20 20 20) }; in
-let block2 = { block_x=600; block_y=400; block_size=100; 
+let block2 = { block_x=600; block_y=500; block_size=100; 
                 block_color=(color_from_rgb 150 20 120) }; in
 let block3 = { block_x=400; block_y=0; block_size=50; 
                 block_color=(color_from_rgb 20 120 20) }; in
