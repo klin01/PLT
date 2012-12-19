@@ -23,31 +23,37 @@ let explode s =
     | k -> f (s.[k] :: acc) (k - 1)
   in f [] (String.length s - 1) ;;
 
-let countArray stack sp = (* Count array on top of stack *)
-  let rec countItems size count t =
-    if stack.(sp-1-size*count) <> t then count else
-      countItems size (count+1) t in 
-  match stack.(sp-1) with
-      6 -> countItems 2 0 1
-  |   7 -> countItems 40 0 2
-  |   8 -> countItems 13 0 3
-  |   9 -> countItems 11 0 4
-  |   10 -> countItems 7 0 5
-  |   _ -> raise(Failure("Type error: Array is of unknown type."));;
+let countArray stack globals sp = (* Count array on top of stack *)
+  let rec countItems size t index count =
+      if index = 100 then count else
+        let itemtype = stack.(sp-2-size*index) in
+        (if itemtype = 0 then (countItems size t (index+1) count) else 
+          (if itemtype = t then (countItems size t (index+1) (count+1)) else 
+            raise(Failure("Encountered array item of invalid type.")))) in
+          (
+            match stack.(sp-1) with
+                6 -> (countItems 2 1 0 0) 
+            |   7 -> (countItems 40 2 0 0)
+            |   8 -> (countItems 13 3 0 0)
+            |   9 -> (countItems 11 4 0 0)
+            |   10 -> (countItems 7 5 0 0)
+            |   _ -> raise(Failure("Type error: Array is of unknown type."))
+          );;
 
 let getNextFreeIndex stack globals sp isLocal =
-  let group = if (isLocal <> 1) then globals else stack in
-    let rec countItems size count t =
+  let rec countItems size count t =
       if count = 100 then count else
-        (if group.(sp-2-size*count) <> t then count else
-         countItems size (count+1) t) in 
-  match group.(sp-1) with
-      6 -> (countItems 2 0 1) 
-  |   7 -> (countItems 40 0 2)
-  |   8 -> (countItems 13 0 3)
-  |   9 -> (countItems 11 0 4)
-  |   10 -> (countItems 7 0 5)
-  |   _ -> raise(Failure("Type error: Array is of unknown type."));;
+        (if (if (isLocal <> 1) then (globals.(sp-1-size*count)) else (stack.(sp-1-size*count))) <> t then count else
+         countItems size (count+1) t) in
+          (
+            match (if (isLocal <> 1) then (globals.(sp)) else (stack.(sp))) with
+                6 -> (countItems 2 0 1) 
+            |   7 -> (countItems 40 0 2)
+            |   8 -> (countItems 13 0 3)
+            |   9 -> (countItems 11 0 4)
+            |   10 -> (countItems 7 0 5)
+            |   _ -> raise(Failure("Type error: Array is of unknown type."))
+          );;
 
 
 (********************************************
@@ -177,13 +183,7 @@ let execute_prog prog =
 
   let rec exec fp sp pc = try match prog.text.(pc) with
     Litint i  -> 
-    (*print_endline("litint " ^ string_of_int i);*)
     stack.(sp) <- i ; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1) 
-    (* Lit String *)
-  | Litf i -> 
-    (*print_endline("litint " ^ string_of_int i);*)
-    stack.(sp) <- i ; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1) 
-    (* Lit String *)
   | Litstr str -> 
     (*let trimmed = trim str in
      let split_trim = Str.split(Str.regexp "\"") trimmed  in *)
@@ -308,13 +308,13 @@ let execute_prog prog =
                 stack.(sp+j) <- globals.(var_address-700+j)
               done;
               exec fp (sp+701) (pc+1)
-          | _ -> print_endline(string_of_int var_type_id); raise(Failure("Type error: Attempt to load unknown type!"))
+          | _ -> raise(Failure("Type error: Attempt to load unknown type!"))
         ) 
   | Str i -> (* Store a global variable variable *)
     let globaltypeid = globals.(i)
     and var_type_id = stack.(sp-1) in
     if (globaltypeid <> var_type_id) then raise(Failure("Attempt to set global variable to mismatched type.")) else
-    ( (*print_endline("str type " ^ string_of_int var_type_id);*)
+    ( 
       match var_type_id with
         -1 -> (* int *)
           globals.(i-1) <- stack.(sp-2);
@@ -373,18 +373,12 @@ let execute_prog prog =
       | _ -> raise(Failure("Type error: Unable to store variable of unknown type."))
     )
   | Loda -> (* Load an index of a global array, first element on stack is address of array, next element is index of array *)
-            (*print_endline ("loda" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
-                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
-                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;*)
-
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer!")) else
     let i = stack.(sp-2)
     and elem_index = stack.(sp-4) in
     let var_type_id = globals.(i) in
     let cnst_offset = 4 in
-    (*print_endline ("var type id" ^ string_of_int globals.(i));*)
     let elem_size = 
       (
         match var_type_id with
@@ -401,7 +395,6 @@ let execute_prog prog =
         6 -> (* Arrayint *)
           stack.(sp-4) <- globals.(i-2-elem_size*elem_index);
           stack.(sp+1-4) <- globals.(i-1-elem_size*elem_index);
-          (*print_endline("loaded" ^ string_of_int stack.(sp));*)
           exec fp (sp-2) (pc+1)
       | 7 -> (* Arraystring *)
           for j=0 to 39 do
@@ -618,29 +611,34 @@ let execute_prog prog =
     ( 
       match obj_id with
         6 -> (* Arrayint *)
-          stack.(sp-4) <- stack.(fp+i-2-loffset*2); (* value *)
+          if stack.(fp+i-1-loffset*2) = 0 then raise(Failure("Attempt to load from array at an uninitialized index.")) else
+          (stack.(sp-4) <- stack.(fp+i-2-loffset*2); (* value *)
           stack.(sp+1-4) <- stack.(fp+i-1-loffset*2); (* type *)
-          exec fp (sp-2) (pc+1)
+          exec fp (sp-2) (pc+1))
       | 7 -> (* Arraystring *)
-          for j=0 to 39 do
+          if stack.(fp+i-1-loffset*40) = 0 then raise(Failure("Attempt to load from array at an uninitialized index.")) else
+          (for j=0 to 39 do
             stack.(sp+j-cnst_offset) <- stack.(fp+i-40+j-loffset*40)
           done;
-          exec fp (sp+40-cnst_offset) (pc+1)
+          exec fp (sp+40-cnst_offset) (pc+1))
       | 8 -> (* ArrayBrick *)
-          for j=0 to 12 do
+          if stack.(fp+i-1-loffset*13) = 0 then raise(Failure("Attempt to load from array at an uninitialized index.")) else
+          (for j=0 to 12 do
             stack.(sp+j-cnst_offset) <- stack.(fp+i-13+j-loffset*13)
           done;
-          exec fp (sp+13-cnst_offset) (pc+1)
+          exec fp (sp+13-cnst_offset) (pc+1))
       | 9 -> (* ArrayPlayer *)
-          for j=0 to 10 do
+          if stack.(fp+i-1-loffset*11) = 0 then raise(Failure("Attempt to load from array at an uninitialized index.")) else
+          (for j=0 to 10 do
             stack.(sp+j-cnst_offset) <- stack.(fp+i-11+j-loffset*11);
           done;
-          exec fp (sp+11-cnst_offset) (pc+1)
+          exec fp (sp+11-cnst_offset) (pc+1))
       | 10 -> (* ArrayMap *)
-          for j=0 to 6 do
+          if stack.(fp+i-1-loffset*7) = 0 then raise(Failure("Attempt to load from array at an uninitialized index.")) else
+          (for j=0 to 6 do
             stack.(sp+j-cnst_offset) <- stack.(fp+i-7+j-loffset*7)
           done;
-          exec fp (sp+7-cnst_offset) (pc+1)
+          exec fp (sp+7-cnst_offset) (pc+1))
       | 0 -> (* Uninitialized array *)
           raise(Failure("Attempt to access index of uninitialized array."))
       | _ -> raise(Failure("Type error: Attempt to access index of array of unknown type."))
@@ -693,11 +691,6 @@ let execute_prog prog =
     )
   
   | Lref ->
-(*  print_endline ("lref " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
-                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
-                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7));
-                (*^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) *)*)
-
     if (stack.(sp-1) = 1) then (* GLOBAL ADDRESS *)
     (
       if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer!")) else
@@ -705,7 +698,6 @@ let execute_prog prog =
       and elem_index = stack.(sp-4) in
       let var_type_id = globals.(i) in
       let cnst_offset = 4 in
-      (*print_endline ("var type id" ^ string_of_int globals.(i));*)
       let elem_size = 
         (
           match var_type_id with
@@ -718,11 +710,11 @@ let execute_prog prog =
           | _ -> raise(Failure("Type error: Attempt to access the index of a nonarray."))
         )
       in
+      if (globals.(i-1-elem_size*elem_index) = 0) then raise(Failure("Attempt to access an index of an array that has not been initialized yet.")) else
       (match var_type_id with
           6 -> (* Arrayint *)
             stack.(sp-4) <- globals.(i-2-elem_size*elem_index);
             stack.(sp+1-4) <- globals.(i-1-elem_size*elem_index);
-            (*print_endline("loaded" ^ string_of_int stack.(sp));*)
             exec fp (sp-2) (pc+1)
         | 7 -> (* Arraystring *)
             for j=0 to 39 do
@@ -754,6 +746,17 @@ let execute_prog prog =
       let cnst_offset = 4 in
       let obj_id = stack.(fp+i)
       and loffset = stack.(sp-4) in
+      let elem_size = (
+        match obj_id with
+            6 -> 2
+        |   7 -> 40
+        |   8 -> 13
+        |   9 -> 11
+        |   10 -> 7
+        |   0 -> raise(Failure("Attempt to load an index from an uninitialized array."))
+        |   _ -> raise(Failure("Unable to load an index from non array type."))
+      ) in
+      if (stack.(fp+i-1-loffset*elem_size) = 0) then raise(Failure("Attempt to access an index of an array that has not been initialized yet.")) else
       ( 
         match obj_id with
           6 -> (* Arrayint *)
@@ -897,13 +900,23 @@ let execute_prog prog =
       in
 
      print_endline (string_of_int color);
+      
+    let draw_polygon vlist color =
+      Graphics.set_color color;
+      let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
+        Graphics.moveto x0 y0;
+        for i = 1 to ((List.length vlist) / 2) - 1 do
+          let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
+        done;
+        Graphics.lineto x0 y0;
 
-            (*print_endline ("draw " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
-                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
-                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ; *)
-
-
+      let rec buildTupleArray = function
+        [] -> []
+        | px::py::tl -> (px,py)::(buildTupleArray tl)
+        | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates.")) 
+      in
+      Graphics.fill_poly (Array.of_list (buildTupleArray vlist));
+    in
         let rec make_coord_list n = 
           if (scope = -1) then (*LOCAL*)
             (match stack.(fp+n) with
@@ -943,7 +956,6 @@ let execute_prog prog =
   | Jsr(-5) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
   | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
-        
         let i = stack.(sp-7) in
         print_endline ("Call generator" ^  " " ^ string_of_int (i+fp)) ;
         stack.(sp)   <- pc + 1 ; exec fp (sp+1) i
@@ -954,9 +966,10 @@ let execute_prog prog =
                      |  3 -> 13
                      |  4 -> 11
                      |  5 -> 7
-                     |  _ -> raise(Failure("Unable to push object onto array."))
+                     |  _ -> raise(Failure("Unable to push object of unknown type onto array."))
                     ) in
-        let nextIndex = (getNextFreeIndex stack globals (fp+(stack.(sp-2-varsize))) (stack.(sp-4-varsize))) in
+        let isLocal = (stack.(sp-4-varsize)) in
+        let nextIndex = (getNextFreeIndex stack globals (if isLocal <> 1 then (stack.(sp-2-varsize)) else (fp+(stack.(sp-2-varsize)))) isLocal) in
           (if nextIndex > 100 then raise(Failure("Unable to push value onto full array.")) else
             stack.(sp) <- nextIndex; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
           ) 
@@ -968,6 +981,11 @@ let execute_prog prog =
       if (seedtype <> 1) then raise(Failure("Type error: The function $GenerateRandomInt requires an integer parameter.")) else
       let generated = (Random.int seed) in
       stack.(sp) <- generated; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
+  | Jsr(-10) -> (* ArrayCount function to put number of elements in array on stack *)
+        let arraycount = (countArray stack globals sp)
+        and arrayType = stack.(sp-1) in
+        if (arrayType < 6 || arrayType > 10) then raise(Failure("Unable to count the elements of a nonarray object.")) else
+        (stack.(sp) <- arraycount; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1))
   | Jsr i   -> stack.(sp)   <- pc + 1       ; exec fp (sp+1) i
   | Ent i   -> stack.(sp)   <- fp           ; exec sp (sp+i+1) (pc+1)
   | Rts i   -> 
@@ -1038,7 +1056,7 @@ let execute_prog prog =
       | _ -> raise(Failure("Unmatched type in Rts!!"));
       );
   | Beq i   -> exec fp (sp-1) (pc + if stack.(sp-2) =  0 then i else 1)
-  | Bne i   -> print_endline ("checking branch" ^ " " ^ string_of_int (pc + if stack.(sp-2) != 0 then i else 1)); exec fp (sp-1) (pc + if stack.(sp-2) != 0 then i else 1)
+  | Bne i   -> exec fp (sp-1) (pc + if stack.(sp-2) != 0 then i else 1)
   | Bra i   -> exec fp sp (pc+i)
   | Make id   -> 
     (match id with 

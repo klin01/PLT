@@ -1,4 +1,5 @@
 Array string $global;
+Array int $global2;
 int $x;
 Array int $bricks;
 
@@ -8,12 +9,20 @@ function $main: void() {
 	Player $y;
 	int $z;
 
+	$Push($local, 2);
+	$Push($local, 9);
+	$Push($global2, 99);
+	$Push($global2, 88);
+	$Push($global2, 88);
+	$global2[9] : 9;
 	//$local : new Array int;
-	$b : new Brick(0, 0, 0, $bricks, 1, 2);
+	$b : new Brick(0, 0, 0, $local, 1, 2);
 	$x : 3;
 	$z : ($x = 3);
+
+	$x : $ArrayCount($local);
 	
-	$printint($z);
+	$printint($x);
 	//$Push($global, 0);
 	/*$Push($global, 5);
 	$Push($local, 2);
