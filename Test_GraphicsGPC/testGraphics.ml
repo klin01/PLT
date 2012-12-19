@@ -17,7 +17,7 @@ type state = {
   mutable winWidth:int; 
   mutable winHeight:int; 
   mutable winBgColor:int;
-
+  mutable reset: bool;
   mutable blockData:blockType list;
   mutable gravityFlag: int;
   mutable playerData:playerType;
@@ -220,7 +220,7 @@ let t_updateFrame s () =
       | px::py::tl -> (px - 3)::(py::(trans_allVertices tl))
     in*)
   List.iter (fun block -> ( block.block_vertices <- 
-                      (trans_allVertices_x (-3) block.block_vertices))) s.blockData;
+                      (trans_allVertices_x (-10) block.block_vertices))) s.blockData;
 
   List.iter (fun block -> (draw_polygon block.block_vertices
                                           block.block_color)) s.blockData;
@@ -240,6 +240,19 @@ let t_updateFrame s () =
           s.playerData.player_vertices <- 
                   (trans_allVertices_abs_y 0 s.playerData.player_vertices);
   (* End Gravitify *)
+
+
+  (* Wrap map *)
+  s.reset <- true;
+  let rec wrapAround = function
+      [] -> []
+      | px::py::tl -> if (px > 0) then s.reset <- false; (px)::(py::(wrapAround tl))
+  in
+  List.iter (fun block -> ( block.block_vertices <- (wrapAround block.block_vertices))) s.blockData;
+  if (s.reset = true) then
+    List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x (s.winWidth+s.winWidth) block.block_vertices))) s.blockData;
+
+  (* End wrap map *)
 
   draw_polygon s.playerData.player_vertices s.playerData.player_color;
 in
@@ -393,6 +406,7 @@ in
 let gameState = {winWidth=800; winHeight=600; 
                 winBgColor=(color_from_rgb 255 255 255);
                 blockData=blocks;
+                reset=true;
                 gravityFlag=0;
                 playerData=player};
 in
