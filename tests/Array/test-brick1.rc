@@ -20,7 +20,7 @@ function $main : void ()
 	$b1.$colorG : 12;
 	$b1.$colorB : 123;
 
-	$printstring("Should print 234 12 200 20 30");
+	$printstring("Should print 234 12 123 20 30");
 
 	$printint($b1.$colorR);
 	$printint($b1.$colorG);

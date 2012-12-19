@@ -1,0 +1,42 @@
+/* Create global Map object */
+
+function $generate : Array Brick () {
+	Array Brick $b;
+	Array int $c;
+	Brick $b1;
+
+	$b: new Array Brick;
+
+	$c : new Array int;
+	$c[0] : 50;
+	$c[1] : 50;
+	$c[2] : 100;
+	$c[3] : 100;
+	$c[4] : 50;
+	$c[5] : 100;
+
+	$b1 : new Brick(100,100,100,$c,200,200);
+
+	$b[0] : $b1;
+
+	return $b;
+}
+
+function $main : void () {
+	Map $myMap;
+	Player $p;
+	Array int $v;
+
+	$v : new Array int;
+	$v[0] : 50;
+	$v[1] : 50;
+	$v[2] : 100;
+	$v[3] : 100;
+	$v[4] : 50;
+	$v[5] : 100;
+
+	$p : new Player(100,100,100,$v,50);
+	$myMap : new Map(700,500,$generate);
+
+	$Run($myMap, $p);
+}
