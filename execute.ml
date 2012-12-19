@@ -960,8 +960,8 @@ let execute_prog prog =
   | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
         if (gameState.userscore mod gameState.winWidth = 0) then
           (let i = stack.(sp-7) in
-            print_endline ("Call generator" ^  " " ^ string_of_int (i+fp))) ;
-        stack.(sp)   <- pc + 1 ; exec fp (sp+1) i
+            
+              stack.(sp)   <- pc + 1 ; exec fp (sp+1) i)
   | Jsr(-7) -> (* Push function to push object on top of stack into array *)
       let varsize = (match (stack.(sp-1)) with
                         1 -> 2
@@ -1263,7 +1263,7 @@ let execute_prog prog =
 
       (* Add score *)
       gameState.userscore <- gameState.userscore + 1;
-      print_endline("Current score: " ^ gameState.userscore);
+      print_endline("Current score: " ^ string_of_int gameState.userscore);
 
       draw_polygon player.player_vertices player.player_color;
 
