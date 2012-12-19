@@ -383,7 +383,7 @@ let translate (globals, functions) =
             if (List.length actualVars) <> 2 then raise(Failure("The function run expects 2 parameters.")) else
             let loadMap = [List.hd actualVars]
             and loadPlayer = [List.nth actualVars 1] in
-            let whilebody = (loadPlayer @ [CheckUserInput] @
+            let whilebody = ((*loadPlayer @ *)[CheckUserInput] (* @
                               (
                                 let strPlayer = (match actuals with
                                                     hd :: tl -> (match (List.nth tl 0) with
@@ -393,10 +393,10 @@ let translate (globals, functions) =
                                                  | [] -> raise(Failure("Run must be applied to two arguments."))
                                                 ) in
                                 strPlayer
-                              )
-                            @ [Drp] @ (expr (Call("$DrawPlayer", [List.nth actuals 1]))) 
+                              ) *)
+                            @ (expr (Call("$DrawPlayer", [List.nth actuals 1]))) 
                             @ (expr (Call("$CallGenerator", [List.nth actuals 0])))) @ [ProcessBlocks] @ [Drp] @ [PrintScore] in
-            loadMap @ [OpenWin] @ [Drp] @ [Bra ((List.length whilebody)+1)] @ whilebody @ loadPlayer @ [CheckCollision] @ [Bne (-((List.length whilebody) + 2))]
+            loadPlayer @ loadMap @ [OpenWin] @ [Drp] @ [Drp] @ [Bra ((List.length whilebody)+1)] @ whilebody @ loadPlayer @ [CheckCollision] @ [Bne (-((List.length whilebody) + 2))]
           else
           (if (fname = "$Push") then
             let actualBytes = (List.concat (List.map expr (List.rev actuals))) in
