@@ -78,7 +78,7 @@ let execute_prog prog =
     (* TODO: Are we putting type after the data onto the stack? *)
   | Drp ->
     let var_type_id = stack.(sp-1) in
-      ( print_endline (string_of_int pc);
+      (
         match var_type_id with
           -1 -> exec fp (sp-2) (pc+1)
         | 1 -> exec fp (sp-2) (pc+1)
@@ -94,7 +94,11 @@ let execute_prog prog =
         | _ -> raise(Failure("Unmatched type in Drp. Attempt to drop type " ^ string_of_int var_type_id)))
       
   | Bin op -> 
-      let op1 = stack.(sp-4) and op2 = stack.(sp-2) in     
+      let op1 = stack.(sp-4) 
+      and op1type = stack.(sp-3)
+      and op2 = stack.(sp-2)
+      and op2type = stack.(sp-1) in
+      if ((op1type <> op2type) || (op1type <> 1)) then raise(Failure("Binary operations can only be done on integers.")) else     
       stack.(sp-4) <- (let boolean i = if i then 1 else 0 in
       match op with
 	      Add     -> op1 + op2
@@ -361,7 +365,6 @@ let execute_prog prog =
               stack.(sp+1) <- stack.(fp+var_address); (* type *)
               exec fp (sp+2) (pc+1)
           | 1 -> (* int *)
-              print_endline "here";
               stack.(sp) <- stack.(fp+var_address-1); (* value *)
               stack.(sp+1) <- stack.(fp+var_address); (* type *)
               exec fp (sp+2) (pc+1)
@@ -417,7 +420,7 @@ let execute_prog prog =
   | Sfp i   ->
       let localvartypeid = stack.(fp+i)
       and obj_id = stack.(sp-1) in
-      if (obj_id <> localvartypeid) then (print_endline ((string_of_int localvartypeid) ^ ":" ^ (string_of_int obj_id));raise(Failure("Attempt to store mismatched variable type in local variable."))) else
+      if (obj_id <> localvartypeid) then raise(Failure("Attempt to store mismatched variable type in local variable.")) else
       ( 
         match obj_id with
           -1 -> (* int *)
@@ -474,14 +477,9 @@ let execute_prog prog =
               stack.(fp+i-j) <- stack.(sp-j-1)
             done;
             exec fp (sp) (pc+1)
-        | _ -> print_endline (string_of_int obj_id); raise(Failure("Type error: Unmatched type error!"))
+        | _ -> raise(Failure("Type error: Unmatched type error!"))
       )
   | Lfpa -> (* Load index of local array, based on next integer on stack *)
-
-       print_endline ("lfpa" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
-                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
-                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
     let i = stack.(sp-2) in (* array address *)

@@ -6,12 +6,14 @@ function $main: void() {
 	Array int $local;
 	Brick $b;
 	Player $y;
+	int $z;
 
 	//$local : new Array int;
 	$b : new Brick(0, 0, 0, $bricks, 1, 2);
-	$b.$vertices : $bricks;
-	$x : $GenerateRandomInt(100);
-	$printint($x);
+	$x : 3;
+	$z : ($x = 3);
+	
+	$printint($z);
 	//$Push($global, 0);
 	/*$Push($global, 5);
 	$Push($local, 2);
