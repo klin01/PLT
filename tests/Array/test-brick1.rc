@@ -4,7 +4,6 @@ Array int $vertices;
 function $main : void ()
 {
 	$vertices : new Array int;
-
 	$vertices[0] : 567;
 	$vertices[1] : 789;
 	$b1 : new Brick(100,150,200,$vertices,20,30);
@@ -12,7 +11,7 @@ function $main : void ()
 	$printstring("Should print 100 150 200 20 30");
 
 	$printint($b1.$colorR);
-	/*$printint($b1.$colorG);
+	$printint($b1.$colorG);
 	$printint($b1.$colorB);
 	$printint($b1.$x);
 	$printint($b1.$y);
@@ -32,6 +31,6 @@ function $main : void ()
 
 	$printstring("Should print 567 789");
 	$printint($b1.$vertices[0]);
-	$printint($b1.$vertices[1]);*/
+	$printint($b1.$vertices[1]);
 
 }

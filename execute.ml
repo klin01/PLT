@@ -28,7 +28,7 @@ let execute_prog prog =
   let stack = Array.make 32768 0
   and globals = Array.make prog.globals_size 0 in
 
-  let rec exec fp sp pc = match prog.text.(pc) with
+  let rec exec fp sp pc = try match prog.text.(pc) with
     Litint i  -> 
     (*print_endline("litint " ^ string_of_int i);*)
     stack.(sp) <- i ; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1) 
@@ -255,13 +255,6 @@ let execute_prog prog =
       | _ -> raise(Failure("Type error: Global variable accessed is of unknown type."))
     )
   | Stra -> (* Store a value into global array index, top of stack is array address, next is array index, then value to store *)
-    
-            print_endline ("stra" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
-                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
-                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
-
-
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
     let array_address = stack.(sp-2)
@@ -477,7 +470,7 @@ let execute_prog prog =
       | 0 -> (* Uninitialized array *)
           raise(Failure("Attempt to access index of uninitialized array."))
       | _ -> raise(Failure("Type error: Attempt to access index of array of unknown type."))
-    
+  )
   | Sfpa -> (* Store into index of array the next item on stack after index *)
 
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else 
@@ -661,6 +654,7 @@ let execute_prog prog =
   | DrawPlayer -> (* Draws the player on top of the stack *)
         ()
   | PrintScore -> (* Prints the user's current score *)
+        ()
   | Nt ->
     if (stack.(sp-1) <> 1) then 
       raise(Failure("Cannot apply 'Not' to non-int")) else
@@ -670,5 +664,5 @@ let execute_prog prog =
       exec fp sp (pc+1)
 
   | Hlt     -> ()
-
+with _ as error -> print_endline ((Printexc.to_string error) ^ " : At PC " ^ (string_of_int pc))
   in exec 0 0 0
