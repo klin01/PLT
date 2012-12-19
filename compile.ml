@@ -276,7 +276,7 @@ let translate (globals, functions) =
                                                 ) in
                                 strPlayer
                               )
-                            @ loadPlayer @ (expr (Call("DrawPlayer", [List.nth actuals 1]))) @ (expr (Call("CallGenerator", [List.nth actuals 0])))) in
+                            @ loadPlayer @ (expr (Call("$DrawPlayer", [List.nth actuals 1]))) @ (expr (Call("$CallGenerator", [List.nth actuals 0])))) @[PrintScore] in
             loadMap @ [OpenWin] @ [Bra ((List.length whilebody)+1)] @ whilebody @ loadPlayer @ [CheckCollision] @ [Bne (-((List.length whilebody) + 1))]
           else
            (List.concat (List.map expr (List.rev actuals))) @

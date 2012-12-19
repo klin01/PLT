@@ -11,6 +11,18 @@ let explode s =
     | k -> f (s.[k] :: acc) (k - 1)
   in f [] (String.length s - 1) ;;
 
+let countArray stack sp =
+  let rec countItems size count t =
+    if stack.(sp-1-size*count) <> t then count else
+      countItems size (count+1) t in 
+  match stack.(sp-1) with
+      6 -> countItems 2 0 1
+  |   7 -> countItems 40 0 2
+  |   8 -> countItems 13 0 3
+  |   9 -> countItems 11 0 4
+  |   10 -> countItems 7 0 5
+  |   _ -> raise(Failure("Type error: Array is of unknown type."));;
+
 (* Execute the program *)
 let execute_prog prog =
   let stack = Array.make 32768 0
@@ -438,7 +450,6 @@ let execute_prog prog =
         ^ " " ^ string_of_int stack.(fp+i+2) ^ " " ^ string_of_int stack.(fp+i+3)
         ^ " " ^ string_of_int stack.(fp+i+4) ^ " " ^ string_of_int stack.(fp+i+4));
       match obj_id with
-      (* TODO: Change 7 to 10 offsets by 4 *)
         6 -> (* Arrayint *)
           stack.(sp-4) <- stack.(fp+i-2-loffset*2); (* value *)
           stack.(sp+1-4) <- stack.(fp+i-1-loffset*2); (* type *)
@@ -466,13 +477,8 @@ let execute_prog prog =
       | 0 -> (* Uninitialized array *)
           raise(Failure("Attempt to access index of uninitialized array."))
       | _ -> raise(Failure("Type error: Attempt to access index of array of unknown type."))
-    )
+    
   | Sfpa -> (* Store into index of array the next item on stack after index *)
-
-        (*print_endline ("sfpa" ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
-                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
-                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;*)
 
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else 
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else 
@@ -602,13 +608,9 @@ let execute_prog prog =
 
       | _ -> raise(Failure("Unmatched type in Rts!!"));
       );
-
-
-
   | Beq i   -> exec fp (sp-1) (pc + if stack.(sp-2) =  0 then i else 1)
   | Bne i   -> exec fp (sp-1) (pc + if stack.(sp-2) != 0 then i else 1)
   | Bra i   -> exec fp sp (pc+i)
-
   | Make id   -> 
     (match id with 
         1   -> raise(Failure("'Make' not required for int"));
@@ -623,7 +625,6 @@ let execute_prog prog =
       | 10  -> stack.(sp+700)   <- id ; exec fp (sp+701) (pc+1)
       | _   -> raise(Failure("'Make' cannot apply to the invalid type " ^ string_of_int id));
     )
-
   (* Lodf and Strf *)
   | OpenWin -> (* Opens graphical display *) 
       Graphics.open_graph ""; exec fp (sp) (pc+1)
@@ -635,6 +636,7 @@ let execute_prog prog =
         ()
   | DrawPlayer -> (* Draws the player on top of the stack *)
         ()
+  | PrintScore -> (* Prints the user's current score *)
   | Nt ->
     if (stack.(sp-1) <> 1) then 
       raise(Failure("Cannot apply 'Not' to non-int")) else

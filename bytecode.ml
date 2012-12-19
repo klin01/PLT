@@ -24,6 +24,7 @@ type bstmt =
   | DrawPlayer            (* Draws a player object on top of the stack *)
   | CheckCollision        (* Checks if the player object has collided with anyone *)
   | CheckUserInput        (* Checks for user input and modifies player on stack *)
+  | PrintScore            (* Prints the user's current score on the top left *)
   | Hlt                   (* Terminate *)
   | Nt
 
@@ -67,6 +68,7 @@ let string_of_stmt = function
   | CheckCollision -> "CheckCollision"
   | CheckUserInput -> "CheckUserInput"
   | DrawPlayer -> "DrawPlayer"
+  | PrintScore -> "PrintScore"
   | OpenWin -> "OpenWin"
   | CloseWin -> "CloseWin"
   | Nt -> "Not"
