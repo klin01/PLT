@@ -199,15 +199,6 @@ let execute_prog prog =
   and blocks = []
   (*and blocks2 = []*)
   and player = {player_vertices = []; player_color = 0}; in
-  let gameState = {winWidth=(700); winHeight=(500); 
-                  winBgColor=color_from_rgb 200 200 200;
-                  reset=true;
-                  gravityFlag=0;
-                  userscore=2;
-                blockData=blocks;
-                playerData=player
-                  };
-  in
 
 
   let rec exec fp sp pc = try match prog.text.(pc) with
@@ -1105,7 +1096,7 @@ let skel f_init f_end f_key f_updateFrame f_except f_playerCollided =
       End  -> f_end ();
 
 in
-
+(*
 let block1 = { block_vertices=
                 [500; 200;
                 650; 200;
@@ -1176,7 +1167,7 @@ let player = { player_vertices=
                 25; 360];
                player_color=(color_from_rgb 20 120 20) }; 
 in
-
+*)
 let gameState = {winWidth=800; winHeight=600; 
                 winBgColor=(color_from_rgb 255 255 255);
                 blockData=blocks;
