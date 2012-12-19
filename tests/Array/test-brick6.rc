@@ -1,0 +1,43 @@
+Array Brick $brickArray;
+
+function $printAllBricks : void (int $total) {
+	int $i;
+	Brick $b;
+
+	for ($i : 0; $i < $total; $i +: 1) {
+		$b : $brickArray[$i];
+		$printstring("Printing Block: ");
+		$printint($b.$colorR);
+		$printint($b.$colorG);
+		$printint($b.$colorB);
+		$printint($b.$x);
+		$printint($b.$y);
+	}
+}
+
+
+function $main : void ()
+{
+	Brick $b1;
+	Array int $vertices;
+	int $i; int $j; int $k;
+
+	$vertices 	: new Array int;
+	$brickArray : new Array Brick;
+	$vertices[0] : 0;
+	$vertices[1] : 0;
+	$vertices[2] : 10;
+	$vertices[3] : 10;
+	$j : 0; $k : 10;
+
+	for ($i : 0; $i < $k; $i +: 1) {
+		if (($i % 2) = 0) {
+			$j +: 1;
+		}
+		$b1 : new Brick(0,0,0,$vertices,$i,$j);
+		$brickArray[$i] : $b1;
+	}
+
+	$printAllBricks ($k);
+
+}
