@@ -1140,8 +1140,7 @@ let execute_prog prog =
       let objectheight = (max_y - min_y) in
 
       if Graphics.key_pressed () then
-      let c = (Graphics.read_key ()) in
-      (match c with
+      (match Graphics.read_key() with
       ' '   -> if max_y < gameState.winHeight then 
                (
                   if (gameState.gravityFlag < 2) then
@@ -1154,8 +1153,8 @@ let execute_prog prog =
                   player.player_vertices <- 
                   (trans_allVertices_abs_y (gameState.winHeight - objectheight) player.player_vertices)
 
-      | _     -> (); in
-        if Graphics.key_pressed () then f_key (Graphics.read_key ());
+      | _     -> ());
+       
 
 
 
