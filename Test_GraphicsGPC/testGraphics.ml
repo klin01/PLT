@@ -8,6 +8,11 @@ type blockType = {
   mutable block_color:int;
 };;
 
+type playerType = {
+  mutable player_vertices:int list;
+  mutable player_color:int;
+};;
+
 type state = {
   mutable winWidth:int; 
   mutable winHeight:int; 
@@ -15,10 +20,7 @@ type state = {
 
   mutable blockData:blockType list;
 
-  mutable player_x:int; 
-  mutable player_y:int;
-  mutable player_size:int; 
-  mutable player_color:int;
+  mutable playerData:playerType;
 };;
 
 (* Convert (r,g,b) into a single OCaml color value c *)
@@ -26,24 +28,66 @@ let color_from_rgb r g b =
   r*256*256 + g*256 + b;
 in
 
-(* Draw the player! *)
-let draw_player x y size color =
+(*
+  Relatively translate all vertex given the translation distance ex
+*)
+let rec trans_allVertices_x ex = function
+  [] -> []
+  | px::py::tl -> (px + ex)::(py::(trans_allVertices_x ex tl));
+in
+
+(*
+  Relatively translate all vertex given the translation distance ey
+*)
+let rec trans_allVertices_y ey = function
+  [] -> []
+  | px::py::tl -> (px)::((py + ey)::(trans_allVertices_y ey tl));
+in
+
+(*
+  Given absolute location in x of the first vertex of the polygon,
+  rigidly translate all vertex relative to this absolute location
+*)
+let trans_allVertices_abs_x abx vlist =
+  let distant = abx - (List.nth vlist 0) in
+    let rec trans_abs_x dist = function
+      [] -> []
+      | px::py::tl -> (px + dist)::(py::(trans_abs_x dist tl)) in
+        trans_abs_x distant vlist;
+in
+
+(*
+  Given absolute location in y of the first vertex of the polygon,
+  rigidly translate all vertex relative to this absolute location
+*)
+let trans_allVertices_abs_y aby vlist =
+  let distant = aby - (List.nth vlist 1) in
+    let rec trans_abs_y dist = function
+      [] -> []
+      | px::py::tl -> (px)::((py + dist)::(trans_abs_y dist tl)) in
+        trans_abs_y distant vlist;
+in
+
+let rec find_max_y current = function
+    []           -> current
+    | px::py::tl -> if (py > current) then (find_max_y py tl) else (find_max_y current tl); in
+
+let rec find_min_y current = function
+    []           -> current
+    | px::py::tl -> if (py < current) then (find_min_y py tl) else (find_min_y current tl); in
+
+(*(* Draw the player! *)
+let draw_player vlist color =
   Graphics.set_color color;
   Graphics.fill_rect (x) (y) size size;
 in
 
-(*
-  Given a list of vertex coordinates [x0, y0, x1, y1, ...] and color,
-  draw and fill the polygon. 
-  *)
-let draw_polygon varray color =
-
   Graphics.set_color color;
-  let x0 = (List.nth varray 0) and y0 = (List.nth varray 1) in
+  let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
     (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );*)
     Graphics.moveto x0 y0;
-    for i = 1 to ((List.length varray) / 2) - 1 do
-      let x = (List.nth varray (2*i)) and y = (List.nth varray (2*i + 1)) in Graphics.lineto x y;
+    for i = 1 to ((List.length vlist) / 2) - 1 do
+      let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
       (*print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y) )*)
     done;
     Graphics.lineto x0 y0;
@@ -54,7 +98,33 @@ let draw_polygon varray color =
     [] -> []
     | px::py::tl -> (px,py)::(buildTupleArray tl)  
   in
-  Graphics.fill_poly (Array.of_list (buildTupleArray varray));
+  Graphics.fill_poly (Array.of_list (buildTupleArray vlist));
+in)
+*)
+
+(*
+  Given a list of vertex coordinates [x0, y0, x1, y1, ...] and color,
+  draw and fill the polygon. 
+  *)
+let draw_polygon vlist color =
+
+  Graphics.set_color color;
+  let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
+    (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );*)
+    Graphics.moveto x0 y0;
+    for i = 1 to ((List.length vlist) / 2) - 1 do
+      let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
+      (*print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y) )*)
+    done;
+    Graphics.lineto x0 y0;
+    (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
+    print_endline("");*)
+
+  let rec buildTupleArray = function
+    [] -> []
+    | px::py::tl -> (px,py)::(buildTupleArray tl)  
+  in
+  Graphics.fill_poly (Array.of_list (buildTupleArray vlist));
 in
 
 (* Draw the moving block *)
@@ -65,7 +135,7 @@ let draw_rectangle x y size color =
 
 let draw_string x y str =
   Graphics.moveto x y;
-  Graphics.set_text_size 300;
+  Graphics.set_text_size 30;
   Graphics.draw_string str;
   in
 
@@ -76,7 +146,7 @@ let t_init s () =
   Graphics.set_color s.winBgColor;
   Graphics.fill_rect 0 0 s.winWidth s.winHeight;
   (*Graphics.set_color s.player_color;*)
-  draw_player s.player_x s.player_y s.player_size s.player_color;
+  draw_polygon s.playerData.player_vertices s.playerData.player_color;
   (*Graphics.set_color s.block1_color;*)
   
   List.iter (fun block -> (draw_polygon block.block_vertices
@@ -94,10 +164,28 @@ in
 (* c is keyboad input (char) *)
 let t_key s c =
   (*draw_player s.player_x s.player_y s.player_size s.player_color;*)
-  (match c with
-    ' '   -> if s.player_y < s.winHeight - s.player_size then s.player_y <- s.player_y + 2;
-  | 'z'   -> if s.player_y > 0 then s.player_y <- s.player_y - 3;
-  | _     -> ());
+  
+  
+  let max_y = find_max_y 0 s.playerData.player_vertices 
+  and min_y = find_min_y s.winHeight s.playerData.player_vertices in
+  let objectheight = (max_y - (List.nth s.playerData.player_vertices 1)) in
+  
+    print_endline("objHeight: " ^ string_of_int objectheight);
+
+    (match c with
+      ' '   -> if max_y < s.winHeight then 
+                  s.playerData.player_vertices <- 
+                  (trans_allVertices_y 15 s.playerData.player_vertices)
+               else
+                  s.playerData.player_vertices <- 
+                  (trans_allVertices_abs_y (s.winHeight - objectheight) s.playerData.player_vertices)
+      |'z'   -> if min_y > 0 then 
+                  s.playerData.player_vertices <- 
+                  (trans_allVertices_y (-15) s.playerData.player_vertices)
+                else
+                  s.playerData.player_vertices <- 
+                  (trans_allVertices_abs_y 0 s.playerData.player_vertices)
+      | _     -> ());
 in
 
 let t_updateFrame s () =
@@ -110,23 +198,47 @@ let t_updateFrame s () =
   draw_rectangle s.block1_x s.block1_y s.block1_size s.block1_color;
   *)
 
+    (*
     let rec trans_allVertices = function
       [] -> []
       | px::py::tl -> (px - 3)::(py::(trans_allVertices tl))
-    in
-    List.iter (fun block -> ( block.block_vertices <- (trans_allVertices block.block_vertices))) s.blockData;
+    in*)
+  List.iter (fun block -> ( block.block_vertices <- 
+                      (trans_allVertices_x (-3) block.block_vertices))) s.blockData;
 
-    List.iter (fun block -> (draw_polygon block.block_vertices
+  List.iter (fun block -> (draw_polygon block.block_vertices
                                           block.block_color)) s.blockData;
 
-  draw_player s.player_x s.player_y s.player_size s.player_color;
+  draw_polygon s.playerData.player_vertices s.playerData.player_color;
 in
   
 
 let t_except s ex = ();
 in
 
-let t_playerCollided s () = false; in(*
+let t_playerCollided s () = false in (*
+
+  (* Get blockType block and return a GPC polygon *)
+  let makeGPCPolygon block =
+   let makeVertexArray = function
+      []           -> [||]
+      | px::py::tl -> Array.append [|{Clip.x = px; Clip.y = py}|] tl in
+
+        Clip.make_gpcpolygon [|false|] (makeVertexArray block.block_vertices) in
+
+  let checkCollision block =
+    let result = Clip.gpcml_clippolygon 
+                    Clip.Intersection 
+                    (makeGPCPolygon s.player) 
+                    block in
+      let isOverlapped = Clip.gpcml_isOverlapped result in
+
+  let collisionList = List.map checkCollision
+
+
+  s.blocks
+
+
   let check block =
     let makeGPCPolygon a b = 
     let object1 = 
@@ -204,11 +316,19 @@ let block3 = { block_vertices=
 let blocks = [block1; block2; block3];
 in
 
+let player = { player_vertices=
+                [50; 300;
+                100; 300;
+                100; 350;
+                50; 350;
+                25; 360];
+               player_color=(color_from_rgb 20 120 20) }; 
+in
+
 let gameState = {winWidth=800; winHeight=600; 
                 winBgColor=(color_from_rgb 255 255 255);
                 blockData=blocks;
-                player_x=50; player_y=300; player_size=50;
-                player_color=(color_from_rgb 123 12 200);};
+                playerData=player};
 in
 
 let slate () =
