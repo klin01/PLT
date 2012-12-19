@@ -2,7 +2,7 @@ module StringMap = Map.Make(String)
 
 type bstmt =
     Litint of int         (* Push a int literal *)
-  | Litstr of string      (* Push a string literal *)
+  | Litstr of string      (* Push a string literal *)  
   | Drp                   (* Discard a value *)
   | Bin of Ast.op         (* Perform arithmetic on top of stack *)
   | Lod of int            (* Fetch global variable *)
@@ -24,9 +24,11 @@ type bstmt =
   | Bra of int            (* Branch relative *)
   | Make of int           (* Shift stack pointer by 1 for Player, Map, Brick; Adds vartype_id to first space in arrays *)
   | Init of int * int * int
+  | Litf of int
   | OpenWin               (* Opens a display window *)
   | CloseWin              (* Closes the display window *)
   | DrawPlayer            (* Draws a player object on top of the stack *)
+  | ProcessBlocks
   | CheckCollision        (* Checks if the player object has collided with anyone *)
   | CheckUserInput        (* Checks for user input and modifies player on stack *)
   | PrintScore            (* Prints the user's current score on the top left *)
@@ -41,6 +43,7 @@ type prog = {
 let string_of_stmt = function
     Litint(i) -> "Litint " ^ string_of_int i
   | Litstr(i) -> "Litstr " ^ i
+  | Litf(i) -> "Litf " ^ string_of_int i
   | Drp -> "Drp"
   | Bin(Ast.Add) -> "Bin Add"
   | Bin(Ast.Sub) -> "Bin Sub"
@@ -77,6 +80,7 @@ let string_of_stmt = function
   | CheckUserInput -> "CheckUserInput"
   | DrawPlayer -> "DrawPlayer"
   | PrintScore -> "PrintScore"
+  | ProcessBlocks -> "ProcessBlocks"
   | OpenWin -> "OpenWin"
   | CloseWin -> "CloseWin"
   | Nt -> "Not"

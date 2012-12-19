@@ -4,6 +4,16 @@ open Thread
 
 exception IllegalMove;;
 
+type blockType = {
+  mutable block_vertices:int list;
+  mutable block_color:int;
+};;
+
+type playerType = {
+  mutable player_vertices:int list;
+  mutable player_color:int;
+};;
+
 let array_def_size = 100
 let global_score = 0
 
@@ -45,13 +55,18 @@ let execute_prog prog =
   and globals = Array.make prog.globals_size 0
   and random = Random.self_init ()
   and user_score = 2
-  and blocks1 = ref [||]
-  and blocks2 = ref [||]
+  and blocks1 = []
+  and blocks2 = []
   and player = ref ([], 0)
   in
 
+
   let rec exec fp sp pc = try match prog.text.(pc) with
     Litint i  -> 
+    (*print_endline("litint " ^ string_of_int i);*)
+    stack.(sp) <- i ; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1) 
+    (* Lit String *)
+  | Litf i -> 
     (*print_endline("litint " ^ string_of_int i);*)
     stack.(sp) <- i ; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1) 
     (* Lit String *)
@@ -816,7 +831,7 @@ let execute_prog prog =
         draw_polygon (fst !player) color;
 
 
-        Thread.join(Thread.create(Thread.delay)(60.0 /. 24.0));
+        Thread.join(Thread.create(Thread.delay)(1.0));
 
        exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
@@ -837,7 +852,7 @@ let execute_prog prog =
   | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
         
         let i = stack.(sp-7) in
-        print_endline ("Call generator" ^  " " ^ string_of_int i) ;
+        print_endline ("Call generator" ^  " " ^ string_of_int (i+fp)) ;
         stack.(sp)   <- pc + 1 ; exec fp (sp+1) i
   | Jsr(-7) -> (* Push function to push object on top of stack into array *)
       let varsize = (match (stack.(sp-1)) with
@@ -865,6 +880,7 @@ let execute_prog prog =
   | Rts i   -> 
     let new_fp = stack.(fp) and new_pc = stack.(fp-1) and base = fp-i-1 in 
     (
+      print_endline(string_of_int new_fp ^ " " ^ string_of_int new_pc ^ " " ^ string_of_int base);
       let obj_id = stack.(sp-1) in
       match obj_id with
         1 -> (* int *) 
@@ -985,6 +1001,42 @@ let execute_prog prog =
           | 1 -> 1 :: make_coord_list (n-2)
           | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
       in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
+  | ProcessBlocks -> (*Blocks are on the top of the stack*)
+
+      let rec addToBricks i = 
+        
+        if (stack.(i-1) = 3) then
+          (
+          let scope = stack.(i-8)
+          and r = stack.(i-3)
+          and g = stack.(i-5)
+          and b = stack.(i-7)
+          and addr = stack.(i-9) in
+          let rec make_coord_list n = 
+            if (scope = -1) then (*LOCAL*)
+              (match stack.(fp+n) with
+                  0 -> []
+                | 1 -> stack.(fp+n-1) :: make_coord_list (n-2)
+                | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(fp+n))))
+            else if (scope = 1) then (*GLOBAL*)
+              (match globals.(n) with
+                0 -> []
+              | 1 -> globals.(n-1) :: make_coord_list (n-2)
+              | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
+            else [] in 
+          {block_vertices= make_coord_list (addr-1); block_color= r*256*256+g*256+b;} :: addToBricks (i+13)
+          )
+        else [] 
+      in 
+      blocks1 = addToBricks (sp-1);
+
+      print_endline (String.concat " " (List.map string_of_int ((List.hd blocks1).block_vertices)));
+
+      exec fp sp (pc+1)
+
+         
+
+
   | PrintScore -> (* Prints the user's current score *)
         print_endline ("pritn " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
                   ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)

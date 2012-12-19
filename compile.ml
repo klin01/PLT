@@ -288,7 +288,7 @@ let translate (globals, functions) =
               else
                 (try [Lfp (StringMap.find s env.local_index)]
                  with Not_found -> try [Lod (StringMap.find s env.global_index)]
-                 (*with Not_found -> try [Lodf (StringMap.find s env.function_index)]*)
+                 with Not_found -> try [Litint (StringMap.find s env.function_index)]
                  with Not_found -> raise (Failure ("undeclared Id " ^ s)))
 
       | Brick (r, g, b, varray, x, y) ->
@@ -307,7 +307,8 @@ let translate (globals, functions) =
           @ [Litint 4] @ [Make 4]
 
       | Map (width, height, generator) ->
-          (try [Litint (StringMap.find generator env.function_index)]
+          (*(StringMap.iter (fun a b -> print_endline (string_of_int b)) env.function_index);*)
+          (try [Litf (StringMap.find generator function_indexes)]
            with Not_found -> raise (Failure ("undeclared function " ^ generator))) 
           @ expr height @ expr width @ [Litint 5] @ [Make 5]
 
@@ -399,7 +400,7 @@ let translate (globals, functions) =
                                 strPlayer
                               )
                             @ (expr (Call("$DrawPlayer", [List.nth actuals 1]))) 
-                            @ (expr (Call("$CallGenerator", [List.nth actuals 0])))) @[PrintScore] in
+                            @ (expr (Call("$CallGenerator", [List.nth actuals 0])))) @ [ProcessBlocks] @ [PrintScore] in
             loadMap @ [OpenWin] @ [Bra ((List.length whilebody)+1)] @ whilebody @ loadPlayer @ [CheckCollision] @ [Bne (-((List.length whilebody) + 2))]
           else
           (if (fname = "$Push") then
@@ -423,10 +424,11 @@ let translate (globals, functions) =
               if (List.length actuals) <> 1 then raise(Failure("You must specify a single integer argument for the function $GenerateRandomInt.")) else
               expr (List.hd actuals) @ [Jsr (-9)]
            else
+           ((StringMap.iter (fun a b -> print_endline (string_of_int b)) env.function_index);
            (List.concat (List.map expr (List.rev actuals))) @
-           (try [Jsr (StringMap.find fname env.function_index)]   
+           (try [Jsr (print_endline (fname ^ "--" ^ (string_of_int(StringMap.find fname env.function_index))); (StringMap.find fname env.function_index))]   
             with Not_found -> raise (Failure ("undefined function " ^ fname)))
-          )
+          ))
       | Noexpr -> []
 
     in let rec stmt = function
@@ -469,5 +471,6 @@ let translate (globals, functions) =
        indexes in Jsr statements with PC values *)
     text = Array.of_list (List.map (function 
                                       Jsr i when i > 0 -> Jsr func_offset.(i)
+                                    | Litf i when i > 0 -> Litint func_offset.(i)
                                     | _ as s -> s) (List.concat func_bodies))
   }

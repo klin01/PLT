@@ -28,6 +28,9 @@ function $main : void () {
 	Array int $v;
 
 	$v : new Array int;
+
+	
+
 	$v[0] : 50;
 	$v[1] : 50;
 	$v[2] : 100;
@@ -37,6 +40,8 @@ function $main : void () {
 
 	$p : new Player(100,100,100,$v,50);
 	$myMap : new Map(700,500,$generate);
+
+	$generate();
 
 	$Run($myMap, $p);
 }
