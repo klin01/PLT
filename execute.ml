@@ -1139,6 +1139,8 @@ let execute_prog prog =
       and min_y = find_min_y gameState.winHeight player.player_vertices in
       let objectheight = (max_y - min_y) in
 
+      if Graphics.key_pressed () then
+      let c = (Graphics.read_key ()) in
       (match c with
       ' '   -> if max_y < gameState.winHeight then 
                (
@@ -1210,10 +1212,10 @@ let execute_prog prog =
 
   | PrintScore -> (* Prints the user's current score *)
 
-      print_endline("Score: " ^ string_of_int user_score);
-      draw_string 0 stack.(sp-4) (string_of_int user_score);
+      print_endline("Score: " ^ string_of_int gameState.userscore);
+      draw_string 0 stack.(sp-4) (string_of_int gameState.userscore);
 
-      user_score = user_score + 1;
+      gameState.userscore = gameState.userscore + 1;
       exec fp sp (pc+1)
 
   | Nt ->
