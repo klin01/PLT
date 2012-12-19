@@ -247,7 +247,6 @@ let execute_prog prog =
         | 9 -> exec fp (sp-array_def_size*11-1) (pc+1)
         | 10 -> exec fp (sp-array_def_size*7-1) (pc+1)
         | _ -> raise(Failure("Unmatched type in Drp. Attempt to drop type " ^ string_of_int var_type_id)))
-      
   | Bin op -> 
       let op1 = stack.(sp-4) 
       and op1type = stack.(sp-3)
@@ -1067,7 +1066,7 @@ let execute_prog prog =
       | _ -> raise(Failure("Unmatched type in Rts!!"));
       );
   | Beq i   -> exec fp (sp-1) (pc + if stack.(sp-2) =  0 then i else 1)
-  | Bne i   -> exec fp (sp-1) (pc + if stack.(sp-2) != 0 then i else 1)
+  | Bne i   -> (print_endline ("testcol" ^ (string_of_int (pc + if stack.(sp-2) != 0 then i else 1)))); exec fp (sp-2) (pc + if stack.(sp-2) != 0 then i else 1)
   | Bra i   -> exec fp sp (pc+i)
   | Make id   -> 
     (match id with 
@@ -1090,7 +1089,8 @@ let execute_prog prog =
       else
         (stack.(fp+j) <- i; exec fp sp (pc+1))
   (* Lodf and Strf *)
-  | OpenWin -> (* Opens graphical display *) 
+  | OpenWin -> (* Opens graphical display *)
+      gameState.winHeight <- stack.(sp-3); gameState.winWidth <- stack.(sp-5);
       Graphics.open_graph (" "^(string_of_int gameState.winWidth)^"x"^(string_of_int gameState.winHeight));
       Graphics.set_color gameState.winBgColor;
       Graphics.fill_rect 0 0 gameState.winWidth gameState.winHeight;

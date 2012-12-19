@@ -396,7 +396,7 @@ let translate (globals, functions) =
                               )
                             @ [Drp] @ (expr (Call("$DrawPlayer", [List.nth actuals 1]))) 
                             @ (expr (Call("$CallGenerator", [List.nth actuals 0])))) @ [ProcessBlocks] @ [Drp] @ [PrintScore] in
-            loadMap @ [OpenWin] @ [Bra ((List.length whilebody)+1)] @ whilebody @ loadPlayer @ [CheckCollision] @ [Bne (-((List.length whilebody) + 2))]
+            loadMap @ [OpenWin] @ [Drp] @ [Bra ((List.length whilebody)+1)] @ whilebody @ loadPlayer @ [CheckCollision] @ [Bne (-((List.length whilebody) + 2))]
           else
           (if (fname = "$Push") then
             let actualBytes = (List.concat (List.map expr (List.rev actuals))) in
@@ -449,7 +449,7 @@ let translate (globals, functions) =
 
   (* Code executed to start the program: Jsr main; halt *)
     let entry_function = 
-        try [OpenWin] @ globalinits @ [Jsr (StringMap.find "$main" function_indexes); Hlt]
+        try globalinits @ [Jsr (StringMap.find "$main" function_indexes); Hlt]
         with Not_found -> raise (Failure ("no \"$main\" function"))
     in
     
