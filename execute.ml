@@ -1153,7 +1153,12 @@ let execute_prog prog =
                else
                   player.player_vertices <- 
                   (trans_allVertices_abs_y (gameState.winHeight - objectheight) player.player_vertices)
-      | _     -> ());
+
+      | _     -> (); in
+        if Graphics.key_pressed () then f_key (Graphics.read_key ());
+
+
+
       exec fp sp (pc+1)
   | DrawPlayer -> (* Draws the player on top of the stack *)
      ()
@@ -1211,6 +1216,7 @@ let execute_prog prog =
 
 
   | PrintScore -> (* Prints the user's current score *)
+
 
       print_endline("Score: " ^ string_of_int gameState.userscore);
       draw_string 0 stack.(sp-4) (string_of_int gameState.userscore);
