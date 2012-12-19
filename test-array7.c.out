@@ -1,0 +1,18 @@
+positive stride
+positive stride
+positive stride
+a assign$c
+a assign$d
+a assign$c
+a assign$d
+a access$result
+a access$result
+positive stride
+negative stride
+negative stride
+a assign$sum
+a access$a2
+a access$a1
+Func w array input, return array
+Should print -3 8
+Execution error: Failure("Type error: Attempt to access index of array of unknown type.") at PC 42. Check the bytecode output with -b option.

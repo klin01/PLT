@@ -1,0 +1,5 @@
+
+###### Testing test-array7
+./testall.sh: line 68: [1: not found
+./retrocraft -c < tests/Array/test-array7.rc > tests/Array/test-array7.reference
+###### SUCCESS
