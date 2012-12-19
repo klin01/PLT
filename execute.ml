@@ -26,6 +26,10 @@ type state = {
   mutable userscore: int;
 };;
 
+let rec printList = function
+  []  ->  ""
+  | hd::tl -> (string_of_int hd) ^ printList tl;; 
+
 let array_def_size = 100
 (*let global_score = 0*)
 
@@ -74,15 +78,15 @@ let getNextFreeIndex stack globals sp isLocal =
 let draw_polygon vlist color =
   Graphics.set_color color;
   let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
-    (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );*)
+    print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
     Graphics.moveto x0 y0;
     for i = 1 to ((List.length vlist) / 2) - 1 do
       let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
-      (*print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y) )*)
+      print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y) )
     done;
     Graphics.lineto x0 y0;
-    (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
-    print_endline("");*)
+    print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
+    print_endline("");
 
   let rec buildTupleArray = function
     [] -> []
@@ -957,20 +961,27 @@ let t_init s () =
   draw_polygon s.playerData.player_vertices s.playerData.player_color;
   (*Graphics.set_color s.block1_color;*)
   
+  print_endline(string_of_int 0);
+
+  print_endline("size: " ^ string_of_int (List.length s.blockData));
+  List.iter (fun block -> (print_endline (printList block.block_vertices))) s.blockdata;
   List.iter (fun block -> (draw_polygon block.block_vertices
                                           block.block_color)) s.blockData;
+  print_endline(string_of_int 1);
 
   (*draw_rectangle s.block1_x s.block1_y s.block1_size s.block1_color;*)
 in
 
 (* s is state *)
 let t_end s () =
+  print_endline(string_of_int 2);
   Graphics.close_graph ();
   Graphics.set_color s.winBgColor;
 in
 
 (* c is keyboad input (char) *)
 let t_key s c =
+  print_endline(string_of_int 3);
   (*draw_player s.player_x s.player_y s.player_size s.player_color;*)
   
   
@@ -1002,6 +1013,7 @@ in
 
 
 let t_updateFrame s () =
+  print_endline(string_of_int 4);
   Graphics.clear_graph ();
   Graphics.set_color s.winBgColor;
   Graphics.fill_rect 0 0 s.winWidth s.winHeight;
@@ -1076,6 +1088,7 @@ in
 
 let t_playerCollided s () =
 
+  print_endline(string_of_int 5);
   (* Get blockType block and return a GPC polygon *)
   let makeGPCPolygon vlist =
    let rec makeVertexArray = function
@@ -1102,6 +1115,7 @@ in
 (*let i = ref 0; in*)
 
 let skel f_init f_end f_key f_updateFrame f_except f_playerCollided = 
+  print_endline(string_of_int 6);
   f_init ();
   try 
       while not (f_playerCollided ()) do
@@ -1205,6 +1219,7 @@ let slate () =
     skel (t_init gameState) (t_end gameState)
          (t_key gameState) (t_updateFrame gameState) 
          (t_except gameState) (t_playerCollided gameState); 
+    print_endline(string_of_int 7);
 in
 
 slate ();
