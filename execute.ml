@@ -12,7 +12,7 @@ let explode s =
     | k -> f (s.[k] :: acc) (k - 1)
   in f [] (String.length s - 1) ;;
 
-let countArray stack sp =
+let countArray stack sp = (* Count array on top of stack *)
   let rec countItems size count t =
     if stack.(sp-1-size*count) <> t then count else
       countItems size (count+1) t in 
@@ -22,6 +22,20 @@ let countArray stack sp =
   |   8 -> countItems 13 0 3
   |   9 -> countItems 11 0 4
   |   10 -> countItems 7 0 5
+  |   _ -> raise(Failure("Type error: Array is of unknown type."));;
+
+let getNextFreeIndex stack globals sp isLocal =
+  let group = if (isLocal <> 1) then globals else stack in
+    let rec countItems size count t =
+      if count = 100 then count else
+        (if group.(sp-2-size*count) <> t then count else
+         countItems size (count+1) t) in 
+  match group.(sp-1) with
+      6 -> (countItems 2 0 1) 
+  |   7 -> (countItems 40 0 2)
+  |   8 -> (countItems 13 0 3)
+  |   9 -> (countItems 11 0 4)
+  |   10 -> (countItems 7 0 5)
   |   _ -> raise(Failure("Type error: Array is of unknown type."));;
 
 (* Execute the program *)
@@ -90,58 +104,62 @@ let execute_prog prog =
       | Or      -> (if op1 == 1 || op2 == 1 then 1 else 0));
       exec fp (sp-2) (pc+1)
   | Lod i -> (* Load a global variable *)
-    let var_type_id = try globals.(i) 
+    let var_address = (if i = -32769 then
+        (if (stack.(sp-1) <> 1) then raise(Failure("Attempt to access invalid address.")) else
+        stack.(sp-2))
+      else i) in
+    let var_type_id = try globals.(var_address) 
                       with Invalid_argument ("i out of bounds") -> -1 in
       if (var_type_id = -1) then raise (Failure("Error: Attempt to load undeclared global variable."))
       else
         (match var_type_id with
             1 -> (* int *)
-              stack.(sp) <- globals.(i-1);
-              stack.(sp+1) <- globals.(i);
+              stack.(sp) <- globals.(var_address-1);
+              stack.(sp+1) <- globals.(var_address);
               exec fp (sp+2) (pc+1)
           | 2 -> (* string *)
               for j=0 to 39 do
-                stack.(sp+j) <- globals.(i-39+j)
+                stack.(sp+j) <- globals.(var_address-39+j)
               done;
               exec fp (sp+40) (pc+1)
           | 3 ->  (* Brick *)
               for j=0 to 12 do
-                stack.(sp+j) <- globals.(i-12+j)
+                stack.(sp+j) <- globals.(var_address-12+j)
               done;
               exec fp (sp+13) (pc+1)
           | 4 ->  (* Player *)
               for j=0 to 10 do
-                stack.(sp+j) <- globals.(i-10+j)
+                stack.(sp+j) <- globals.(var_address-10+j)
               done;
               exec fp (sp+11) (pc+1)
           | 5 ->  (* Map *)
               for j=0 to 6 do
-                stack.(sp+j) <- globals.(i-6+j)
+                stack.(sp+j) <- globals.(var_address-6+j)
               done;
               exec fp (sp+7) (pc+1)
           | 6 ->  (* Arrayint *)
               for j=0 to 200 do
-                stack.(sp+j) <- globals.(i-200+j)
+                stack.(sp+j) <- globals.(var_address-200+j)
               done;
               exec fp (sp+201) (pc+1)
           | 7 ->  (* Arraystring *)
               for j=0 to 4000 do
-                stack.(sp+j) <- globals.(i-4000+j)
+                stack.(sp+j) <- globals.(var_address-4000+j)
               done;
               exec fp (sp+4001) (pc+1)
           | 8 ->  (* ArrayBrick *)
               for j=0 to 1300 do
-                stack.(sp+j) <- globals.(i-1300+j)
+                stack.(sp+j) <- globals.(var_address-1300+j)
               done;
               exec fp (sp+1301) (pc+1)
           | 9 ->  (* ArrayPlayer *)
               for j=0 to 1100 do
-                stack.(sp+j) <- globals.(i-100+j)
+                stack.(sp+j) <- globals.(var_address-100+j)
               done;
               exec fp (sp+1101) (pc+1)
           | 10 ->  (* ArrayMap *)
               for j=0 to 700 do
-                stack.(sp+j) <- globals.(i-700+j)
+                stack.(sp+j) <- globals.(var_address-700+j)
               done;
               exec fp (sp+701) (pc+1)
           | _ -> print_endline(string_of_int var_type_id); raise(Failure("Type error: Attempt to load unknown type!"))
@@ -310,56 +328,60 @@ let execute_prog prog =
       | _ -> raise(Failure("Type error: Attempt to store array of unknown type."))
     )
   | Lfp i -> (* Load a local variable *)
+      let var_address = (if i = -32769 then
+        (if (stack.(sp-1) <> 1) then raise(Failure("Attempt to access invalid address.")) else
+        stack.(sp-2))
+      else i) in
       let var_type_id = stack.(fp+i) in
       (
           match var_type_id with
             1 -> (* int *)
-              stack.(sp) <- stack.(fp+i-1); (* value *)
-              stack.(sp+1) <- stack.(fp+i); (* type *)
+              stack.(sp) <- stack.(fp+var_address-1); (* value *)
+              stack.(sp+1) <- stack.(fp+var_address); (* type *)
               exec fp (sp+2) (pc+1)
           | 2 -> (* string *)
               for j=0 to 39 do
-                stack.(sp+j) <- stack.(fp+i-39+j)
+                stack.(sp+j) <- stack.(fp+var_address-39+j)
               done;
               exec fp (sp+40) (pc+1)
           | 3 -> (* Brick *)
               for j=0 to 12 do
-                stack.(sp+j) <- stack.(fp+i-12+j)
+                stack.(sp+j) <- stack.(fp+var_address-12+j)
               done;
               exec fp (sp+13) (pc+1)
           | 4 -> (* Player *)
               for j=0 to 10 do
-                stack.(sp+j) <- stack.(fp+i-10+j)
+                stack.(sp+j) <- stack.(fp+var_address-10+j)
               done;
               exec fp (sp+11) (pc+1)
           | 5 -> (* Map *)
               for j=0 to 6 do
-                stack.(sp+j) <- stack.(fp+i-6+j)
+                stack.(sp+j) <- stack.(fp+var_address-6+j)
               done;
               exec fp (sp+7) (pc+1)
           | 6 -> (* Arrayint *)
               for j=0 to 200 do
-                stack.(sp+j) <- stack.(fp+i-200+j)
+                stack.(sp+j) <- stack.(fp+var_address-200+j)
               done;
               exec fp (sp+201) (pc+1)
           | 7 -> (* Arrayƒstring *)
               for j=0 to 4000 do
-                stack.(sp+j) <- stack.(fp+i-4000+j)
+                stack.(sp+j) <- stack.(fp+var_address-4000+j)
               done;
               exec fp (sp+4001) (pc+1)
           | 8 -> (* ArrayBrick *)
               for j=0 to 1300 do
-                stack.(sp+j) <- stack.(fp+i-1300+j)
+                stack.(sp+j) <- stack.(fp+var_address-1300+j)
               done;
               exec fp (sp+1301) (pc+1)
           | 9 -> (* ArrayPlayer *)
               for j=0 to 1100 do
-                stack.(sp+j) <- stack.(fp+i-1100+j)
+                stack.(sp+j) <- stack.(fp+var_address-1100+j)
               done;
               exec fp (sp+1101) (pc+1)
           | 10 -> (* ArrayMap *)
               for j=0 to 700 do
-                stack.(sp+j) <- stack.(fp+i-700+j)
+                stack.(sp+j) <- stack.(fp+var_address-700+j)
               done;
               exec fp (sp+701) (pc+1)  
           | 0 -> (* Uninitialized variable *)
@@ -520,6 +542,7 @@ let execute_prog prog =
   | Jsr(-2) -> (* Run *)
       print_endline "You've just started running your program!" ; exec fp sp (pc+1)
   | Jsr(-3) -> (* printint *)
+      if (stack.(sp-2) <> 1) then raise(Failure("The function $printint must take an integer value.")) else
       print_endline (string_of_int stack.(sp-2)) ; exec fp sp (pc+1)
   | Jsr(-4) -> (* printstring *)
       let var_type_id = stack.(sp-1) in
@@ -534,6 +557,19 @@ let execute_prog prog =
   | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
         let i = stack.(sp-7) in
         stack.(sp)   <- pc + 1 ; exec fp (sp+1) i
+  | Jsr(-7) -> (* Push function to push object on top of stack into array *)
+      let varsize = (match (stack.(sp-1)) with
+                        1 -> 2
+                     |  2 -> 40
+                     |  3 -> 13
+                     |  4 -> 11
+                     |  5 -> 7
+                     |  _ -> raise(Failure("Unable to push object onto array."))
+                    ) in
+        let nextIndex = (getNextFreeIndex stack globals (fp+(stack.(sp-2-varsize))) (stack.(sp-4-varsize))) in
+          (if nextIndex > 100 then raise(Failure("Unable to push value onto full array.")) else
+            stack.(sp) <- nextIndex; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
+          ) 
   | Jsr i   -> stack.(sp)   <- pc + 1       ; exec fp (sp+1) i
   | Ent i   -> stack.(sp)   <- fp           ; exec sp (sp+i+1) (pc+1)
   | Rts i   -> 

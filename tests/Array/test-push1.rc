@@ -1,0 +1,21 @@
+Array string $global;
+
+function $main: void() {
+	Array int $local;
+	int $x;
+	$global : new Array string;
+	$local : new Array int;
+
+	$x : 5;
+	$x : "test";
+	/*$Push($global, 5);
+	$Push($global, 5);
+	$Push($local, 2);
+
+	$printstring("Should print \"test\" and \"testing\".");
+	$printint($global[0]);
+	$printint($global[1]);
+
+	//$printstring("Should print 2.");
+	//$printint($local[0]);*/
+}

@@ -1,20 +1,19 @@
 int $globalvar1;
 int $globalvar2;
 
-//$globalvar2 : 1;
-//$globalvar1 : 2;
-
 function $generateThis: Array Brick () {
   //vdecls
+  Array int $brickvertices;
   Array Brick $output;
   Brick $top;
   Brick $bottom;
   //stmts
   $output : new Array Brick;
+  $brickvertices : new Array Int;
 
-  $top : new Brick(\"red\", 20, 1024, 0, 1004);
+  $top : new Brick(0, 0, 0, 20, 1024, 0, 1004);
   $output->$push($top);
-  $bottom : new Brick(\"red\", 20, 1024, 0, 0);
+  $bottom : new Brick(0, 0, 0, 20, 1024, 0, 0);
   $output->$push($bottom);
   return $output;
 }

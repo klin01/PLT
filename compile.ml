@@ -147,6 +147,7 @@ let translate (globals, functions) =
   let built_in_functions = StringMap.add "$printstring" (-4) built_in_functions in
   let built_in_functions = StringMap.add "$dumpstack" (-5) built_in_functions in
   let built_in_functions = StringMap.add "$CallGenerator" (-6) built_in_functions in
+  let built_in_functions = StringMap.add "$Push" (-7) built_in_functions in
 
   let function_indexes = string_map_pairs built_in_functions
       (enum_func 1 1 (List.map (fun f -> f.fname) functions)) in
@@ -165,10 +166,17 @@ let translate (globals, functions) =
         LiteralInt i -> [Litint i] 
       | LiteralString i -> [Litstr i]
       | Id s ->
-          (try [Lfp (StringMap.find s env.local_index)]
-           with Not_found -> try [Lod (StringMap.find s env.global_index)]
-           (*with Not_found -> try [Lodf (StringMap.find s env.function_index)]*)
-           with Not_found -> raise (Failure ("undeclared Id " ^ s)))
+          let sub = (if (String.length s) > 10 then String.sub s ((String.length s)-10) 10 else s) in
+              if sub = ".$vertices" then (* Account for case where only a reference to an array is stored i.e. $brick.$vertices *)
+                (try [Litint (StringMap.find s env.local_index)] @ [Lfp (-32769)]
+                 with Not_found -> try [Litint (StringMap.find s env.global_index)] @ [Lod (-32769)]
+                 (*with Not_found -> try [Lodf (StringMap.find s env.function_index)]*)
+                 with Not_found -> raise (Failure ("undeclared Id " ^ s)))
+              else
+                (try [Lfp (StringMap.find s env.local_index)]
+                 with Not_found -> try [Lod (StringMap.find s env.global_index)]
+                 (*with Not_found -> try [Lodf (StringMap.find s env.function_index)]*)
+                 with Not_found -> raise (Failure ("undeclared Id " ^ s)))
 
       | Brick (r, g, b, varray, x, y) ->
           expr y @ expr x 
@@ -241,9 +249,8 @@ let translate (globals, functions) =
             else
             let sub2 = String.sub s (strLen-11) 11 in
               if sub2 = ".$generator" then
-              (try [Litint (StringMap.find str env.local_index)]
-              with Not_found -> try [Litint (StringMap.find str env.global_index)]
-              with Not_found -> raise (Failure ("undeclared Id " ^ str))) else expr e    
+              (try [Litint (StringMap.find str env.function_index)]
+              with Not_found -> raise (Failure ("undeclared function " ^ str))) else expr e    
           | _ -> expr e
           
         ) @ (try [Sfp (StringMap.find s env.local_index)]
@@ -281,9 +288,27 @@ let translate (globals, functions) =
                             @ (expr (Call("$CallGenerator", [List.nth actuals 0])))) @[PrintScore] in
             loadMap @ [OpenWin] @ [Bra ((List.length whilebody)+1)] @ whilebody @ loadPlayer @ [CheckCollision] @ [Bne (-((List.length whilebody) + 1))]
           else
+          (if (fname = "$Push") then
+            let actualBytes = (List.concat (List.map expr (List.rev actuals))) in
+            [List.nth (List.tl actualBytes) 0] @ (match (List.nth (List.tl actualBytes) 0) with
+                Lod x -> [Litint 0] @ [Litint x]
+             |  Lfp x -> [Litint 1] @ [Litint x]
+             |  _ -> raise(Failure("Invalid array specified for Push function."))) 
+            @ [(List.hd actualBytes)] @ [Jsr (-7)] @ (let array_name = (match actuals with
+                                                                         hd :: tl -> (match hd with
+                                                                                          Id(x) -> x                                                                                                            
+                                                                                        | _ -> raise(Failure("The first argument of $Push must be a reference to an array.")))
+                                                                       | [] -> raise(Failure("Run must be applied to two arguments."))
+                                                                      ) in
+                                                      (try [Litint (StringMap.find array_name env.local_index)] @ [Sfpa]
+                                                       with Not_found -> try[Litint (StringMap.find array_name env.global_index)] @ [Stra]
+                                                       with Not_found -> raise (Failure ("Attempt to push onto undeclared array " ^ array_name ^ ".")))
+                                                    )
+           else
            (List.concat (List.map expr (List.rev actuals))) @
            (try [Jsr (StringMap.find fname env.function_index)]   
             with Not_found -> raise (Failure ("undefined function " ^ fname)))
+          )
       | Noexpr -> []
 
     in let rec stmt = function
