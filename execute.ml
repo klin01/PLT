@@ -50,8 +50,8 @@ let countArray stack globals sp = (* Count array on top of stack *)
             match stack.(sp-1) with
                 6 -> (countItems 2 1 0 0) 
             |   7 -> (countItems 40 2 0 0)
-            |   8 -> (countItems 13 3 0 0)
-            |   9 -> (countItems 11 4 0 0)
+            |   8 -> (countItems 212 3 0 0)
+            |   9 -> (countItems 210 4 0 0)
             |   10 -> (countItems 7 5 0 0)
             |   _ -> raise(Failure("Type error: Array is of unknown type."))
           );;
@@ -65,8 +65,8 @@ let getNextFreeIndex stack globals sp isLocal =
             match (if (isLocal <> 1) then (globals.(sp)) else (stack.(sp))) with
                 6 -> (countItems 2 0 1) 
             |   7 -> (countItems 40 0 2)
-            |   8 -> (countItems 13 0 3)
-            |   9 -> (countItems 11 0 4)
+            |   8 -> (countItems 212 0 3)
+            |   9 -> (countItems 210 0 4)
             |   10 -> (countItems 7 0 5)
             |   _ -> raise(Failure("Type error: Array is of unknown type."))
           );;
@@ -205,7 +205,7 @@ let gameState = {winWidth=(-1); winHeight=(-1);
   Execute the program
 *********************************************)
 let execute_prog prog =
-  let stack = Array.make 32768 0
+  let stack = Array.make 160000 0
   and globals = Array.make prog.globals_size 0
   and random = Random.self_init ()
   in
@@ -714,8 +714,8 @@ let execute_prog prog =
     )
   | Jsr(-1) -> (* DrawPlayer *) 
       print_endline ("You've just drawn something!") ;
-      let scope = stack.(sp-8)
-      and addr = stack.(sp-9) 
+      let scope = -1
+      and addr = (sp-9) 
       and color = color_from_rgb stack.(sp-3) stack.(sp-5) stack.(sp-7)
       in
         let rec make_coord_list n = 
@@ -754,7 +754,9 @@ let t_init s () =
   print_endline(string_of_int 0);
 
   print_endline("size: " ^ string_of_int (List.length s.blockData));
-  (*List.iter (fun block -> (print_endline (printList block.block_vertices))) s.blockdata;*)
+
+  List.iter (fun block -> (print_endline (printList block.block_vertices))) s.blockData;
+
   List.iter (fun block -> (draw_polygon block.block_vertices
                                           block.block_color)) s.blockData;
   print_endline(string_of_int 1);
@@ -923,88 +925,6 @@ let skel f_init f_end f_key f_updateFrame f_except f_playerCollided =
       End  -> f_end ();
 
 in
-(*
-let block1 = { block_vertices=
-                [500; 200;
-                650; 200;
-                650; 350;
-                500; 350;
-                400; 350];
-               block_color=(color_from_rgb 20 20 20) }; in
-let block2 = { block_vertices=
-                [600; 500;
-                700; 450;
-                700; 500;
-                700; 600;
-                600; 600];
-               block_color=(color_from_rgb 150 20 120) }; in
-let block3 = { block_vertices=
-                [400; 0;
-                450; 0;
-                450; 50;
-                400; 50];
-               block_color=(color_from_rgb 20 120 20) }; in
-
-let block4 = { block_vertices=
-                [800; 0;
-                850; 0;
-                850; 50;
-                800; 50];
-               block_color=(color_from_rgb 20 120 20) }; in
-
-let block5 = { block_vertices=
-                [800; 40;
-                850; 40;
-                850; 70;
-                800; 70];
-               block_color=(color_from_rgb 20 120 20) }; in
-
-let block6 = { block_vertices=
-                [700; 200;
-                750; 200;
-                750; 250;
-                700; 250];
-               block_color=(color_from_rgb 20 120 20) }; in
-
-let block7 = { block_vertices=
-                [1000; 40;
-                1050; 40;
-                1050; 70;
-                1000; 70];
-               block_color=(color_from_rgb 20 120 20) }; in
-
-let block8 = { block_vertices=
-                [1100; 200;
-                1150; 200;
-                1150; 250;
-                1100; 250];
-               block_color=(color_from_rgb 20 120 20) }; in
-
-
-
-let blocks = [block1; block2; block3; block4; block5; block6; block7; block8];
-in
-
-
-let player = { player_vertices=
-                [50; 300;
-                100; 300;
-                100; 350;
-                50; 350;
-                25; 360];
-               player_color=(color_from_rgb 20 120 20) }; 
-in
-
-let gameState = {winWidth=800; winHeight=600; 
-                winBgColor=(color_from_rgb 255 255 255);
-                blockData=blocks;
-                reset=true;
-                gravityFlag=0;
-                playerData=player;
-                userscore=2};
-in
-*)
-
 let slate () =
     skel (t_init gameState) (t_end gameState)
          (t_key gameState) (t_updateFrame gameState) 
@@ -1028,7 +948,7 @@ print_endline("Game End!");
 
 
 
-      print_endline "You've just started running your program!" ; exec fp sp (pc+1)
+      (*print_endline "You've just started running your program!" ; exec fp sp (pc+1)*)
   | Jsr(-3) -> (* printint *)
       if (stack.(sp-1) <> 1) then raise(Failure("The function $printint must take an integer value.")) else
       print_endline (string_of_int stack.(sp-2)) ; exec fp sp (pc+1)
@@ -1052,8 +972,8 @@ print_endline("Game End!");
       let varsize = (match (stack.(sp-1)) with
                         1 -> 2
                      |  2 -> 40
-                     |  3 -> 13
-                     |  4 -> 11
+                     |  3 -> 212
+                     |  4 -> 210
                      |  5 -> 7
                      |  _ -> raise(Failure("Unable to push object of unknown type onto array."))
                     ) in
@@ -1158,8 +1078,8 @@ print_endline("Game End!");
       | 5   -> exec fp (sp-1) (pc+1)
       | 6   -> stack.(sp+200)   <- id ; exec fp (sp+201) (pc+1)
       | 7   -> stack.(sp+4000)   <- id ; exec fp (sp+4001) (pc+1)
-      | 8   -> stack.(sp+1300)   <- id ; exec fp (sp+1301) (pc+1)
-      | 9   -> stack.(sp+1100)   <- id ; exec fp (sp+1101) (pc+1)
+      | 8   -> stack.(sp+21200)   <- id ; exec fp (sp+21201) (pc+1)
+      | 9   -> stack.(sp+21000)   <- id ; exec fp (sp+21001) (pc+1)
       | 10  -> stack.(sp+700)   <- id ; exec fp (sp+701) (pc+1)
       | _   -> raise(Failure("'Make' cannot apply to the invalid type " ^ string_of_int id));
     )
@@ -1249,11 +1169,11 @@ print_endline("Game End!");
 
         if (stack.(i-1) = 3) then
           (
-          let scope = stack.(i-8)
+          let scope = -1
           and r = stack.(i-3)
           and g = stack.(i-5)
           and b = stack.(i-7)
-          and addr = stack.(i-9)  
+          and addr = (i-9)  
           and xcoord = stack.(i-11)
           and ycoord = stack.(i-13) in    
           let rec make_coord_list n = 
@@ -1270,7 +1190,7 @@ print_endline("Game End!");
               | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
             else [] in
             (
-              {block_vertices= make_coord_list (addr-1); block_color=r*256*256+g*256+b;} :: addToBricks (i-13)
+              {block_vertices= make_coord_list (addr-1); block_color=r*256*256+g*256+b;} :: addToBricks (i-212)
             )
           ) else []
       in 

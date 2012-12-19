@@ -132,7 +132,7 @@ let rec enumInitCommands stride n isLocal = function
       | "Brick" ->
         (Init (1, (n + 1), isLocal)) :: (* hd.varname ^ ".$y" *)
         (Init (1, (n + 3), isLocal)) :: (* hd.varname ^ ".$x" *)
-        (Init (6, (n + 5), isLocal)) :: (* hd.varname ^ ".$vertices" *)
+        (Init (6, (n + 204), isLocal)) :: (* hd.varname ^ ".$vertices" *)
         (Init (1, (n + 206), isLocal)) :: (* hd.varname ^ ".$colorB" *)
         (Init (1, (n + 208), isLocal)) :: (* hd.varname ^ ".$colorG" *)
         (Init (1, (n + 210), isLocal)) :: (* hd.varname ^ ".$colorR" *)

@@ -1,0 +1,9 @@
+//test-function
+
+function $test : int () {
+	return 5;
+}
+
+function $main : void () {
+	$printint($test());
+}
