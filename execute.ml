@@ -42,8 +42,12 @@ let getNextFreeIndex stack globals sp isLocal =
 (* Execute the program *)
 let execute_prog prog =
   let stack = Array.make 32768 0
-  and globals = Array.make prog.globals_size 0
+  and globals = Array.make prog.globals_size 0 
   and user_score = 2 in
+  and blocks1 = ref [||]
+  and blocks2 = ref [||]
+  and player = ref ([], 0)
+  in
 
   let rec exec fp sp pc = try match prog.text.(pc) with
     Litint i  -> 
@@ -804,8 +808,12 @@ let execute_prog prog =
             | 1 -> globals.(n-1) :: make_coord_list (n-2)
             | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
           else [] in
-        let coords = make_coord_list (addr-1) in  
-        draw_polygon coords color;
+        
+        player := (make_coord_list (addr-1), snd !player);
+        (*let coords = make_coord_list (addr-1) in  *)
+        print_endline (String.concat " " (List.map string_of_int (fst !player)));
+        
+        draw_polygon (fst !player) color;
 
 
         Thread.join(Thread.create(Thread.delay)(120.0 /. 24.0));
@@ -942,36 +950,12 @@ let execute_prog prog =
       (*Graphics.clear_graph ();*) exec fp (sp) (pc+1)
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)
         print_endline ("checking collision");
+
         stack.(sp) <- 1; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
         exec fp sp (pc+1)
   | DrawPlayer -> (* Draws the player on top of the stack *)
-      let scope = stack.(sp-8)
-      and addr = stack.(sp-9) in
-
-      print_endline (string_of_int scope ^ " " ^ string_of_int addr);
-
-      print_endline ("draw " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
-                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
-                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
-
-
-      if (scope = -1) then (*LOCAL*)
-        let rec make_coord_list n = 
-          (match stack.(fp+n) with
-            0 -> []
-          | 1 -> 1 :: make_coord_list (n-2)
-          | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(fp+n))))
-        in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
-      else if (scope = 1) then (*GLOBAL*)
-        let rec make_coord_list n = 
-          (match globals.(n) with
-            0 -> []
-          | 1 -> 1 :: make_coord_list (n-2)
-          | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
-      in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
-
+        ()
   | PrintScore -> (* Prints the user's current score *)
         ()
   | Nt ->
