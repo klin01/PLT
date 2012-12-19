@@ -1,0 +1,47 @@
+function $retIntArray : Array int ()
+{
+	Array int $retArray;
+	int $i;
+
+	$retArray : new Array int;
+
+	for ($i :0; $i < 5; $i +: 1){
+		$retArray[$i] : $i;
+	}
+	return $retArray;
+}
+
+
+function $retIntArray2 : Array int ()
+{
+	Array int $retArray;
+	int $i;
+
+	$retArray : new Array int;
+
+	for ($i :0; $i < 15; $i +: 1){
+		$retArray[$i] : $i;
+	}
+	return $retArray;
+}
+
+function $main : void ()
+{	
+	Array int $localArray;
+	int $i;
+	$localArray: $retIntArray();
+
+	$printstring("printing returned array");
+
+	for ($i : 0; $i < 5; $i +: 1) {
+		$printint($localArray[$i]);
+	}
+
+	$localArray: $retIntArray2();
+		$printstring("printing 2nd returned array");
+
+	for ($i : 0; $i < 15; $i +: 1) {
+		$printint($localArray[$i]);
+	}
+
+}

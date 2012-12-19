@@ -604,7 +604,31 @@ let execute_prog prog =
             (for j=0 to 200 do
               stack.(base+j) <- stack.(sp-(201-j))
             done;
-            exec new_fp (base+2) new_pc)
+            exec new_fp (base+201) new_pc)
+
+      | 7 -> (* Arraystring *)
+            (for j=0 to 4000 do
+              stack.(base+j) <- stack.(sp-(4001-j))
+            done;
+            exec new_fp (base+4001) new_pc)
+
+      | 8 -> (* ArrayBrick *)
+          (for j=0 to  1300 do
+            stack.(base+j) <- stack.(sp-(1301-j))
+          done;
+          exec new_fp (base+1301) new_pc)
+
+      | 9 -> (* ArrayPlayer *)
+          (for j=0 to  1100 do
+            stack.(base+j) <- stack.(sp-(1101-j))
+          done;
+          exec new_fp (base+1101) new_pc)
+
+       | 10 ->  (* ArrayMap *)
+            (for j=0 to  700 do
+              stack.(base+j) <- stack.(sp-(701-j))
+            done;
+            exec new_fp (base+701) new_pc)
 
       | _ -> raise(Failure("Unmatched type in Rts!!"));
       );
