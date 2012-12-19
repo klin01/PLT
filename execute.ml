@@ -22,7 +22,7 @@ type state = {
   (*mutable blockData:blockType list;*)
   mutable gravityFlag: int;
   (*mutable playerData:playerType;*)
-  mutable userscore: int;
+  mutable user_score: int;
 };;
 
 let array_def_size = 100
@@ -199,7 +199,7 @@ let execute_prog prog =
   and blocks2 = []
   and player = ref ([], 0)
   
-  and gameState = {winWidth=(-1), winHeight=(-1); 
+  and gameState = {winWidth=(-1); winHeight=(-1); 
                   winBgColor=color_from_rgb 200 200 200;
                   reset=true;
                   gravityFlag=0;
@@ -1001,7 +1001,7 @@ let execute_prog prog =
             stack.(sp) <- nextIndex; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
           ) 
   | Jsr(-8) -> (* GetCurrentScore function to put current score on stack *)
-      stack.(sp) <- user_score; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
+      stack.(sp) <- gameState.user_score; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
   | Jsr(-9) -> (* GenerateRandomInt function to generate a random integer and put it on top of stack *)
       let seedtype = stack.(sp-1)
       and seed = stack.(sp-2) in
@@ -1108,14 +1108,14 @@ let execute_prog prog =
   (* Lodf and Strf *)
   | OpenWin -> (* Opens graphical display *) 
       Graphics.open_graph (" "^(string_of_int gameState.winWidth)^"x"^(string_of_int gameState.winHeight));
-      Graphics.set_color gameState.winColor;
+      Graphics.set_color gameState.winBgColor;
       Graphics.fill_rect 0 0 gameState.winWidth gameState.winHeight;
       Thread.join(Thread.create(Thread.delay)(240.0 /. 240.0)); 
       exec fp (sp) (pc+1)
   | CloseWin -> (* Closes graphical display *)
       Graphics.clear_graph (); exec fp (sp) (pc+1)
   | StoreWindow ->
-      gameState.winWidth = stack.(sp-3); gameState.winHeight = stack.(sp-5); exec fp (sp) (pc+1) 
+      gameState.winWidth <- stack.(sp-3); gameState.winHeight <- stack.(sp-5); exec fp (sp) (pc+1) 
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)
         print_endline ("checking collision");
       (* Scene is a list of blocks *)
@@ -1140,10 +1140,9 @@ let execute_prog prog =
               (*print_endline (string_of_bool (result collisionList));*)
               result collisionList;
       in
-
-      let final_result = (int_of_bool (t_playerCollided blocks1 || t_playerCollided blocks2) );
-
-      stack.(sp) <- final_result; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
+      stack.(sp) <- (int_of_bool (t_playerCollided blocks1 || t_playerCollided blocks2) );
+      stack.(sp+1) <- 1; 
+      exec fp (sp+2) (pc+1)
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
       
       let max_y = find_max_y 0 player.player_vertices 
@@ -1207,7 +1206,7 @@ let execute_prog prog =
           and b = stack.(i-7)
           and addr = stack.(i-9) in
 
-      (*)  print_endline ("scopre r g b " ^ string_of_int scope ^ " " ^ string_of_int r ^ " " ^ string_of_int g
+      (*  print_endline ("scopre r g b " ^ string_of_int scope ^ " " ^ string_of_int r ^ " " ^ string_of_int g
                   ^ " " ^ string_of_int b ^ " " ^ string_of_int addr);*)
           
           let rec make_coord_list n = 
@@ -1274,8 +1273,8 @@ let execute_prog prog =
 
   | PrintScore -> (* Prints the user's current score *)
 
-      print_endline("Score: " ^ string_of_int user_score);
-      draw_string 10 (winWidth-30) (string_of_int user_score);
+      print_endline("Score: " ^ string_of_int gameState.user_score);
+      draw_string 10 (winWidth-30) (string_of_int gameState.user_score);
       exec fp sp (pc+1)
 
   | Nt ->

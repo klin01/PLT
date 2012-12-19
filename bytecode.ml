@@ -81,6 +81,7 @@ let string_of_stmt = function
   | CheckUserInput -> "CheckUserInput"
   | DrawPlayer -> "DrawPlayer"
   | PrintScore -> "PrintScore"
+  | StoreWindow -> "StoreWindow"
   | ProcessBlocks -> "ProcessBlocks"
   | OpenWin -> "OpenWin"
   | CloseWin -> "CloseWin"

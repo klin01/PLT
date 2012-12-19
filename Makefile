@@ -1,10 +1,10 @@
-# TODO: Change "microc" to "retrocraft"
+
 OBJS = ast.cmo scanner.cmo parser.cmo bytecode.cmo compile.cmo execute.cmo
 COMPILER = retrocraft.cmo
 TESTS = tests.cmo runtest.cmo
 
 CONF=-I +threads
-LIBS=$(WITHGRAPHICS) $(WITHUNIX) $(WITHTHREADS)
+LIBS=$(WITHGRAPHICS) $(WITHUNIX) $(WITHTHREADS) $(WITHGPC)
 
 # Default setting of the WITH* variables. Should be changed if your
 # local libraries are not found by the compiler.
@@ -14,6 +14,12 @@ WITHTHREADS =threads.cma -cclib -lthreads
 
 WITHUNIX =unix.cma -cclib -lunix
 
+WITHGPC =camlgpc.cma -cclib -L.
+
+
+default: 
+	@make -f MakefileGPC
+	@make compiler
 
 compiler : $(OBJS) $(COMPILER)
 	ocamlc $(CONF) -o retrocraft $(LIBS) $(OBJS) $(COMPILER)
@@ -36,7 +42,8 @@ parser.ml parser.mli : parser.mly
 
 .PHONY : clean
 clean :
-	rm -rf *.cmo *.cmi retrocraft parser.mli parser.ml scanner.ml
+	rm -rf *.cmo *.cmi retrocraft parser.mli parser.ml scanner.ml \
+	*.cmo *.cmi *.out *.diff *.a
 
 clean_runtests :
 	rm -rf *.cmo *.cmi runtests parser.mli parser.ml scanner.ml
