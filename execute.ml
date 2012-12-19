@@ -19,9 +19,9 @@ type state = {
   mutable winHeight:int; 
   mutable winBgColor:int;
   mutable reset: bool;
-  (*mutable blockData:blockType list;*)
+  mutable blockData:blockType list;
   mutable gravityFlag: int;
-  (*mutable playerData:playerType;*)
+  mutable playerData:playerType;
   mutable userscore: int;
 };;
 
@@ -195,14 +195,17 @@ let execute_prog prog =
   and globals = Array.make prog.globals_size 0
   and random = Random.self_init ()
 
-  and blocks1 = []
-  and blocks2 = []
+  and blocks = []
+  (*and blocks2 = []*)
   and player = {player_vertices = []; player_color = 0}
-  and gameState = {winWidth=(-1); winHeight=(-1); 
+  and gameState = {winWidth=(700); winHeight=(500); 
                   winBgColor=color_from_rgb 200 200 200;
                   reset=true;
                   gravityFlag=0;
-                  userscore=2};
+                  userscore=2;
+                blockData=blocks;
+                playerData=player
+                  };
   in
 
 
@@ -939,6 +942,272 @@ let execute_prog prog =
         player = {player_vertices= make_coord_list (addr-1);player_color = color};
         exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
+
+(******************************************************************************************************************)
+(******************************************************************************************************************)
+(******************************************************************************************************************)
+
+(* s is state *)
+let t_init s () =
+  Graphics.open_graph (" " ^ (string_of_int s.winWidth) ^ "x" ^
+                             (string_of_int s.winHeight));
+  Graphics.set_color s.winBgColor;
+  Graphics.fill_rect 0 0 s.winWidth s.winHeight;
+  (*Graphics.set_color s.player_color;*)
+  draw_polygon s.playerData.player_vertices s.playerData.player_color;
+  (*Graphics.set_color s.block1_color;*)
+  
+  List.iter (fun block -> (draw_polygon block.block_vertices
+                                          block.block_color)) s.blockData;
+
+  (*draw_rectangle s.block1_x s.block1_y s.block1_size s.block1_color;*)
+in
+
+(* s is state *)
+let t_end s () =
+  Graphics.close_graph ();
+  Graphics.set_color s.winBgColor;
+in
+
+(* c is keyboad input (char) *)
+let t_key s c =
+  (*draw_player s.player_x s.player_y s.player_size s.player_color;*)
+  
+  
+  let max_y = find_max_y 0 s.playerData.player_vertices 
+  and min_y = find_min_y s.winHeight s.playerData.player_vertices in
+  (*let objectheight = (max_y - (List.nth s.playerData.player_vertices 1)) in*)
+  let objectheight = (max_y - min_y) in
+
+    (match c with
+      ' '   -> if max_y < s.winHeight then 
+               (
+                  if (s.gravityFlag < 2) then
+                      s.gravityFlag <- 2;
+                        
+                  s.playerData.player_vertices <- (trans_allVertices_y s.gravityFlag s.playerData.player_vertices);
+                  s.gravityFlag <- (s.gravityFlag + 3);
+               )
+               else
+                  s.playerData.player_vertices <- 
+                  (trans_allVertices_abs_y (s.winHeight - objectheight) s.playerData.player_vertices)
+      (*|'z'   -> if min_y > 0 then 
+                  s.playerData.player_vertices <- 
+                  (trans_allVertices_y (-15) s.playerData.player_vertices)
+                else
+                  s.playerData.player_vertices <- 
+                  (trans_allVertices_abs_y 0 s.playerData.player_vertices)*)
+      | _     -> ());
+in
+
+
+let t_updateFrame s () =
+  Graphics.clear_graph ();
+  Graphics.set_color s.winBgColor;
+  Graphics.fill_rect 0 0 s.winWidth s.winHeight;
+  
+  (*
+  s.block1_x <- s.block1_x - 3;
+  draw_rectangle s.block1_x s.block1_y s.block1_size s.block1_color;
+  *)
+
+    (*
+    let rec trans_allVertices = function
+      [] -> []
+      | px::py::tl -> (px - 3)::(py::(trans_allVertices tl))
+    in*)
+  List.iter (fun block -> ( block.block_vertices <- 
+                      (trans_allVertices_x (-10) block.block_vertices))) s.blockData;
+
+  List.iter (fun block -> (draw_polygon block.block_vertices
+                                          block.block_color)) s.blockData;
+    
+  (* Gravitify *)
+  s.gravityFlag <- (s.gravityFlag - 1);
+  let max_y = find_max_y 0 s.playerData.player_vertices 
+  and min_y = find_min_y s.winHeight s.playerData.player_vertices in
+  let objectheight = (max_y - (List.nth s.playerData.player_vertices 1)) in
+      if (max_y > s.winHeight) then
+             s.playerData.player_vertices <- 
+                  (trans_allVertices_abs_y (s.winHeight - objectheight) s.playerData.player_vertices)
+      else
+        if (min_y > 0) then
+          s.playerData.player_vertices <- (trans_allVertices_y s.gravityFlag s.playerData.player_vertices)
+        else 
+          s.playerData.player_vertices <- 
+                  (trans_allVertices_abs_y 0 s.playerData.player_vertices);
+  (* End Gravitify *)
+
+
+  (* Wrap map *)
+  s.reset <- true;
+  let rec wrapAround = function
+      [] -> []
+      | px::py::tl -> if (px > 0) then s.reset <- false; (px)::(py::(wrapAround tl))
+  in
+  List.iter (fun block -> ( block.block_vertices <- (wrapAround block.block_vertices))) s.blockData;
+  if (s.reset = true) then
+    List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x (s.winWidth+s.winWidth) block.block_vertices))) s.blockData;
+
+  (* End wrap map *)
+
+  s.userscore <- s.userscore + 1;
+  draw_polygon s.playerData.player_vertices s.playerData.player_color;
+in
+  
+
+let t_except s ex = ();
+in
+
+let t_playerCollided s () =
+
+  (* Get blockType block and return a GPC polygon *)
+  let makeGPCPolygon vlist =
+   let rec makeVertexArray = function
+      []           -> [||]
+      | px::py::tl -> Array.append [|{Clip.x = (float_of_int px); Clip.y = (float_of_int py)}|] (makeVertexArray tl) in
+        Clip.make_gpcpolygon [|false|] [|(makeVertexArray vlist)|] in
+
+  let checkCollision block =
+
+      let _result = Clip.gpcml_clippolygon 
+                      Clip.Intersection 
+                      (makeGPCPolygon s.playerData.player_vertices) 
+                      (makeGPCPolygon block.block_vertices) 
+                    in
+                      (Clip.gpcml_isOverlapped _result)
+      in
+
+        let result list = List.fold_left (fun a b -> a || b) false list in
+          let collisionList = List.map checkCollision s.blockData in
+            (*print_endline (string_of_bool (result collisionList));*)
+            result collisionList;
+in
+
+(*let i = ref 0; in*)
+
+let skel f_init f_end f_key f_updateFrame f_except f_playerCollided = 
+  f_init ();
+  try 
+      while not (f_playerCollided ()) do
+        try 
+
+          if Graphics.key_pressed () then f_key (Graphics.read_key ());
+          (*if f_playerCollided () then f_end ();*)
+          Thread.join(Thread.create(Thread.delay)(1.0 /. 24.0));
+          f_updateFrame ();
+        with 
+             End -> raise End
+           |  e  -> f_except e
+      done
+  with 
+      End  -> f_end ();
+
+in
+
+let block1 = { block_vertices=
+                [500; 200;
+                650; 200;
+                650; 350;
+                500; 350;
+                400; 350];
+               block_color=(color_from_rgb 20 20 20) }; in
+let block2 = { block_vertices=
+                [600; 500;
+                700; 450;
+                700; 500;
+                700; 600;
+                600; 600];
+               block_color=(color_from_rgb 150 20 120) }; in
+let block3 = { block_vertices=
+                [400; 0;
+                450; 0;
+                450; 50;
+                400; 50];
+               block_color=(color_from_rgb 20 120 20) }; in
+
+let block4 = { block_vertices=
+                [800; 0;
+                850; 0;
+                850; 50;
+                800; 50];
+               block_color=(color_from_rgb 20 120 20) }; in
+
+let block5 = { block_vertices=
+                [800; 40;
+                850; 40;
+                850; 70;
+                800; 70];
+               block_color=(color_from_rgb 20 120 20) }; in
+
+let block6 = { block_vertices=
+                [700; 200;
+                750; 200;
+                750; 250;
+                700; 250];
+               block_color=(color_from_rgb 20 120 20) }; in
+
+let block7 = { block_vertices=
+                [1000; 40;
+                1050; 40;
+                1050; 70;
+                1000; 70];
+               block_color=(color_from_rgb 20 120 20) }; in
+
+let block8 = { block_vertices=
+                [1100; 200;
+                1150; 200;
+                1150; 250;
+                1100; 250];
+               block_color=(color_from_rgb 20 120 20) }; in
+
+
+
+let blocks = [block1; block2; block3; block4; block5; block6; block7; block8];
+in
+
+
+let player = { player_vertices=
+                [50; 300;
+                100; 200;
+                100; 350;
+                50; 350;
+                25; 360];
+               player_color=(color_from_rgb 20 120 20) }; 
+in
+
+let gameState = {winWidth=800; winHeight=600; 
+                winBgColor=(color_from_rgb 255 255 255);
+                blockData=blocks;
+                reset=true;
+                gravityFlag=0;
+                playerData=player;
+                userscore=2};
+in
+
+
+let slate () =
+    skel (t_init gameState) (t_end gameState)
+         (t_key gameState) (t_updateFrame gameState) 
+         (t_except gameState) (t_playerCollided gameState); 
+in
+
+slate ();
+print_endline("Game End!");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       print_endline "You've just started running your program!" ; exec fp sp (pc+1)
   | Jsr(-3) -> (* printint *)
       if (stack.(sp-1) <> 1) then raise(Failure("The function $printint must take an integer value.")) else
@@ -972,7 +1241,8 @@ let execute_prog prog =
             stack.(sp) <- nextIndex; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
           ) 
   | Jsr(-8) -> (* GetCurrentScore function to put current score on stack *)
-      stack.(sp) <- gameState.userscore; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
+      (*stack.(sp) <- gameState.userscore; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)*)
+      stack.(sp) <- 1; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
   | Jsr(-9) -> (* GenerateRandomInt function to generate a random integer and put it on top of stack *)
       let seedtype = stack.(sp-1)
       and seed = stack.(sp-2) in
@@ -1078,16 +1348,16 @@ let execute_prog prog =
         (stack.(fp+j) <- i; exec fp sp (pc+1))
   (* Lodf and Strf *)
   | OpenWin -> (* Opens graphical display *)
-      gameState.winHeight <- stack.(sp-3); gameState.winWidth <- stack.(sp-5);
+      (*gameState.winHeight <- stack.(sp-3); gameState.winWidth <- stack.(sp-5);
       Graphics.open_graph (" "^(string_of_int gameState.winWidth)^"x"^(string_of_int gameState.winHeight));
       Graphics.set_color gameState.winBgColor;
       Graphics.fill_rect 0 0 gameState.winWidth gameState.winHeight;
-      Thread.join(Thread.create(Thread.delay)(240.0 /. 240.0)); 
+      Thread.join(Thread.create(Thread.delay)(240.0 /. 240.0)); *)
       exec fp (sp) (pc+1)
   | CloseWin -> (* Closes graphical display *)
       Graphics.clear_graph (); exec fp (sp) (pc+1)
   | StoreWindow ->
-      gameState.winWidth = stack.(sp-3); gameState.winHeight <- stack.(sp-5); exec fp (sp) (pc+1) 
+      (*gameState.winWidth = stack.(sp-3); gameState.winHeight <- stack.(sp-5);*) exec fp (sp) (pc+1) 
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)
         print_endline ("checking collision");
 
@@ -1123,6 +1393,7 @@ let execute_prog prog =
       stack.(sp-11) <- 1; stack.(sp-10) <- 1; exec fp (sp-9) (pc+1)
 
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
+      (*
       let max_y = find_max_y 0 player.player_vertices 
       and min_y = find_min_y gameState.winHeight player.player_vertices in
       let objectheight = (max_y - min_y) in
@@ -1143,7 +1414,7 @@ let execute_prog prog =
 
       | _     -> ());
        
-
+*)
 
 
       exec fp sp (pc+1)
@@ -1195,13 +1466,13 @@ let execute_prog prog =
 
   | PrintScore -> (* Prints the user's current score *)
 
-
+(*
       print_endline("Score: " ^ string_of_int gameState.userscore);
       draw_string 0 stack.(sp-4) (string_of_int gameState.userscore);
 
       gameState.userscore = gameState.userscore + 1;
       exec fp sp (pc+1)
-
+*)
   | Nt ->
     if (stack.(sp-1) <> 1) then 
       raise(Failure("Cannot apply 'Not' to non-int")) else
