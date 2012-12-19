@@ -32,6 +32,10 @@ let draw_player x y size color =
   Graphics.fill_rect (x) (y) size size;
 in
 
+(*
+  Given a list of vertex coordinates [x0, y0, x1, y1, ...] and color,
+  draw and fill the polygon. 
+  *)
 let draw_polygon varray color =
 
   Graphics.set_color color;
@@ -45,7 +49,13 @@ let draw_polygon varray color =
     Graphics.lineto x0 y0;
     (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
     print_endline("");*)
+
+  let rec buildTupleArray = function
+    [] -> []
+    | px::py::tl -> (px,py)::(buildTupleArray tl)  
   in
+  Graphics.fill_poly (Array.of_list (buildTupleArray varray));
+in
 
 (* Draw the moving block *)
 let draw_rectangle x y size color =
