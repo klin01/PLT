@@ -271,33 +271,7 @@ let t_playerCollided s () =
         Clip.make_gpcpolygon [|false|] [|(makeVertexArray vlist)|] in
 
   let checkCollision block =
-(*
-    let block_min_x = find_min_x s.winWidth block.block_vertices
-    and block_max_x = find_max_x 0 block.block_vertices
-    and player_min_x = find_min_x s.winWidth s.playerData.player_vertices
-    and player_max_x = find_max_x 0 s.playerData.player_vertices
 
-    and block_min_y = find_min_y s.winHeight block.block_vertices
-    and block_max_y = find_max_y 0 block.block_vertices
-    and player_min_y = find_min_y s.winHeight s.playerData.player_vertices
-    and player_max_y = find_max_y 0 s.playerData.player_vertices in
-
-      if (player_max_x > block_min_x && player_min_x < block_min_x) then
-        let _result = Clip.gpcml_clippolygon 
-                      Clip.Intersection 
-                      (makeGPCPolygon s.playerData.player_vertices) 
-                      (makeGPCPolygon block.block_vertices) in
-        (Clip.gpcml_isOverlapped _result)
-      else 
-        (if (((player_max_y > block_min_y) && (player_min_y < block_min_y)) || 
-            ((block_max_y > player_min_y) && (block_min_y < player_min_y))) then
-        let _result = Clip.gpcml_clippolygon 
-                      Clip.Intersection 
-                      (makeGPCPolygon s.playerData.player_vertices) 
-                      (makeGPCPolygon block.block_vertices) in
-        (Clip.gpcml_isOverlapped _result))
-      in
-*)
       let _result = Clip.gpcml_clippolygon 
                       Clip.Intersection 
                       (makeGPCPolygon s.playerData.player_vertices) 

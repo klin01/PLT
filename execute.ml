@@ -49,7 +49,121 @@ let getNextFreeIndex stack globals sp isLocal =
   |   10 -> (countItems 7 0 5)
   |   _ -> raise(Failure("Type error: Array is of unknown type."));;
 
-(* Execute the program *)
+
+(********************************************
+  Graphics helpers
+*********************************************)
+let draw_polygon vlist color =
+  Graphics.set_color color;
+  let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
+    (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );*)
+    Graphics.moveto x0 y0;
+    for i = 1 to ((List.length vlist) / 2) - 1 do
+      let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
+      (*print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y) )*)
+    done;
+    Graphics.lineto x0 y0;
+    (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
+    print_endline("");*)
+
+  let rec buildTupleArray = function
+    [] -> []
+    | px::py::tl -> (px,py)::(buildTupleArray tl)
+    | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates.")) 
+  in
+  Graphics.fill_poly (Array.of_list (buildTupleArray vlist));;
+
+(* Convert (r,g,b) into a single OCaml color value c *)
+let color_from_rgb r g b =
+  r*256*256 + g*256 + b;;
+
+(*
+  Relatively translate all vertex given the translation distance ex
+*)
+let rec trans_allVertices_x ex = function
+  [] -> []
+  | px::py::tl -> (px + ex)::(py::(trans_allVertices_x ex tl));;
+
+(*
+  Relatively translate all vertex given the translation distance ey
+*)
+let rec trans_allVertices_y ey = function
+  [] -> []
+  | px::py::tl ->(px)::((py + ey)::(trans_allVertices_y ey tl));;
+
+(*
+  Given absolute location in x of the first vertex of the polygon,
+  rigidly translate all vertex relative to this absolute location
+*)
+let trans_allVertices_abs_x abx vlist =
+  let distant = abx - (List.nth vlist 0) in
+    let rec trans_abs_x dist = function
+      [] -> []
+      | px::py::tl -> (px + dist)::(py::(trans_abs_x dist tl)) in
+        trans_abs_x distant vlist;;
+
+(*
+  Given absolute location in y of the first vertex of the polygon,
+  rigidly translate all vertex relative to this absolute location
+*)
+let trans_allVertices_abs_y aby vlist =
+  let distant = aby - (List.nth vlist 1) in
+    let rec trans_abs_y dist = function
+      [] -> []
+      | px::py::tl -> (px)::((py + dist)::(trans_abs_y dist tl)) in
+        trans_abs_y distant vlist;;
+
+(* Given the start value and the list of vertices, compute max or min *)
+let rec find_max_y current = function
+    []           -> current
+    | px::py::tl -> if (py > current) then (find_max_y py tl) else (find_max_y current tl);;
+
+let rec find_min_y current = function
+    []           -> current
+    | px::py::tl -> if (py < current) then (find_min_y py tl) else (find_min_y current tl);;
+
+let rec find_max_x current = function
+    []           -> current
+    | px::py::tl -> if (px > current) then (find_max_x px tl) else (find_max_x current tl);;
+
+let rec find_min_x current = function
+    []           -> current
+    | px::py::tl -> if (px < current) then (find_min_x px tl) else (find_min_x current tl);;
+
+(*
+  Given a list of vertex coordinates [x0, y0, x1, y1, ...] and color,
+  draw and fill the polygon. 
+  *)
+let draw_polygon vlist color =
+
+  Graphics.set_color color;
+  let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
+    Graphics.moveto x0 y0;
+    for i = 1 to ((List.length vlist) / 2) - 1 do
+      let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
+    done;
+    Graphics.lineto x0 y0;
+
+  let rec buildTupleArray = function
+    [] -> []
+    | px::py::tl -> (px,py)::(buildTupleArray tl)  
+  in
+  Graphics.fill_poly (Array.of_list (buildTupleArray vlist));;
+
+(* Draw the moving block *)
+let draw_rectangle x y size color =
+  Graphics.set_color color;
+  Graphics.fill_rect (x) (y) size size;;
+
+let draw_string x y str =
+  Graphics.moveto x y;
+  Graphics.set_text_size 30;
+  Graphics.draw_string str;;
+
+
+(********************************************
+  Execute the program
+*********************************************)
 let execute_prog prog =
   let stack = Array.make 32768 0
   and globals = Array.make prog.globals_size 0
@@ -779,7 +893,7 @@ let execute_prog prog =
       print_endline ("You've just drawn something!") ;
       let scope = stack.(sp-8)
       and addr = stack.(sp-9) 
-      and color = stack.(sp-3)*256*256 + stack.(sp-5)*256 + stack.(sp-7)
+      and color = color_from_rgb stack.(sp-3) stack.(sp-5) stack.(sp-7)
       in
 
      print_endline (string_of_int color);
@@ -788,27 +902,6 @@ let execute_prog prog =
                   ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
                   ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
                 ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ; *)
-      
-    let draw_polygon vlist color =
-      Graphics.set_color color;
-      let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
-        (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );*)
-        Graphics.moveto x0 y0;
-        for i = 1 to ((List.length vlist) / 2) - 1 do
-          let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
-          (*print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y) )*)
-        done;
-        Graphics.lineto x0 y0;
-        (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
-        print_endline("");*)
-
-      let rec buildTupleArray = function
-        [] -> []
-        | px::py::tl -> (px,py)::(buildTupleArray tl)
-        | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates.")) 
-      in
-      Graphics.fill_poly (Array.of_list (buildTupleArray vlist));
-    in
 
 
         let rec make_coord_list n = 
@@ -974,9 +1067,36 @@ let execute_prog prog =
       (*Graphics.clear_graph ();*) exec fp (sp) (pc+1)
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)
         print_endline ("checking collision");
-        stack.(sp) <- 1; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
+
+      (* Scene is a list of blocks *)
+      let t_playerCollided scene =
+        let makeGPCPolygon vlist =
+          let rec makeVertexArray = function
+            []           -> [||]
+            | px::py::tl -> Array.append [|{Clip.x = (float_of_int px); Clip.y = (float_of_int py)}|] (makeVertexArray tl) in
+               Clip.make_gpcpolygon [|false|] [|(makeVertexArray vlist)|] in
+
+        let checkPBCollision block =
+          let _result = Clip.gpcml_clippolygon 
+                      Clip.Intersection 
+                      (makeGPCPolygon player.player_vertices) 
+                      (makeGPCPolygon block.block_vertices) 
+                      in
+                      (Clip.gpcml_isOverlapped _result)
+          in
+
+          let result list = List.fold_left (fun a b -> a || b) false list in
+            let collisionList = List.map checkPBCollision scene in
+              (*print_endline (string_of_bool (result collisionList));*)
+              result collisionList;
+      in
+      let final_result = (t_playerCollided blocks1 || t_playerCollided blocks2);
+
+      stack.(sp) <- final_result; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
-        exec fp sp (pc+1)
+      
+
+      exec fp sp (pc+1)
   | DrawPlayer -> (* Draws the player on top of the stack *)
       let scope = stack.(sp-8)
       and addr = stack.(sp-9) in
@@ -1038,10 +1158,16 @@ let execute_prog prog =
 
 
   | PrintScore -> (* Prints the user's current score *)
+
         print_endline ("pritn " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
                   ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
                   ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
                 ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+
+
+      print_endline("Score: " ^ string_of_int user_score);
+      draw_string 0 stack.(sp-4) (string_of_int user_score);
+      exec fp sp (pc+1)
 
   | Nt ->
     if (stack.(sp-1) <> 1) then 
