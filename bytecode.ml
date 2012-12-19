@@ -12,6 +12,8 @@ type bstmt =
   | Lfpa                  (* This is the start index of this array variable. Index is evaluated and 
                              put on top of stack in an int structure. *)
   | Sfpa                  (* Stores frame pointer of array *)
+  | Lref                  (* Loads a value onto the stack from an address *)
+  | Sref                  (* Saves a value from the top of the stack into an address *)
   | Jsr of int            (* Call function by absolute address *)
   | Ent of int            (* Push FP, FP -> SP, SP += i *)
   | Rts of int            (* Restore FP, SP, consume formals, push result *)
@@ -65,6 +67,8 @@ let string_of_stmt = function
   | Sfpa -> "Sfpa"
   | Loda -> "Loda"
   | Stra -> "Stra"
+  | Lref -> "Lref"
+  | Sref -> "Sref"
   | CheckCollision -> "CheckCollision"
   | CheckUserInput -> "CheckUserInput"
   | DrawPlayer -> "DrawPlayer"

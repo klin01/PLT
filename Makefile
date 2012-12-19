@@ -28,7 +28,7 @@ parser.ml parser.mli : parser.mly
 	ocamlyacc parser.mly
 
 %.cmo : %.ml
-	ocamlc -c $<
+	ocamlc $(CONF) -c $<
 
 %.cmi : %.mli
 	ocamlc -c $<

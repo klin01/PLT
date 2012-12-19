@@ -1,5 +1,281 @@
+./testall.sh: line 137: CheckFail: not found
+
+###### Testing test-arith1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-arith1.rc > test-arith1.c.out
+diff -b test-arith1.c.out tests/Basic/test-arith1.reference > test-arith1.c.diff
+###### FAILED test-arith1.c.out differs from tests/Basic/test-arith1.reference
+###### FAILED
+
+###### Testing test-arith2
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-arith2.rc > test-arith2.c.out
+diff -b test-arith2.c.out tests/Basic/test-arith2.reference > test-arith2.c.diff
+###### FAILED test-arith2.c.out differs from tests/Basic/test-arith2.reference
+###### FAILED
+
+###### Testing test-arith3
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-arith3.rc > test-arith3.c.out
+diff -b test-arith3.c.out tests/Basic/test-arith3.reference > test-arith3.c.diff
+###### FAILED test-arith3.c.out differs from tests/Basic/test-arith3.reference
+###### FAILED
+
+###### Testing test-fib
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-fib.rc > test-fib.c.out
+diff -b test-fib.c.out tests/Basic/test-fib.reference > test-fib.c.diff
+###### FAILED test-fib.c.out differs from tests/Basic/test-fib.reference
+###### FAILED
+
+###### Testing test-for1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-for1.rc > test-for1.c.out
+diff -b test-for1.c.out tests/Basic/test-for1.reference > test-for1.c.diff
+###### FAILED test-for1.c.out differs from tests/Basic/test-for1.reference
+###### FAILED
+
+###### Testing test-func1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-func1.rc > test-func1.c.out
+diff -b test-func1.c.out tests/Basic/test-func1.reference > test-func1.c.diff
+###### FAILED test-func1.c.out differs from tests/Basic/test-func1.reference
+###### FAILED
+
+###### Testing test-func2
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-func2.rc > test-func2.c.out
+diff -b test-func2.c.out tests/Basic/test-func2.reference > test-func2.c.diff
+###### FAILED test-func2.c.out differs from tests/Basic/test-func2.reference
+###### FAILED
+
+###### Testing test-func3
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-func3.rc > test-func3.c.out
+diff -b test-func3.c.out tests/Basic/test-func3.reference > test-func3.c.diff
+###### FAILED test-func3.c.out differs from tests/Basic/test-func3.reference
+###### FAILED
+
+###### Testing test-gcd
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-gcd.rc > test-gcd.c.out
+diff -b test-gcd.c.out tests/Basic/test-gcd.reference > test-gcd.c.diff
+###### FAILED test-gcd.c.out differs from tests/Basic/test-gcd.reference
+###### FAILED
+
+###### Testing test-global1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-global1.rc > test-global1.c.out
+diff -b test-global1.c.out tests/Basic/test-global1.reference > test-global1.c.diff
+###### FAILED test-global1.c.out differs from tests/Basic/test-global1.reference
+###### FAILED
+
+###### Testing test-hello
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-hello.rc > test-hello.c.out
+diff -b test-hello.c.out tests/Basic/test-hello.reference > test-hello.c.diff
+###### FAILED test-hello.c.out differs from tests/Basic/test-hello.reference
+###### FAILED
+
+###### Testing test-if1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-if1.rc > test-if1.c.out
+diff -b test-if1.c.out tests/Basic/test-if1.reference > test-if1.c.diff
+###### FAILED test-if1.c.out differs from tests/Basic/test-if1.reference
+###### FAILED
+
+###### Testing test-if2
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-if2.rc > test-if2.c.out
+diff -b test-if2.c.out tests/Basic/test-if2.reference > test-if2.c.diff
+###### FAILED test-if2.c.out differs from tests/Basic/test-if2.reference
+###### FAILED
+
+###### Testing test-if3
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-if3.rc > test-if3.c.out
+diff -b test-if3.c.out tests/Basic/test-if3.reference > test-if3.c.diff
+###### FAILED test-if3.c.out differs from tests/Basic/test-if3.reference
+###### FAILED
+
+###### Testing test-if4
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-if4.rc > test-if4.c.out
+diff -b test-if4.c.out tests/Basic/test-if4.reference > test-if4.c.diff
+###### FAILED test-if4.c.out differs from tests/Basic/test-if4.reference
+###### FAILED
+
+###### Testing test-ops1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-ops1.rc > test-ops1.c.out
+diff -b test-ops1.c.out tests/Basic/test-ops1.reference > test-ops1.c.diff
+###### FAILED test-ops1.c.out differs from tests/Basic/test-ops1.reference
+###### FAILED
+
+###### Testing test-string
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-string.rc > test-string.c.out
+diff -b test-string.c.out tests/Basic/test-string.reference > test-string.c.diff
+###### FAILED test-string.c.out differs from tests/Basic/test-string.reference
+###### FAILED
+
+###### Testing test-var1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-var1.rc > test-var1.c.out
+diff -b test-var1.c.out tests/Basic/test-var1.reference > test-var1.c.diff
+###### FAILED test-var1.c.out differs from tests/Basic/test-var1.reference
+###### FAILED
+
+###### Testing test-while1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Basic/test-while1.rc > test-while1.c.out
+diff -b test-while1.c.out tests/Basic/test-while1.reference > test-while1.c.diff
+###### FAILED test-while1.c.out differs from tests/Basic/test-while1.reference
+###### FAILED
+
+###### Testing test-array1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-array1.rc > test-array1.c.out
+diff -b test-array1.c.out tests/Array/test-array1.reference > test-array1.c.diff
+###### FAILED test-array1.c.out differs from tests/Array/test-array1.reference
+###### FAILED
+
+###### Testing test-array2
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-array2.rc > test-array2.c.out
+diff -b test-array2.c.out tests/Array/test-array2.reference > test-array2.c.diff
+###### FAILED test-array2.c.out differs from tests/Array/test-array2.reference
+###### FAILED
+
+###### Testing test-array3
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-array3.rc > test-array3.c.out
+diff -b test-array3.c.out tests/Array/test-array3.reference > test-array3.c.diff
+###### FAILED test-array3.c.out differs from tests/Array/test-array3.reference
+###### FAILED
+
+###### Testing test-array4
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-array4.rc > test-array4.c.out
+diff -b test-array4.c.out tests/Array/test-array4.reference > test-array4.c.diff
+###### FAILED test-array4.c.out differs from tests/Array/test-array4.reference
+###### FAILED
+
+###### Testing test-array5
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-array5.rc > test-array5.c.out
+diff -b test-array5.c.out tests/Array/test-array5.reference > test-array5.c.diff
+###### FAILED test-array5.c.out differs from tests/Array/test-array5.reference
+###### FAILED
+
+###### Testing test-array6
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-array6.rc > test-array6.c.out
+diff -b test-array6.c.out tests/Array/test-array6.reference > test-array6.c.diff
+###### FAILED test-array6.c.out differs from tests/Array/test-array6.reference
+###### FAILED
 
 ###### Testing test-array7
-./testall.sh: line 68: [1: not found
-./retrocraft -c < tests/Array/test-array7.rc > tests/Array/test-array7.reference
-###### SUCCESS
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-array7.rc > test-array7.c.out
+diff -b test-array7.c.out tests/Array/test-array7.reference > test-array7.c.diff
+###### FAILED test-array7.c.out differs from tests/Array/test-array7.reference
+###### FAILED
+
+###### Testing test-brick1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-brick1.rc > test-brick1.c.out
+diff -b test-brick1.c.out tests/Array/test-brick1.reference > test-brick1.c.diff
+###### FAILED test-brick1.c.out differs from tests/Array/test-brick1.reference
+###### FAILED
+
+###### Testing test-brick2
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-brick2.rc > test-brick2.c.out
+diff -b test-brick2.c.out tests/Array/test-brick2.reference > test-brick2.c.diff
+###### FAILED test-brick2.c.out differs from tests/Array/test-brick2.reference
+###### FAILED
+
+###### Testing test-brick3
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-brick3.rc > test-brick3.c.out
+diff -b test-brick3.c.out tests/Array/test-brick3.reference > test-brick3.c.diff
+###### FAILED test-brick3.c.out differs from tests/Array/test-brick3.reference
+###### FAILED
+
+###### Testing test-brick4
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-brick4.rc > test-brick4.c.out
+diff -b test-brick4.c.out tests/Array/test-brick4.reference > test-brick4.c.diff
+###### FAILED test-brick4.c.out differs from tests/Array/test-brick4.reference
+###### FAILED
+
+###### Testing test-brick5
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-brick5.rc > test-brick5.c.out
+diff -b test-brick5.c.out tests/Array/test-brick5.reference > test-brick5.c.diff
+###### FAILED test-brick5.c.out differs from tests/Array/test-brick5.reference
+###### FAILED
+
+###### Testing test-brick6
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-brick6.rc > test-brick6.c.out
+diff -b test-brick6.c.out tests/Array/test-brick6.reference > test-brick6.c.diff
+###### FAILED test-brick6.c.out differs from tests/Array/test-brick6.reference
+###### FAILED
+
+###### Testing test-brick7
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-brick7.rc > test-brick7.c.out
+diff -b test-brick7.c.out tests/Array/test-brick7.reference > test-brick7.c.diff
+###### FAILED test-brick7.c.out differs from tests/Array/test-brick7.reference
+###### FAILED
+
+###### Testing test-map1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-map1.rc > test-map1.c.out
+diff -b test-map1.c.out tests/Array/test-map1.reference > test-map1.c.diff
+###### FAILED test-map1.c.out differs from tests/Array/test-map1.reference
+###### FAILED
+
+###### Testing test-map2
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-map2.rc > test-map2.c.out
+diff -b test-map2.c.out tests/Array/test-map2.reference > test-map2.c.diff
+###### FAILED test-map2.c.out differs from tests/Array/test-map2.reference
+###### FAILED
+
+###### Testing test-player1
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-player1.rc > test-player1.c.out
+diff -b test-player1.c.out tests/Array/test-player1.reference > test-player1.c.diff
+###### FAILED test-player1.c.out differs from tests/Array/test-player1.reference
+###### FAILED
+
+###### Testing test-player2
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-player2.rc > test-player2.c.out
+diff -b test-player2.c.out tests/Array/test-player2.reference > test-player2.c.diff
+###### FAILED test-player2.c.out differs from tests/Array/test-player2.reference
+###### FAILED
+
+###### Testing test-player3
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-player3.rc > test-player3.c.out
+diff -b test-player3.c.out tests/Array/test-player3.reference > test-player3.c.diff
+###### FAILED test-player3.c.out differs from tests/Array/test-player3.reference
+###### FAILED
+
+###### Testing test-player4
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-player4.rc > test-player4.c.out
+diff -b test-player4.c.out tests/Array/test-player4.reference > test-player4.c.diff
+###### FAILED test-player4.c.out differs from tests/Array/test-player4.reference
+###### FAILED
+
+###### Testing test-player5
+./testall.sh: line 68: [0: not found
+./retrocraft -c < tests/Array/test-player5.rc > test-player5.c.out
+diff -b test-player5.c.out tests/Array/test-player5.reference > test-player5.c.diff
+###### FAILED test-player5.c.out differs from tests/Array/test-player5.reference
+###### FAILED

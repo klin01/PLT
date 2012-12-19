@@ -1,10 +1,11 @@
 open Ast
 open Bytecode
+open Thread
 
 exception IllegalMove;;
 
 let array_def_size = 100
-let global_score = 0;
+let global_score = 0
 
 let explode s =
   let rec f acc = function
@@ -73,7 +74,8 @@ let execute_prog prog =
     let var_type_id = stack.(sp-1) in
      
       (match var_type_id with
-          1 -> exec fp (sp-2) (pc+1)
+          -1 -> exec fp (sp-2) (pc+1)
+        | 1 -> exec fp (sp-2) (pc+1)
         | 2 -> exec fp (sp-40) (pc+1)
         | 3 -> exec fp (sp-13) (pc+1)
         | 4 -> exec fp (sp-11) (pc+1)
@@ -104,18 +106,23 @@ let execute_prog prog =
       | Or      -> (if op1 == 1 || op2 == 1 then 1 else 0));
       exec fp (sp-2) (pc+1)
   | Lod i -> (* Load a global variable *)
+
     let var_address = (if i = -32769 then
         (if (stack.(sp-1) <> 1) then raise(Failure("Attempt to access invalid address.")) else
         stack.(sp-2))
       else i) in
-    let var_type_id = try globals.(var_address) 
-                      with Invalid_argument ("i out of bounds") -> -1 in
-      if (var_type_id = -1) then raise (Failure("Error: Attempt to load undeclared global variable."))
-      else
+  
+    let var_type_id = try globals.(i) 
+                      with Invalid_argument ("i out of bounds") -> raise (Failure("Error: Attempt to load undeclared global variable."))
+      in
         (match var_type_id with
-            1 -> (* int *)
-              stack.(sp) <- globals.(var_address-1);
-              stack.(sp+1) <- globals.(var_address);
+            -1 -> (* negative 1 signifies local reference to follow *)
+              stack.(sp) <- globals.(i-1);
+              stack.(sp+1) <- globals.(i);
+              exec fp (sp+2) (pc+1)
+          | 1 -> (* int *)
+              stack.(sp) <- globals.(i-1);
+              stack.(sp+1) <- globals.(i);
               exec fp (sp+2) (pc+1)
           | 2 -> (* string *)
               for j=0 to 39 do
@@ -168,7 +175,11 @@ let execute_prog prog =
     let var_type_id = stack.(sp-1) in
     ( (*print_endline("str type " ^ string_of_int var_type_id);*)
       match var_type_id with
-        1 -> (* int *)
+        -1 -> (* int *)
+          globals.(i-1) <- stack.(sp-2);
+          globals.(i) <- stack.(sp-1);
+          exec fp (sp) (pc+1)
+      | 1 -> (* int *)
           globals.(i-1) <- stack.(sp-2);
           globals.(i) <- stack.(sp-1);
           exec fp (sp) (pc+1)
@@ -335,9 +346,14 @@ let execute_prog prog =
       let var_type_id = stack.(fp+i) in
       (
           match var_type_id with
-            1 -> (* int *)
-              stack.(sp) <- stack.(fp+var_address-1); (* value *)
-              stack.(sp+1) <- stack.(fp+var_address); (* type *)
+          
+            -1 -> (* negative int *)    
+              stack.(sp) <- stack.(fp+i-1); (* value *)
+              stack.(sp+1) <- stack.(fp+i); (* type *)
+              exec fp (sp+2) (pc+1)
+          | 1 -> (* int *)
+              stack.(sp) <- stack.(fp+i-1); (* value *)
+              stack.(sp+1) <- stack.(fp+i); (* type *)
               exec fp (sp+2) (pc+1)
           | 2 -> (* string *)
               for j=0 to 39 do
@@ -397,7 +413,11 @@ let execute_prog prog =
       let obj_id = stack.(sp-1) in
       ( 
         match obj_id with
-          1 -> (* int *)
+          -1 -> (* int *)
+            stack.(fp+i) <- stack.(sp-1); 
+            stack.(fp+i-1) <- stack.(sp-2); 
+            exec fp (sp) (pc+1)
+        | 1 -> (* int *)
             stack.(fp+i) <- stack.(sp-1); 
             stack.(fp+i-1) <- stack.(sp-2); 
             exec fp (sp) (pc+1)
@@ -537,6 +557,204 @@ let execute_prog prog =
           exec fp (sp) (pc+1)
       | _ -> raise(Failure("Type error: Attempt to store value into array of unknown type."))
     )
+  
+  | Lref ->
+(*  print_endline ("lref " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
+                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7));
+                (*^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) *)*)
+
+    if (stack.(sp-1) = 1) then (* GLOBAL ADDRESS *)
+    (
+      if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer!")) else
+      let i = stack.(sp-2)
+      and elem_index = stack.(sp-4) in
+      let var_type_id = globals.(i) in
+      let cnst_offset = 4 in
+      (*print_endline ("var type id" ^ string_of_int globals.(i));*)
+      let elem_size = 
+        (
+          match var_type_id with
+            6 -> 2  (* int *)
+          | 7 -> 40 (* string *)
+          | 8 -> 13 (* Brick *)
+          | 9 -> 11 (* Player *)
+          | 10 -> 7 (* Map *)
+          | 0 -> raise(Failure("Attempt to access uninitialized global array."))
+          | _ -> raise(Failure("Type error: Attempt to access the index of a nonarray."))
+        )
+      in
+      (match var_type_id with
+          6 -> (* Arrayint *)
+            stack.(sp-4) <- globals.(i-2-elem_size*elem_index);
+            stack.(sp+1-4) <- globals.(i-1-elem_size*elem_index);
+            (*print_endline("loaded" ^ string_of_int stack.(sp));*)
+            exec fp (sp-2) (pc+1)
+        | 7 -> (* Arraystring *)
+            for j=0 to 39 do
+              stack.(sp+j-cnst_offset) <- globals.(i-40-elem_size*elem_index+j)
+            done;
+            exec fp (sp+40-cnst_offset) (pc+1)
+        | 8 -> (* ArrayBrick *)
+            for j=0 to 12 do
+              stack.(sp+j-cnst_offset) <- globals.(i-13-elem_size*elem_index+j)
+            done;
+            exec fp (sp+13-cnst_offset) (pc+1)
+        | 9 -> (* ArrayPlayer *)
+            for j=0 to 10 do
+              stack.(sp+j-cnst_offset) <- globals.(i-11-elem_size*elem_index+j)
+            done;
+            exec fp (sp+11-cnst_offset) (pc+1)
+        | 10 -> (* ArrayMap *)
+            for j=0 to 6 do
+              stack.(sp+j-cnst_offset) <- globals.(i-7-elem_size*elem_index+j)
+            done;
+            exec fp (sp+7-cnst_offset) (pc+1) 
+        | _ -> raise(Failure("Type error: Global variable accessed is of unknown type."))
+      )
+    ) 
+    else if (stack.(sp-1) = -1) then (*LOCAL ADDRESS*)
+    (
+      if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
+      let i = stack.(sp-2) in (* array address *)
+      let cnst_offset = 4 in
+      let obj_id = stack.(fp+i)
+      and loffset = stack.(sp-4) in
+      ( 
+        match obj_id with
+          6 -> (* Arrayint *)
+            stack.(sp-4) <- stack.(fp+i-2-loffset*2); (* value *)
+            stack.(sp+1-4) <- stack.(fp+i-1-loffset*2); (* type *)
+            exec fp (sp-2) (pc+1)
+        | 7 -> (* Arraystring *)
+            for j=0 to 39 do
+              stack.(sp+j-cnst_offset) <- stack.(fp+i-40+j-loffset*40)
+            done;
+            exec fp (sp+40-cnst_offset) (pc+1)
+        | 8 -> (* ArrayBrick *)
+            for j=0 to 12 do
+              stack.(sp+j-cnst_offset) <- stack.(fp+i-13+j-loffset*13)
+            done;
+            exec fp (sp+13-cnst_offset) (pc+1)
+        | 9 -> (* ArrayPlayer *)
+            for j=0 to 10 do
+              stack.(sp+j-cnst_offset) <- stack.(fp+i-11+j-loffset*11);
+            done;
+            exec fp (sp+11-cnst_offset) (pc+1)
+        | 10 -> (* ArrayMap *)
+            for j=0 to 6 do
+              stack.(sp+j-cnst_offset) <- stack.(fp+i-7+j-loffset*7)
+            done;
+            exec fp (sp+7-cnst_offset) (pc+1)
+        | 0 -> (* Uninitialized array *)
+            raise(Failure("Attempt to access index of uninitialized array."))
+        | _ -> raise(Failure("Type error: Attempt to access index of array of unknown type."))
+      )
+    ) else raise(Failure("Invalid array address type. Must be int."))
+
+  | Sref ->
+      if (stack.(sp-1) = 1) then
+      ( 
+        if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
+        let array_address = stack.(sp-2)
+        and obj_id = stack.(sp-5) 
+        and offset = stack.(sp-4) in
+        let var_type_id = globals.(array_address) in
+        let elem_type =
+        (
+          match var_type_id with
+            6 -> 1  (* int *)
+          | 7 -> 2  (* string *)
+          | 8 -> 3  (* Brick *)
+          | 9 -> 4  (* Player *)
+          | 10 -> 5 (* Map *)
+          | 0 -> raise(Failure("Global array referenced is uninitialized."))   (* Uninitialized *)
+          | _ -> raise(Failure("Type error: Global array referenced is of unknown type."))   (* Unmatched type *)
+        )
+        in
+        if (obj_id <> elem_type) then raise (Failure("Attempt to set index of array to mismatched type."))
+        else
+        ( 
+          match var_type_id with
+            6 -> (* Arrayint *)
+              (* 
+              globals.(array_address-2-2*offset) <- stack.(sp-2-2)
+              globals.(array_address-1-2*offset) <- stack.(sp-1-2) 
+              *)
+              for j=1 to 2 do
+                globals.(array_address-j-2*offset) <- stack.(sp-j-4)
+              done;
+              exec fp (sp) (pc+1)
+          | 7 -> (* Arraystring *)
+              for j=1 to 40 do
+                globals.(array_address-j-40*offset) <- stack.(sp-j-4)
+              done;
+              exec fp (sp) (pc+1)
+          | 8 -> (* ArrayBrick *)
+              for j=1 to 13 do
+                globals.(array_address-j-13*offset) <- stack.(sp-j-4)
+              done;
+              exec fp (sp) (pc+1)
+          | 9 -> (* ArrayPlayer *)
+              for j=1 to 11 do
+                globals.(array_address-j-11*offset) <- stack.(sp-j-4)
+              done;
+              exec fp (sp) (pc+1)
+          | 10 -> (* ArrayMap *)
+              for j=1 to 7 do
+                globals.(array_address-j-7*offset) <- stack.(sp-j-4)
+              done;
+              exec fp (sp) (pc+1)
+          | _ -> raise(Failure("Type error: Attempt to store array of unknown type."))
+        )
+      ) 
+      else if (stack.(sp-1) = -1) then
+      (
+        if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else 
+        let i = stack.(sp-2) in (* array address *)
+        let obj_id = stack.(sp-5) 
+        and loffset = stack.(sp-4)
+        and array_type_id = stack.(fp+i) in
+        if (obj_id <> (match array_type_id with
+                          6 -> 1
+                        | 7 -> 2
+                        | 8 -> 3
+                        | 9 -> 4
+                        | 10 -> 5
+                        | 0 -> raise (Failure("Attempt to store value into uninitialized array."))
+                        | _ -> raise (Failure("Type error: Attempt to access array of unknown type."))))
+          then raise(Failure("Type mismatch: Attempt to store value of mismatched type into local array."))
+        else
+        ( 
+          match array_type_id with
+            6 -> (* Arrayint *)
+               stack.(fp+i-1-2*loffset) <- stack.(sp-5); 
+               stack.(fp+i-2-2*loffset) <- stack.(sp-6); 
+               exec fp (sp) (pc+1)
+          | 7 -> (* Arraystring *)
+              for j=1 to 40 do
+                stack.(fp+i-j-40*loffset) <- stack.(sp-j-4)
+              done;
+              exec fp (sp) (pc+1)
+          | 8 -> (* ArrayBrick *)
+              for j=1 to 13 do
+                stack.(fp+i-j-13*loffset) <- stack.(sp-j-4)
+              done;
+              exec fp (sp) (pc+1)
+          | 9 -> (* ArrayPlayer *)
+              for j=1 to 11 do
+                stack.(fp+i-j-11*loffset) <- stack.(sp-j-4)
+              done;
+              exec fp (sp) (pc+1)
+          | 10 -> (* ArrayMap *)
+              for j=1 to 7 do
+                stack.(fp+i-j-7*loffset) <- stack.(sp-j-4)
+              done;
+              exec fp (sp) (pc+1)
+          | _ -> raise(Failure("Type error: Attempt to store value into array of unknown type."))
+        )
+      ) else raise(Failure("Invalid array address type. Must be int."))
+
   | Jsr(-1) -> (* DrawPlayer *) 
       print_endline "You've just drawn something!" ; exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
@@ -643,7 +861,8 @@ let execute_prog prog =
   | Bra i   -> exec fp sp (pc+i)
   | Make id   -> 
     (match id with 
-        1   -> raise(Failure("'Make' not required for int"));
+        0   -> exec fp (sp-1) (pc+1)
+      | 1   -> raise(Failure("'Make' not required for int"));
       | 2   -> raise(Failure("'Make' not required for string"));
       | 3   -> exec fp (sp-1) (pc+1)
       | 4   -> exec fp (sp-1) (pc+1)
@@ -657,7 +876,7 @@ let execute_prog prog =
     )
   (* Lodf and Strf *)
   | OpenWin -> (* Opens graphical display *) 
-      Graphics.open_graph ""; exec fp (sp) (pc+1)
+      Graphics.open_graph ""; Thread.join(Thread.create(Thread.delay)(240.0 /. 24.0)); exec fp (sp) (pc+1)
   | CloseWin -> (* Closes graphical display *)
       Graphics.clear_graph (); exec fp (sp) (pc+1)
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)

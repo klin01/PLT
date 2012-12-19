@@ -13,14 +13,14 @@ function $main : void ()
 
 	$b1 : new Brick(100,150,200,$vertices,20,30);
 
-	$printstring("Local brick, prints 567 420");
+	$printstring("Global brick, prints 567 420");
 	$printint($b1.$vertices[0]);
 	$printint($b1.$vertices[1]);
 
 	$b1.$vertices[0] : 121;
 	$b1.$vertices[1] : 408;
 
-	$printstring("Local brick, prints 121 408");
+	$printstring("Global brick, prints 121 408");
 	$printint($b1.$vertices[0]);
 	$printint($b1.$vertices[1]);
 }

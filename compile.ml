@@ -27,6 +27,16 @@ type env = {
   ArrayMap      : 10
 *)
 
+(*
+  Storage convention for references:
+  Local:
+  -1
+  <address>
+  Global:
+  1
+  <address>
+ *)
+
 let string_split s =
   let rec f str lst =
     try
@@ -180,14 +190,14 @@ let translate (globals, functions) =
 
       | Brick (r, g, b, varray, x, y) ->
           expr y @ expr x 
-          @ (try [Litint (StringMap.find varray env.local_index)]
+          @ (try [Litint (StringMap.find varray env.local_index)] @ [Make 0] @ [Litint (-1)] @ [Make 0]
              with Not_found -> try [Litint (StringMap.find varray env.global_index)]
              with Not_found -> raise (Failure ("undeclared Brick " ^ varray)))
           @ expr b @ expr g @ expr r
           @ [Litint 3] @ [Make 3]
 
       | Player (r, g, b, varray, y) ->
-          expr y @ (try [Litint (StringMap.find varray env.local_index)]
+          expr y @ (try [Litint (StringMap.find varray env.local_index)] @ [Make 0] @ [Litint (-1)] @ [Make 0]
                     with Not_found -> try [Litint (StringMap.find varray env.global_index)]
                     with Not_found -> raise (Failure ("undeclared Player " ^ varray)))
           @ expr b @ expr g @ expr r
@@ -223,15 +233,15 @@ let translate (globals, functions) =
        | AAccessByRef(a, i) -> 
           print_endline("a access" ^ a);
           expr i @ 
-          (try [Lfp (StringMap.find a env.local_index)] @ [Lfpa]
-          with Not_found -> try[Lod (StringMap.find a env.global_index)] @ [Loda]
+          (try [Lfp (StringMap.find a env.local_index)] @ [Lref]
+          with Not_found -> try[Lod (StringMap.find a env.global_index)] @ [Lref]
           with Not_found -> raise (Failure ("AAccessByRef: undeclared array " ^ a)))
       | AAssignByRef(a, i, e) ->
           print_endline("a assign by ref" ^ a);
           (*print_endline("i " ^ string_of_expr i); print_endline("a " ^ a); print_endline("e " ^ string_of_expr e);*)
           expr e @ expr i @
-          (try [Lfp (StringMap.find a env.local_index)] @ [Sfpa]
-          with Not_found -> try [Lod (StringMap.find a env.global_index)] @ [Stra]
+          (try [Lfp (StringMap.find a env.local_index)] @ [Sref]
+          with Not_found -> try [Lod (StringMap.find a env.global_index)] @ [Sref]
           with Not_found -> raise (Failure ("AAssignByRef: undeclared array " ^ a)))
       | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
       | Not(e) -> 
@@ -243,14 +253,15 @@ let translate (globals, functions) =
             let sub = String.sub s (strLen-10) 10 in
               (*print_endline("assign to ref " ^ s ^ " " ^ sub);*)
               if sub = ".$vertices" then
-              (try [Litint (StringMap.find str env.local_index)]
+              (try [Litint (StringMap.find str env.local_index)] @ [Make 0] @ [Litint (-1)] @ [Make 0]
               with Not_found -> try [Litint (StringMap.find str env.global_index)]
               with Not_found -> raise (Failure ("undeclared Id " ^ str)))  
             else
             let sub2 = String.sub s (strLen-11) 11 in
               if sub2 = ".$generator" then
-              (try [Litint (StringMap.find str env.function_index)]
-              with Not_found -> raise (Failure ("undeclared function " ^ str))) else expr e    
+              (try [Litint (StringMap.find str env.local_index)] @ [Make 0] @ [Litint (-1)] @ [Make 0]
+              with Not_found -> try [Litint (StringMap.find str env.global_index)]
+              with Not_found -> raise (Failure ("undeclared Id " ^ str))) else expr e    
           | _ -> expr e
           
         ) @ (try [Sfp (StringMap.find s env.local_index)]
