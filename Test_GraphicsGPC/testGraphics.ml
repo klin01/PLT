@@ -192,12 +192,12 @@ let t_key s c =
                else
                   s.playerData.player_vertices <- 
                   (trans_allVertices_abs_y (s.winHeight - objectheight) s.playerData.player_vertices)
-      |'z'   -> if min_y > 0 then 
+      (*|'z'   -> if min_y > 0 then 
                   s.playerData.player_vertices <- 
                   (trans_allVertices_y (-15) s.playerData.player_vertices)
                 else
                   s.playerData.player_vertices <- 
-                  (trans_allVertices_abs_y 0 s.playerData.player_vertices)
+                  (trans_allVertices_abs_y 0 s.playerData.player_vertices)*)
       | _     -> ());
 in
 
@@ -314,7 +314,7 @@ in
 
 (*let i = ref 0; in*)
 
-let skel f_init f_end f_key (*f_mouse*) f_updateFrame f_except f_playerCollided = 
+let skel f_init f_end f_key f_updateFrame f_except f_playerCollided = 
   f_init ();
   try 
       while not (f_playerCollided ()) do

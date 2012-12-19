@@ -8,14 +8,14 @@ function $generate : Array Brick () {
 	$b: new Array Brick;
 
 	$c : new Array int;
-	$c[0] : 50;
+	$c[0] : 250;
 	$c[1] : 50;
-	$c[2] : 100;
+	$c[2] : 300;
 	$c[3] : 100;
-	$c[4] : 50;
+	$c[4] : 250;
 	$c[5] : 100;
 
-	$b1 : new Brick(100,100,100,$c,200,200);
+	$b1 : new Brick(100,100,100,$c,250,50);
 
 	$b[0] : $b1;
 
