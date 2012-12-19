@@ -923,10 +923,6 @@ let execute_prog prog =
       and addr = stack.(sp-9) 
       and color = color_from_rgb stack.(sp-3) stack.(sp-5) stack.(sp-7)
       in
-
-     print_endline (string_of_int color);
-      
-    
         let rec make_coord_list n = 
           if (scope = -1) then (*LOCAL*)
             (match stack.(fp+n) with
@@ -940,16 +936,8 @@ let execute_prog prog =
             | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
           else [] in
         
-        let player = {player_vertices= make_coord_list (addr-1);player_color = color}; in
-        (*let coords = make_coord_list (addr-1) in  *)
-        print_endline (String.concat " " (List.map string_of_int (player.player_vertices)));
-        
-        draw_polygon (player.player_vertices) color;
-
-
-        
-
-       exec fp sp (pc+1)
+        player = {player_vertices= make_coord_list (addr-1);player_color = color};
+        exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
       print_endline "You've just started running your program!" ; exec fp sp (pc+1)
   | Jsr(-3) -> (* printint *)
@@ -1204,9 +1192,6 @@ let execute_prog prog =
 
       Thread.join(Thread.create(Thread.delay)(3.0)); *)
       exec fp sp (pc+1)
-
-         
-
 
   | PrintScore -> (* Prints the user's current score *)
 
