@@ -1,8 +1,10 @@
 /* Create global Map object */
 
+Array int $c;
+
 function $generate : Array Brick () {
 	Array Brick $b;
-	Array int $c;
+	
 	Brick $b1;
 
 	$b: new Array Brick;

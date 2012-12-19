@@ -946,7 +946,7 @@ let execute_prog prog =
         draw_polygon (fst !player) color;
 
 
-        Thread.join(Thread.create(Thread.delay)(1.0));
+        (*Thread.join(Thread.create(Thread.delay)(1.0));*)
 
        exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
@@ -1146,8 +1146,14 @@ let execute_prog prog =
           | 1 -> 1 :: make_coord_list (n-2)
           | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
       in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
+ 
+
+
+
+
   | ProcessBlocks -> (*Blocks are on the top of the stack*)
       let rec addToBricks i = 
+
         if (stack.(i-1) = 3) then
           (
           let scope = stack.(i-8)
@@ -1155,9 +1161,18 @@ let execute_prog prog =
           and g = stack.(i-5)
           and b = stack.(i-7)
           and addr = stack.(i-9) in
+
+      (*)  print_endline ("scopre r g b " ^ string_of_int scope ^ " " ^ string_of_int r ^ " " ^ string_of_int g
+                  ^ " " ^ string_of_int b ^ " " ^ string_of_int addr);*)
+          
           let rec make_coord_list n = 
             if (scope = -1) then (*LOCAL*)
-              (match stack.(fp+n) with
+              (
+
+                (*print_endline(string_of_int fp ^ " ! " ^ string_of_int stack.(fp+n-4)
+                ^ " ! " ^ string_of_int stack.(fp+n-3)^ " ! " ^ string_of_int stack.(fp+n-2)
+              ^ " ! " ^ string_of_int stack.(fp+n)^ " ! " ^ string_of_int stack.(fp+n-1));*)
+                match stack.(fp+n) with
                   0 -> []
                 | 1 -> stack.(fp+n-1) :: make_coord_list (n-2)
                 | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(fp+n))))
@@ -1166,12 +1181,13 @@ let execute_prog prog =
                 0 -> []
               | 1 -> globals.(n-1) :: make_coord_list (n-2)
               | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
-            else [] in 
-          {block_vertices= make_coord_list (addr-1); block_color= r*256*256+g*256+b;} :: addToBricks (i+13)
+            else [] in
+            print_endline (String.concat " xy " (List.map string_of_int (make_coord_list (addr-1)))); 
+          {block_vertices= make_coord_list (addr-1); block_color=r*256*256+g*256+b;} :: addToBricks (i-13)
           )
-        else [] 
+        else []
       in 
-      blocks1 = addToBricks (sp-1);
+      blocks1 = addToBricks (sp-1);    
 
       print_endline (String.concat " " (List.map string_of_int ((List.hd blocks1).block_vertices)));
 
@@ -1181,12 +1197,6 @@ let execute_prog prog =
 
 
   | PrintScore -> (* Prints the user's current score *)
-
-        print_endline ("pritn " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
-                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
-                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
-
 
       print_endline("Score: " ^ string_of_int user_score);
       draw_string 0 stack.(sp-4) (string_of_int user_score);
