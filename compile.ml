@@ -1,8 +1,6 @@
 open Ast
 open Bytecode
 
-module StringMap = Map.Make(String)
-
 let array_def_size = 100
 let a = 1
 
@@ -12,6 +10,7 @@ type env = {
     global_index   : int StringMap.t; (* "Address" for global variables *)
     local_index    : int StringMap.t; (* FP offset for args, locals *)
   }
+
 
 (*
   Variable type map:

@@ -1,3 +1,5 @@
+module StringMap = Map.Make(String)
+
 type bstmt =
     Litint of int         (* Push a int literal *)
   | Litstr of string      (* Push a string literal *)
@@ -28,11 +30,11 @@ type bstmt =
   | CheckUserInput        (* Checks for user input and modifies player on stack *)
   | PrintScore            (* Prints the user's current score on the top left *)
   | Hlt                   (* Terminate *)
-  | Nt
+  | Nt                    (* Negate 1 or 0 on top of stack *)
 
 type prog = {
     globals_size : int;   (* Number of global variables *)
-    text : bstmt array; (* Code for all the functions *)
+    text : bstmt array;   (* Code for all the functions *)
   }
 
 let string_of_stmt = function
