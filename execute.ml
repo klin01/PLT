@@ -1123,7 +1123,8 @@ let execute_prog prog =
         let makeGPCPolygon vlist =
           let rec makeVertexArray = function
             []           -> [||]
-            | px::py::tl -> Array.append [|{Clip.x = (float_of_int px); Clip.y = (float_of_int py)}|] (makeVertexArray tl) in
+            | px::py::tl -> Array.append [|{Clip.x = (float_of_int px); Clip.y = (float_of_int py)}|] (makeVertexArray tl) 
+            | _          -> raise(Failure("Vertex array must be even-sized")) in
                Clip.make_gpcpolygon [|false|] [|(makeVertexArray vlist)|] in
 
         let checkPBCollision block =
