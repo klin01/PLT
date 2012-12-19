@@ -2,8 +2,6 @@ function $plusArray : int (Array int $a1, Array int $a2, int $size) {
 	int $i;
 	Array int $sum;
 
-	$a2[0] = 1234;
-
 	$sum : new Array int;
 	for ($i : 0; $i < $size; $i+:1) {
 		$sum[$i] : $a1[$i] + $a2[$i];
@@ -28,10 +26,6 @@ function $main : void ()
 	$d[1] : 4;
 
 	$result : $plusArray($c,$d, 2);	
-
-$printint( $d[0] );	
-
 	$printint( $result[0] );		
 	$printint( $result[1] );		
-
 }
