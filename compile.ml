@@ -308,7 +308,7 @@ let translate (globals, functions) =
 
   (* Code executed to start the program: Jsr main; halt *)
     let entry_function = 
-        try [(*OpenWin;*) Jsr (StringMap.find "$main" function_indexes); Hlt]
+        try [OpenWin; Jsr (StringMap.find "$main" function_indexes); Hlt]
         with Not_found -> raise (Failure ("no \"$main\" function"))
     in
     

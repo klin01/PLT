@@ -4,6 +4,7 @@ open Bytecode
 exception IllegalMove;;
 
 let array_def_size = 100
+let global_score = 0;
 
 let explode s =
   let rec f acc = function

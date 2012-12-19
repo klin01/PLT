@@ -129,14 +129,13 @@ in
 let skel f_init f_end f_key (*f_mouse*) f_updateFrame f_except f_playerCollided = 
   f_init ();
   try 
-      while true do
-        Thread.join(Thread.create(Thread.delay)(1.0 /. 24.0));
-        f_updateFrame ();
+      while not (f_playerCollided ()) do
         try 
 
           if Graphics.key_pressed () then f_key (Graphics.read_key ());
-          if f_playerCollided () then f_end ();
-
+          (*if f_playerCollided () then f_end ();*)
+          Thread.join(Thread.create(Thread.delay)(1.0 /. 24.0));
+          f_updateFrame ();
         with 
              End -> raise End
            |  e  -> f_except e
@@ -170,7 +169,7 @@ let slate () =
 in
 
 slate ();
-print_endline("Hello!");;
+print_endline("Game End!");;
 
 (*
 
