@@ -22,7 +22,7 @@ type state = {
   (*mutable blockData:blockType list;*)
   mutable gravityFlag: int;
   (*mutable playerData:playerType;*)
-  mutable user_score: int;
+  mutable userscore: int;
 };;
 
 let array_def_size = 100
@@ -1136,7 +1136,7 @@ let execute_prog prog =
 
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
       let max_y = find_max_y 0 player.player_vertices 
-      and min_y = find_min_y winHeight player.player_vertices in
+      and min_y = find_min_y gameState.winHeight player.player_vertices in
       let objectheight = (max_y - min_y) in
 
       (match c with
