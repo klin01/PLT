@@ -754,7 +754,7 @@ let t_init s () =
   print_endline(string_of_int 0);
 
   print_endline("size: " ^ string_of_int (List.length s.blockData));
-  List.iter (fun block -> (print_endline (printList block.block_vertices))) s.blockdata;
+  (*List.iter (fun block -> (print_endline (printList block.block_vertices))) s.blockdata;*)
   List.iter (fun block -> (draw_polygon block.block_vertices
                                           block.block_color)) s.blockData;
   print_endline(string_of_int 1);
@@ -1253,22 +1253,20 @@ print_endline("Game End!");
           and r = stack.(i-3)
           and g = stack.(i-5)
           and b = stack.(i-7)
-          and addr = stack.(i-9) in    
+          and addr = stack.(i-9)  
+          and xcoord = stack.(i-11)
+          and ycoord = stack.(i-13) in    
           let rec make_coord_list n = 
             if (scope = -1) then (*LOCAL*)
               (
-
-                (*print_endline("makecoordlist " ^ string_of_int fp ^ " ! " ^ string_of_int stack.(fp+n-4)
-                ^ " ! " ^ string_of_int stack.(fp+n-3)^ " ! " ^ string_of_int stack.(fp+n-2)
-              ^ " ! " ^ string_of_int stack.(fp+n)^ " ! " ^ string_of_int stack.(fp+n-1));*)
                 match stack.(fp+n) with
                   0 -> []
-                | 1 -> stack.(fp+n-1) :: make_coord_list (n-2)
+                | 1 -> (stack.(fp+n-1)+xcoord)::((stack.(fp+n-3)+ycoord):: make_coord_list (n-4))
                 | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(fp+n))))
             else if (scope = 1) then (*GLOBAL*)
               (match globals.(n) with
                 0 -> []
-              | 1 -> globals.(n-1) :: make_coord_list (n-2)
+              | 1 -> (globals.(n-1)+xcoord)::((globals.(n-3)+ycoord)::make_coord_list (n-4))
               | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
             else [] in
             (
