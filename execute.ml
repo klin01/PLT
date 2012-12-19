@@ -198,8 +198,8 @@ let execute_prog prog =
   and blocks1 = []
   and blocks2 = []
   and player = {player_vertices = []; player_color = 0}
-  and gameState = {winWidth=(-1); winHeight=(-1); 
-                  winBgColor=color_from_rgb 200 200 200;
+  and gameState = {winWidth=(700); winHeight=(500); 
+                  winBgColor=color_from_rgb 255 255 255;
                   reset=true;
                   gravityFlag=0;
                   userscore=2};
@@ -958,8 +958,9 @@ let execute_prog prog =
   | Jsr(-5) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
   | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
-        let i = stack.(sp-7) in
-        print_endline ("Call generator" ^  " " ^ string_of_int (i+fp)) ;
+        if (gameState.userscore mod gameState.winWidth = 0) then
+          (let i = stack.(sp-7) in
+            print_endline ("Call generator" ^  " " ^ string_of_int (i+fp))) ;
         stack.(sp)   <- pc + 1 ; exec fp (sp+1) i
   | Jsr(-7) -> (* Push function to push object on top of stack into array *)
       let varsize = (match (stack.(sp-1)) with
@@ -1091,7 +1092,9 @@ let execute_prog prog =
   | CloseWin -> (* Closes graphical display *)
       Graphics.clear_graph (); exec fp (sp) (pc+1)
   | StoreWindow ->
-      gameState.winWidth = stack.(sp-3); gameState.winHeight <- stack.(sp-5); exec fp (sp) (pc+1) 
+      gameState.winWidth <- stack.(sp-3); gameState.winHeight <- stack.(sp-5);
+      print_endline("w, h: " ^ string_of_int gameState.winWidth ^ string_of_int gameState.winHeight); 
+      exec fp (sp) (pc+1) 
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)
         print_endline ("checking collision");
 
@@ -1132,7 +1135,7 @@ let execute_prog prog =
       let objectheight = (max_y - min_y) in
 
       if Graphics.key_pressed () then
-      (match Graphics.read_key() with
+      (match Graphics.read_key () with
       ' '   -> if max_y < gameState.winHeight then 
                (
                   if (gameState.gravityFlag < 2) then
@@ -1146,11 +1149,12 @@ let execute_prog prog =
                   (trans_allVertices_abs_y (gameState.winHeight - objectheight) player.player_vertices)
 
       | _     -> ());
-       
-
 
 
       exec fp sp (pc+1)
+  | DrawPlayer -> (* Draws the player on top of the stack *)
+     ()
+
   | ProcessBlocks -> (*Blocks are on the top of the stack*)
       let rec addToBricks i = 
 
@@ -1199,16 +1203,79 @@ let execute_prog prog =
 
       exec fp sp (pc+1)
 
-         
+
+  | UpdateScene ->
+     Graphics.clear_graph ();
+     Graphics.set_color gameState.winBgColor;
+     Graphics.fill_rect 0 0 gameState.winWidth gameState.winHeight;
+  
+  (*
+  s.block1_x <- s.block1_x - 3;
+  draw_rectangle s.block1_x s.block1_y s.block1_size s.block1_color;
+  *)
+
+    (*
+    let rec trans_allVertices = function
+      [] -> []
+      | px::py::tl -> (px - 3)::(py::(trans_allVertices tl))
+    in*)
+      List.iter (fun block -> ( block.block_vertices <- 
+                      (trans_allVertices_x (-10) block.block_vertices))) blocks1;
+
+      List.iter (fun block -> (draw_polygon block.block_vertices
+                                          block.block_color)) blocks1;
+
+      List.iter (fun block -> ( block.block_vertices <- 
+                      (trans_allVertices_x (-10) block.block_vertices))) blocks1;
+
+      List.iter (fun block -> (draw_polygon block.block_vertices
+                                          block.block_color)) blocks1;
+    
+    
+      (* Gravitify *)
+      gameState.gravityFlag <- (gameState.gravityFlag - 1);
+      let max_y = find_max_y 0 player.player_vertices 
+      and min_y = find_min_y gameState.winHeight player.player_vertices in
+      let objectheight = (max_y - (List.nth player.player_vertices 1)) in
+        if (max_y > gameState.winHeight) then
+             player.player_vertices <- 
+                  (trans_allVertices_abs_y (gameState.winHeight - objectheight) player.player_vertices)
+        else
+         if (min_y > 0) then
+            player.player_vertices <- (trans_allVertices_y gameState.gravityFlag player.player_vertices)
+          else 
+            player.player_vertices <- 
+                  (trans_allVertices_abs_y 0 player.player_vertices);
+      (* End Gravitify *)
 
 
+      (* Wrap map *)
+      gameState.reset <- true;
+      let rec wrapAround = function
+          [] -> []
+          | px::py::tl -> if (px > 0) then gameState.reset <- false; (px)::(py::(wrapAround tl))
+      in
+      List.iter (fun block -> ( block.block_vertices <- (wrapAround block.block_vertices))) blocks1;
+        if (gameState.reset = true) then
+          List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x (gameState.winWidth+gameState.winWidth) block.block_vertices))) blocks1;
+
+      (* End wrap map *)
+
+      (* Add score *)
+      gameState.userscore <- gameState.userscore + 1;
+      print_endline("Current score: " ^ gameState.userscore);
+
+      draw_polygon player.player_vertices player.player_color;
+
+
+      exec fp sp (pc+1)
   | PrintScore -> (* Prints the user's current score *)
 
 
       print_endline("Score: " ^ string_of_int gameState.userscore);
       draw_string 0 stack.(sp-4) (string_of_int gameState.userscore);
 
-      gameState.userscore = gameState.userscore + 1;
+      (*gameState.userscore <- gameState.userscore + 1;*)
       exec fp sp (pc+1)
 
   | Nt ->

@@ -28,6 +28,7 @@ type bstmt =
   | OpenWin               (* Opens a display window *)
   | CloseWin              (* Closes the display window *)
   | StoreWindow           (* Store Width and Height or the window *)
+  | UpdateScene
   | DrawPlayer            (* Draws a player object on top of the stack *)
   | ProcessBlocks
   | CheckCollision        (* Checks if the player object has collided with anyone *)
@@ -82,6 +83,7 @@ let string_of_stmt = function
   | DrawPlayer -> "DrawPlayer"
   | PrintScore -> "PrintScore"
   | StoreWindow -> "StoreWindow"
+  | UpdateScene -> "UpdateScene"
   | ProcessBlocks -> "ProcessBlocks"
   | OpenWin -> "OpenWin"
   | CloseWin -> "CloseWin"
