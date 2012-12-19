@@ -1175,7 +1175,7 @@ let player = { player_vertices=
                 25; 360];
                player_color=(color_from_rgb 20 120 20) }; 
 in
-*)
+
 let gameState = {winWidth=800; winHeight=600; 
                 winBgColor=(color_from_rgb 255 255 255);
                 blockData=blocks;
@@ -1184,7 +1184,7 @@ let gameState = {winWidth=800; winHeight=600;
                 playerData=player;
                 userscore=2};
 in
-
+*)
 
 let slate () =
     skel (t_init gameState) (t_end gameState)
@@ -1223,8 +1223,8 @@ print_endline("Game End!");
   | Jsr(-5) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
   | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
-        gameState.winWidth = stack.(sp-3);
-        gameState.winHeight = stack.(sp-5);
+        gameState.winWidth <- stack.(sp-3);
+        gameState.winHeight <- stack.(sp-5);
         stack.(sp)   <- pc + 1 ; 
         let i = stack.(sp-7) in 
         exec fp (sp+1) i
