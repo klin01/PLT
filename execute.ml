@@ -647,7 +647,7 @@ let execute_prog prog =
       Graphics.open_graph ""; exec fp (sp) (pc+1)
   | CloseWin -> (* Closes graphical display *)
       Graphics.clear_graph (); exec fp (sp) (pc+1)
-  | CheckCollision -> (* Put a boolean on top of stack depending on whether there is a collision of player and bricks *)
+  | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)
         ()
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
         ()
@@ -662,7 +662,6 @@ let execute_prog prog =
         else if stack.(sp-2) = 0 then stack.(sp-2) <- 1
         else raise(Failure("'Not' can only apply to 1 or 0"));
       exec fp sp (pc+1)
-
   | Hlt     -> ()
-with _ as error -> print_endline ((Printexc.to_string error) ^ " : At PC " ^ (string_of_int pc))
+with _ as error -> print_endline ("Execution error: " ^ (Printexc.to_string error) ^ " at PC " ^ (string_of_int pc) ^ ". Check the bytecode output with -b option.")
   in exec 0 0 0
