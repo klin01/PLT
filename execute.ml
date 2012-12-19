@@ -42,7 +42,8 @@ let getNextFreeIndex stack globals sp isLocal =
 (* Execute the program *)
 let execute_prog prog =
   let stack = Array.make 32768 0
-  and globals = Array.make prog.globals_size 0 in
+  and globals = Array.make prog.globals_size 0
+  and user_score = 2 in
 
   let rec exec fp sp pc = try match prog.text.(pc) with
     Litint i  -> 
@@ -172,7 +173,9 @@ let execute_prog prog =
           | _ -> print_endline(string_of_int var_type_id); raise(Failure("Type error: Attempt to load unknown type!"))
         ) 
   | Str i -> (* Store a global variable variable *)
-    let var_type_id = stack.(sp-1) in
+    let globaltypeid = globals.(i)
+    and var_type_id = stack.(sp-1) in
+    if (globaltypeid <> var_type_id) then raise(Failure("Attempt to set global variable to mismatched type.")) else
     ( (*print_endline("str type " ^ string_of_int var_type_id);*)
       match var_type_id with
         -1 -> (* int *)
@@ -407,12 +410,9 @@ let execute_prog prog =
           | _ -> raise(Failure("Type error: Attempt to load variable of unknown type.")))
       
   | Sfp i   -> 
-  (*print_endline ("sfp " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
-                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
-                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;*)
-
-      let obj_id = stack.(sp-1) in
+      let localvartypeid = stack.(sp-i)
+      and obj_id = stack.(sp-1) in
+      if (obj_id <> localvartypeid) then raise(Failure("Attempt to store mismatched variable type in local variable.")) else
       ( 
         match obj_id with
           -1 -> (* int *)
@@ -814,7 +814,7 @@ let execute_prog prog =
   | Jsr(-2) -> (* Run *)
       print_endline "You've just started running your program!" ; exec fp sp (pc+1)
   | Jsr(-3) -> (* printint *)
-      if (stack.(sp-1) <> 1) then raise(Failure("The function $printint must take an integer value. Invalid type: " ^ string_of_int stack.(sp-2))) else
+      if (stack.(sp-1) <> 1) then raise(Failure("The function $printint must take an integer value.")) else
       print_endline (string_of_int stack.(sp-2)) ; exec fp sp (pc+1)
   | Jsr(-4) -> (* printstring *)
       let var_type_id = stack.(sp-1) in
@@ -842,6 +842,8 @@ let execute_prog prog =
           (if nextIndex > 100 then raise(Failure("Unable to push value onto full array.")) else
             stack.(sp) <- nextIndex; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
           ) 
+  | Jsr(-8) -> (* GetCurrentScore function to put current score on stack *)
+      stack.(sp) <- user_score; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
   | Jsr i   -> stack.(sp)   <- pc + 1       ; exec fp (sp+1) i
   | Ent i   -> stack.(sp)   <- fp           ; exec sp (sp+i+1) (pc+1)
   | Rts i   -> 
@@ -928,9 +930,14 @@ let execute_prog prog =
       | 10  -> stack.(sp+700)   <- id ; exec fp (sp+701) (pc+1)
       | _   -> raise(Failure("'Make' cannot apply to the invalid type " ^ string_of_int id));
     )
+  | Init (i, j, k) -> 
+      if (k <> 1) then
+        (globals.(j) <- i; exec fp sp (pc+1))
+      else
+        (stack.(sp + j) <- i; exec fp sp (pc+1))
   (* Lodf and Strf *)
   | OpenWin -> (* Opens graphical display *) 
-      Graphics.open_graph ""; (* Thread.join(Thread.create(Thread.delay)(240.0 /. 24.0));*) exec fp (sp) (pc+1)
+      Graphics.open_graph ""; Thread.join(Thread.create(Thread.delay)(240.0 /. 240.0)); exec fp (sp) (pc+1)
   | CloseWin -> (* Closes graphical display *)
       (*Graphics.clear_graph ();*) exec fp (sp) (pc+1)
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)

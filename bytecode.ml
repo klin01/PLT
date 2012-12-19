@@ -23,6 +23,7 @@ type bstmt =
   | Bne of int            (* Branch relative if top-of-stack is non-zero *)
   | Bra of int            (* Branch relative *)
   | Make of int           (* Shift stack pointer by 1 for Player, Map, Brick; Adds vartype_id to first space in arrays *)
+  | Init of int * int * int
   | OpenWin               (* Opens a display window *)
   | CloseWin              (* Closes the display window *)
   | DrawPlayer            (* Draws a player object on top of the stack *)
@@ -65,6 +66,7 @@ let string_of_stmt = function
   | Beq(i) -> "Beq " ^ string_of_int i
   | Bra(i) -> "Bra " ^ string_of_int i
   | Make(i)   -> "Make " ^ string_of_int i
+  | Init(i, j, k) -> "Init " ^ (string_of_int i) ^ " " ^ (string_of_int j) ^ " " ^ (string_of_int k)
   | Lfpa -> "Lfpa"
   | Sfpa -> "Sfpa"
   | Loda -> "Loda"

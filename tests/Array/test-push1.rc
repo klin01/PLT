@@ -1,15 +1,14 @@
 Array string $global;
+int $x;
 
 function $main: void() {
 	Array int $local;
-	int $x;
-	$global : new Array string;
-	$local : new Array int;
 
-	$x : 5;
-	$x : "test";
+	//$local : new Array int;
+	$x : $GetCurrentScore();
+	$printint($x);
+	//$Push($global, 0);
 	/*$Push($global, 5);
-	$Push($global, 5);
 	$Push($local, 2);
 
 	$printstring("Should print \"test\" and \"testing\".");

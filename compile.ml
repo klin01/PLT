@@ -117,6 +117,107 @@ let rec enum stride n = function
       | "ArrayMap" ->    (n, hd.varname) :: enum stride (n+stride * 7 * array_def_size - 1) tl
       | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
 
+let rec enumInitCommands stride n isLocal = function
+    [] -> []
+  | hd::tl -> 
+    if stride > 0 then
+      match hd.vartype with
+        "int" ->    
+        (Init (1, (n + 1), isLocal)) :: 
+        enumInitCommands stride (n+stride * 2) isLocal tl
+      | "string" -> 
+        (Init (2, (n + 39), isLocal)) :: 
+        enumInitCommands stride (n+stride * 40) isLocal tl 
+      | "Brick" ->
+        (Init (1, (n + 1), isLocal)) :: (* hd.varname ^ ".$y" *)
+        (Init (1, (n + 3), isLocal)) :: (* hd.varname ^ ".$x" *)
+        (Init (1, (n + 5), isLocal)) :: (* hd.varname ^ ".$vertices" *)
+        (Init (1, (n + 7), isLocal)) :: (* hd.varname ^ ".$colorB" *)
+        (Init (1, (n + 9), isLocal)) :: (* hd.varname ^ ".$colorG" *)
+        (Init (1, (n + 11), isLocal)) :: (* hd.varname ^ ".$colorR" *)
+        (Init (3, (n + 12), isLocal)) ::
+        enumInitCommands stride (n+stride * 13) isLocal tl
+          (* Brick size : 3 * 2 int (color), 1 * 2int for vertex array, 2 * 2 for x and y, 1 int for type (3) = 13 *) 
+      | "Player" -> 
+        (Init (1, (n + 1), isLocal)) :: (* hd.varname ^ ".$y" *)
+        (Init (1, (n + 3), isLocal)) :: (* hd.varname ^ ".$vertices" *)
+        (Init (1, (n + 5), isLocal)) :: (* hd.varname ^ ".$colorB" *)
+        (Init (1, (n + 7), isLocal)) :: (* hd.varname ^ ".$colorG" *)
+        (Init (1, (n + 9), isLocal)) :: (* hd.varname ^ ".$colorR" *)
+        (Init (4, (n + 10), isLocal)) ::
+        enumInitCommands stride (n+stride * 11) isLocal tl 
+          (* Player size :  3 * 2 int (color), 1 * 2 int for vertex array, 1 * 2 int (y), 1 for type (4) = 11 *)
+      | "Map" ->    
+        (Init (1, (n + 1), isLocal)) :: (* hd.varname ^ ".$generator" *)
+        (Init (1, (n + 3), isLocal)) :: (* hd.varname ^ ".$height" *)
+        (Init (1, (n + 5), isLocal)) :: (* hd.varname ^ ".$width" *)
+        (Init (5, (n + 6), isLocal)) :: 
+        enumInitCommands stride (n+stride * 7) isLocal tl 
+          (* Map size : 1 * 2 int for generator function, 2 x 2 int (h, w), 1 for type (5) = 7 *)
+      | "Arrayint" ->   
+        (Init (6, (n + 2*array_def_size), isLocal)) ::
+        enumInitCommands stride (n+stride * 2 * array_def_size + 1) isLocal tl
+      | "Arraystring" -> 
+        (Init (7, (n + 40*array_def_size), isLocal)) :: 
+        enumInitCommands stride (n+stride * 40 * array_def_size + 1) isLocal tl
+      | "ArrayBrick" ->  
+        (Init (8, (n + 13*array_def_size), isLocal)) :: 
+        enumInitCommands stride (n+stride * 13 * array_def_size + 1) isLocal tl
+      | "ArrayPlayer" -> 
+        (Init (9, (n + 11*array_def_size), isLocal)) :: 
+        enumInitCommands stride (n+stride * 11 * array_def_size + 1) isLocal tl
+      | "ArrayMap" ->    
+        (Init (10, (n + 7*array_def_size), isLocal)) :: 
+        enumInitCommands stride (n+stride * 7 * array_def_size + 1) isLocal tl
+      | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
+    else
+      match hd.vartype with
+        "int" ->    
+        (Init (1, n, isLocal)) :: 
+        enumInitCommands stride (n+stride * 2) isLocal tl
+      | "string" -> 
+        (Init (2, n, isLocal)) :: 
+        enumInitCommands stride (n+stride * 40) isLocal tl 
+      | "Brick" ->  
+        (Init (1, (n - 11), isLocal)) :: (* hd.varname ^ ".$y" *)
+        (Init (1, (n - 9), isLocal)) :: (* hd.varname ^ ".$x" *)
+        (Init (1, (n - 7), isLocal)) :: (* hd.varname ^ ".$vertices" *)
+        (Init (1, (n - 5), isLocal)) :: (* hd.varname ^ ".$colorB" *)
+        (Init (1, (n - 3), isLocal)) :: (* hd.varname ^ ".$colorG" *)
+        (Init (1, (n - 1), isLocal)) :: (* hd.varname ^ ".$colorR" *)
+        (Init (3, (n), isLocal)) :: 
+        enumInitCommands stride (n+stride * 13) isLocal tl 
+      | "Player" -> 
+        (Init (1, (n - 9), isLocal)) :: (* hd.varname ^ ".$y" *)
+        (Init (1, (n - 7), isLocal)) :: (* hd.varname ^ ".$x" *)
+        (Init (1, (n - 5), isLocal)) :: (* hd.varname ^ ".$colorB" *)
+        (Init (1, (n - 3), isLocal)) :: (* hd.varname ^ ".$colorG" *)
+        (Init (1, (n - 1), isLocal)) :: (* hd.varname ^ ".$colorR" *)
+        (Init (5, (n), isLocal)) :: 
+        enumInitCommands stride (n+stride * 11) isLocal tl 
+      | "Map" ->    
+        (Init (1, (n - 5), isLocal)) :: (* hd.varname ^ ".$generator" *)
+        (Init (1, (n - 3), isLocal)) :: (* hd.varname ^ ".$height" *)
+        (Init (1, (n - 1), isLocal)) :: (* hd.varname ^ ".$width" *)
+        (Init (5, (n), isLocal)) :: 
+        enumInitCommands stride (n+stride * 7) isLocal tl 
+      | "Arrayint" ->   
+        (Init (6, n, isLocal)) :: 
+        enumInitCommands stride (n+stride * 2 * array_def_size - 1) isLocal tl
+      | "Arraystring" -> 
+        (Init (7, n, isLocal)) :: 
+        enumInitCommands stride (n+stride * 40 * array_def_size - 1) isLocal tl
+      | "ArrayBrick" ->  
+        (Init (8, n, isLocal)) :: 
+        enumInitCommands stride (n+stride * 13 * array_def_size - 1) isLocal tl
+      | "ArrayPlayer" -> 
+        (Init (9, n, isLocal)) :: 
+        enumInitCommands stride (n+stride * 11 * array_def_size - 1) isLocal tl
+      | "ArrayMap" ->    
+        (Init (10, n, isLocal)) :: 
+        enumInitCommands stride (n+stride * 7 * array_def_size - 1) isLocal tl
+      | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
+
 (* val enum : int -> 'a list -> (int * 'a) list *)
 let rec enum_func stride n = function
     [] -> []
@@ -148,7 +249,7 @@ let translate (globals, functions) =
 
   (* Allocate "addresses" for each global variable *)
   let global_indexes = string_map_pairs StringMap.empty (enum 1 0 globals) in
-
+  let globalinits = enumInitCommands 1 0 0 globals in
   (* Assign indexes to function names *)
   let built_in_functions = StringMap.add "$DrawPlayer" (-1) StringMap.empty in
   let built_in_functions = StringMap.add "$Run" (-2) built_in_functions in
@@ -157,7 +258,8 @@ let translate (globals, functions) =
   let built_in_functions = StringMap.add "$dumpstack" (-5) built_in_functions in
   let built_in_functions = StringMap.add "$CallGenerator" (-6) built_in_functions in
   let built_in_functions = StringMap.add "$Push" (-7) built_in_functions in
-
+  let built_in_functions = StringMap.add "$GetCurrentScore" (-8) built_in_functions in
+  
   let function_indexes = string_map_pairs built_in_functions
       (enum_func 1 1 (List.map (fun f -> f.fname) functions)) in
 
@@ -168,6 +270,8 @@ let translate (globals, functions) =
     and num_locals = total_varsize 0 fdecl.locals
     and local_offsets = enum 1 1 fdecl.locals
     and formal_offsets = enum (-1) (-2) fdecl.formals in
+    let localinits = enumInitCommands 1 1 1 fdecl.locals
+    and formalinits = enumInitCommands (-1) (-2) 1 fdecl.formals in
     let env = { env with local_index = string_map_pairs
       StringMap.empty (local_offsets @ formal_offsets) } in
 
@@ -334,6 +438,7 @@ let translate (globals, functions) =
                          [Bne (-(List.length b' + List.length e'))]
 
     in [Ent num_locals] @           (* Entry: allocate space for locals *)
+       formalinits @ localinits @ 
        stmt (Block fdecl.body) @    (* Body *)
        [Litint 0; Rts num_formals]  (* Default = return 0 *)
 
@@ -343,7 +448,7 @@ let translate (globals, functions) =
 
   (* Code executed to start the program: Jsr main; halt *)
     let entry_function = 
-        try [OpenWin; Jsr (StringMap.find "$main" function_indexes); Hlt]
+        try [OpenWin] @ globalinits @ [Jsr (StringMap.find "$main" function_indexes); Hlt]
         with Not_found -> raise (Failure ("no \"$main\" function"))
     in
     
