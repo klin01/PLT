@@ -1,0 +1,24 @@
+/* Create local Map object */
+
+function $generate : void () {
+	$printstring("Generate!");
+}
+
+function $main : void ()
+{
+	Map $myMap;
+
+	$myMap : new Map(700,500,$generate);
+
+	$printstring("Local map, should print 500 700");	
+	$printint($myMap.$height);
+	$printint($myMap.$width);
+
+	// Reassign values
+	$myMap.$height : 600;
+	$myMap.$width : 800;
+
+	$printstring("Local map, should print 600 800");	
+	$printint($myMap.$height);
+	$printint($myMap.$width);
+}

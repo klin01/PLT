@@ -68,7 +68,7 @@ let rec enum stride n = function
       | "Map" ->    
         (n + 1,     hd.varname ^ ".$generator") ::
         (n + 3, hd.varname ^ ".$height") ::
-        (n + 4, hd.varname ^ ".$width") ::
+        (n + 5, hd.varname ^ ".$width") ::
         (n + 6, hd.varname) :: enum stride (n+stride * 7) tl 
           (* Map size : 1 * 2 int for generator function, 2 x 2 int (h, w), 1 for type (5) = 7 *)
       | "Arrayint" ->   print_endline("positive stride"); (n + 2*array_def_size, hd.varname) :: enum stride (n+stride * 2 * array_def_size + 1) tl
@@ -98,8 +98,8 @@ let rec enum stride n = function
         (n, hd.varname) :: enum stride (n+stride * 11) tl 
       | "Map" ->    
         (n - 5, hd.varname ^ ".$generator" ) ::
-        (n - 3, hd.varname ^ ".$width" ) ::
-        (n - 1, hd.varname ^ ".$height") ::
+        (n - 3, hd.varname ^ ".$height" ) ::
+        (n - 1, hd.varname ^ ".$width") ::
         (n, hd.varname) :: enum stride (n+stride * 7) tl 
       | "Arrayint" ->   print_endline("negative stride"); (n, hd.varname) :: enum stride (n+stride * 2 * array_def_size - 1) tl
       | "Arraystring" -> (n, hd.varname) :: enum stride (n+stride * 40 * array_def_size - 1) tl
@@ -146,8 +146,7 @@ let translate (globals, functions) =
   let built_in_functions = StringMap.add "$printint" (-3) built_in_functions in
   let built_in_functions = StringMap.add "$printstring" (-4) built_in_functions in
   let built_in_functions = StringMap.add "$dumpstack" (-5) built_in_functions in
-  let built_in_functions = StringMap.add "$Push" (-6) built_in_functions in
-  let built_in_functions = StringMap.add "$CallGenerator" (-7) built_in_functions in
+  let built_in_functions = StringMap.add "$CallGenerator" (-6) built_in_functions in
 
   let function_indexes = string_map_pairs built_in_functions
       (enum_func 1 1 (List.map (fun f -> f.fname) functions)) in
@@ -177,37 +176,28 @@ let translate (globals, functions) =
              with Not_found -> try [Litint (StringMap.find varray env.global_index)]
              with Not_found -> raise (Failure ("undeclared Brick " ^ varray)))
           @ expr b @ expr g @ expr r
-          @ [Litint 3] @ [Make]
+          @ [Litint 3] @ [Make 3]
 
       | Player (r, g, b, varray, y) ->
           expr y @ (try [Litint (StringMap.find varray env.local_index)]
                     with Not_found -> try [Litint (StringMap.find varray env.global_index)]
                     with Not_found -> raise (Failure ("undeclared Player " ^ varray)))
           @ expr b @ expr g @ expr r
-          @ [Litint 4] @ [Make]
+          @ [Litint 4] @ [Make 4]
 
       | Map (width, height, generator) ->
           (try [Litint (StringMap.find generator env.function_index)]
            with Not_found -> raise (Failure ("undeclared function " ^ generator))) 
-          @ expr height @ expr width @ [Litint 5] @ [Make]
+          @ expr height @ expr width @ [Litint 5] @ [Make 5]
 
       | Array (array_type) -> (* Push an empty array onto stack with type identifier on top *)
-          let rec initializeEmptyArray size lst =
-            if (size > 0) then initializeEmptyArray (size-1) ([Litint 0] @ lst) else lst 
-          in
-          (
-              match array_type with
-                  "int" ->
-                    (initializeEmptyArray 200 []) @ [Litint 6] @ [Make]
-              |   "string" ->
-                    (initializeEmptyArray 4000 []) @ [Litint 7] @ [Make]
-              |   "Brick" ->
-                    (initializeEmptyArray 1301 []) @ [Litint 8] @ [Make]
-              |   "Player" ->
-                    (initializeEmptyArray 1101 []) @ [Litint 9] @ [Make]
-              |   "Map" -> 
-                    (initializeEmptyArray 701 []) @ [Litint 10] @ [Make]
-              | _ -> raise (Failure ("Invalid array type " ^ array_type)) 
+          (match array_type with
+                "int" -> [Make 6]
+            |   "string" -> [Make 7]
+            |   "Brick" -> [Make 8]
+            |   "Player" -> [Make 9]
+            |   "Map" -> [Make 10]
+            | _ -> raise (Failure ("Invalid array type " ^ array_type)) 
           )
       | AAccess(a, i) -> 
           print_endline("a access" ^ a);
@@ -239,20 +229,25 @@ let translate (globals, functions) =
       | Not(e) -> 
         expr e @ [Nt]
       | AssignToRef (s, e) ->
+        let strLen = String.length s in 
         (match e with 
           Id(str) -> print_endline("assign to ref" ^ s);
-            (try [Litint (StringMap.find str env.local_index)]
-            with Not_found -> try [Litint (StringMap.find str env.global_index)]
-            with Not_found -> raise (Failure ("undeclared Id " ^ str))) @
-            (try [Sfp (StringMap.find s env.local_index)]
-            with Not_found -> try [Str (StringMap.find s env.global_index)]
-            with Not_found -> raise (Failure ("AssignToRef: undeclared variable " ^ s)))     
-          | _ ->
-           expr e @
-          (try [Sfp (StringMap.find s env.local_index)]
+            let sub = String.sub s (strLen-11) 10 in
+              if sub = ".$vertices" then
+              (try [Litint (StringMap.find str env.local_index)]
+              with Not_found -> try [Litint (StringMap.find str env.global_index)]
+              with Not_found -> raise (Failure ("undeclared Id " ^ str)))  
+            else
+            let sub2 = String.sub s (strLen-12) 11 in
+              if sub2 = ".$generator" then
+              (try [Litint (StringMap.find str env.local_index)]
+              with Not_found -> try [Litint (StringMap.find str env.global_index)]
+              with Not_found -> raise (Failure ("undeclared Id " ^ str))) else expr e    
+          | _ -> expr e
+          
+        ) @ (try [Sfp (StringMap.find s env.local_index)]
           with Not_found -> try [Str (StringMap.find s env.global_index)]
           with Not_found -> raise (Failure ("Assign: undeclared variable " ^ s)))
-        )
 
       | Assign (s, e) ->
            expr e @

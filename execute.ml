@@ -534,10 +534,9 @@ let execute_prog prog =
                   exec fp sp (pc+1)          
   | Jsr(-5) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
-  | Jsr(-6) -> (* Push *)
-        ()
-  | Jsr(-7) -> (* CallGenerator function of map on top of stack *)
-        ()
+  | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
+        let i = stack.(sp-7) in
+        stack.(sp)   <- pc + 1 ; exec fp (sp+1) i
   | Jsr i   -> stack.(sp)   <- pc + 1       ; exec fp (sp+1) i
   | Ent i   -> stack.(sp)   <- fp           ; exec sp (sp+i+1) (pc+1)
   | Rts i   -> 
@@ -610,7 +609,20 @@ let execute_prog prog =
   | Bne i   -> exec fp (sp-1) (pc + if stack.(sp-2) != 0 then i else 1)
   | Bra i   -> exec fp sp (pc+i)
 
-  | Make    -> exec fp (sp-1) (pc+1)
+  | Make id   -> 
+    (match id with 
+        1   -> raise(Failure("'Make' not required for int"));
+      | 2   -> raise(Failure("'Make' not required for string"));
+      | 3   -> exec fp (sp-1) (pc+1)
+      | 4   -> exec fp (sp-1) (pc+1)
+      | 5   -> exec fp (sp-1) (pc+1)
+      | 6   -> stack.(sp+200)   <- id ; exec fp (sp+201) (pc+1)
+      | 7   -> stack.(sp+4000)   <- id ; exec fp (sp+4001) (pc+1)
+      | 8   -> stack.(sp+1300)   <- id ; exec fp (sp+1301) (pc+1)
+      | 9   -> stack.(sp+1100)   <- id ; exec fp (sp+1101) (pc+1)
+      | 10  -> stack.(sp+700)   <- id ; exec fp (sp+701) (pc+1)
+      | _   -> raise(Failure("'Make' cannot apply to the invalid type " ^ string_of_int id));
+    )
 
   (* Lodf and Strf *)
   | OpenWin -> (* Opens graphical display *) 
