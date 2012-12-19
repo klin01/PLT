@@ -197,14 +197,12 @@ let execute_prog prog =
 
   and blocks1 = []
   and blocks2 = []
-  and player = ref ([], 0)
-  
+  and player = {player_vertices = []; player_color = 0}
   and gameState = {winWidth=(-1); winHeight=(-1); 
                   winBgColor=color_from_rgb 200 200 200;
                   reset=true;
                   gravityFlag=0;
                   user_score=2};
-
   in
 
 
@@ -235,6 +233,7 @@ let execute_prog prog =
   | Drp ->
     let var_type_id = stack.(sp-1) in
       (
+        print_endline("Drop " ^ string_of_int var_type_id);
         match var_type_id with
           -1 -> exec fp (sp-2) (pc+1)
         | 1 -> exec fp (sp-2) (pc+1)
@@ -928,22 +927,7 @@ let execute_prog prog =
 
      print_endline (string_of_int color);
       
-    let draw_polygon vlist color =
-      Graphics.set_color color;
-      let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
-        Graphics.moveto x0 y0;
-        for i = 1 to ((List.length vlist) / 2) - 1 do
-          let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
-        done;
-        Graphics.lineto x0 y0;
-
-      let rec buildTupleArray = function
-        [] -> []
-        | px::py::tl -> (px,py)::(buildTupleArray tl)
-        | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates.")) 
-      in
-      Graphics.fill_poly (Array.of_list (buildTupleArray vlist));
-    in
+    
         let rec make_coord_list n = 
           if (scope = -1) then (*LOCAL*)
             (match stack.(fp+n) with
@@ -957,11 +941,11 @@ let execute_prog prog =
             | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
           else [] in
         
-        player := (make_coord_list (addr-1), snd !player);
+        let player = {player_vertices= make_coord_list (addr-1);player_color = color}; in
         (*let coords = make_coord_list (addr-1) in  *)
-        print_endline (String.concat " " (List.map string_of_int (fst !player)));
+        print_endline (String.concat " " (List.map string_of_int (player.player_vertices)));
         
-        draw_polygon (fst !player) color;
+        draw_polygon (player.player_vertices) color;
 
 
         
@@ -1118,6 +1102,8 @@ let execute_prog prog =
       gameState.winWidth <- stack.(sp-3); gameState.winHeight <- stack.(sp-5); exec fp (sp) (pc+1) 
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)
         print_endline ("checking collision");
+
+(*
       (* Scene is a list of blocks *)
       let t_playerCollided scene =
         let makeGPCPolygon vlist =
@@ -1141,9 +1127,13 @@ let execute_prog prog =
               (*print_endline (string_of_bool (result collisionList));*)
               result collisionList;
       in
+
       stack.(sp) <- (int_of_bool (t_playerCollided blocks1 || t_playerCollided blocks2) );
       stack.(sp+1) <- 1; 
       exec fp (sp+2) (pc+1)
+      let final_result = (t_playerCollided blocks1 || t_playerCollided blocks2) in*)
+      stack.(sp-11) <- 1; stack.(sp-10) <- 1; exec fp (sp-9) (pc+1)
+
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
       
       let max_y = find_max_y 0 player.player_vertices 
@@ -1168,32 +1158,7 @@ let execute_prog prog =
 
       exec fp sp (pc+1)
   | DrawPlayer -> (* Draws the player on top of the stack *)
-      let scope = stack.(sp-8)
-      and addr = stack.(sp-9) in
-
-      print_endline (string_of_int scope ^ " " ^ string_of_int addr);
-
-      print_endline ("draw " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
-                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
-                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
-                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
-      if (scope = -1) then (*LOCAL*)
-        let rec make_coord_list n = 
-          (match stack.(fp+n) with
-            0 -> []
-          | 1 -> 1 :: make_coord_list (n-2)
-          | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(fp+n))))
-        in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
-      else if (scope = 1) then (*GLOBAL*)
-        let rec make_coord_list n = 
-          (match globals.(n) with
-            0 -> []
-          | 1 -> 1 :: make_coord_list (n-2)
-          | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
-      in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
- 
-
-
+     ()
 
 
   | ProcessBlocks -> (*Blocks are on the top of the stack*)
@@ -1236,35 +1201,10 @@ let execute_prog prog =
 
       print_endline (String.concat " " (List.map string_of_int ((List.hd blocks1).block_vertices)));
 
-
-
-
-
-    let draw_polygon vlist color =
-      Graphics.set_color color;
-      let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
-        (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );*)
-        Graphics.moveto x0 y0;
-        for i = 1 to ((List.length vlist) / 2) - 1 do
-          let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
-          (*print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y) )*)
-        done;
-        Graphics.lineto x0 y0;
-        (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
-        print_endline("");*)
-
-      let rec buildTupleArray = function
-        [] -> []
-        | px::py::tl -> (px,py)::(buildTupleArray tl)
-        | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates.")) 
-      in
-      Graphics.fill_poly (Array.of_list (buildTupleArray vlist));
-    in
-
         
         draw_polygon ((List.hd blocks1).block_vertices) ((List.hd blocks1).block_color);
 
-  Thread.join(Thread.create(Thread.delay)(3.0));
+      Thread.join(Thread.create(Thread.delay)(3.0));
 
 
       exec fp sp (pc+1)
@@ -1274,8 +1214,10 @@ let execute_prog prog =
 
   | PrintScore -> (* Prints the user's current score *)
 
-      print_endline("Score: " ^ string_of_int gameState.user_score);
-      draw_string 10 (winWidth-30) (string_of_int gameState.user_score);
+      print_endline("Score: " ^ string_of_int user_score);
+      draw_string 0 stack.(sp-4) (string_of_int user_score);
+
+      user_score = user_score + 1;
       exec fp sp (pc+1)
 
   | Nt ->
