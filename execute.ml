@@ -946,7 +946,7 @@ let execute_prog prog =
         draw_polygon (fst !player) color;
 
 
-        (*Thread.join(Thread.create(Thread.delay)(1.0));*)
+        
 
        exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
@@ -1182,14 +1182,45 @@ let execute_prog prog =
               | 1 -> globals.(n-1) :: make_coord_list (n-2)
               | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
             else [] in
-            print_endline (String.concat " xy " (List.map string_of_int (make_coord_list (addr-1)))); 
-          {block_vertices= make_coord_list (addr-1); block_color=r*256*256+g*256+b;} :: addToBricks (i-13)
-          )
-        else []
+            (
+            {block_vertices= make_coord_list (addr-1); block_color=r*256*256+g*256+b;} :: addToBricks (i-13)
+            )
+          ) else []
       in 
-      blocks1 = addToBricks (sp-1);    
+      let blocks1 = addToBricks (sp-1) in    
 
       print_endline (String.concat " " (List.map string_of_int ((List.hd blocks1).block_vertices)));
+
+
+
+
+
+    let draw_polygon vlist color =
+      Graphics.set_color color;
+      let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
+        (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );*)
+        Graphics.moveto x0 y0;
+        for i = 1 to ((List.length vlist) / 2) - 1 do
+          let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
+          (*print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y) )*)
+        done;
+        Graphics.lineto x0 y0;
+        (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
+        print_endline("");*)
+
+      let rec buildTupleArray = function
+        [] -> []
+        | px::py::tl -> (px,py)::(buildTupleArray tl)
+        | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates.")) 
+      in
+      Graphics.fill_poly (Array.of_list (buildTupleArray vlist));
+    in
+
+        
+        draw_polygon ((List.hd blocks1).block_vertices) ((List.hd blocks1).block_color);
+
+  Thread.join(Thread.create(Thread.delay)(3.0));
+
 
       exec fp sp (pc+1)
 

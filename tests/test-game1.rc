@@ -1,5 +1,4 @@
 /* Create global Map object */
-
 Array int $c;
 
 function $generate : Array Brick () {
