@@ -20,9 +20,9 @@ type state = {
   mutable winHeight:int; 
   mutable winBgColor:int;
   mutable reset: bool;
-  mutable blockData:blockType list;
+  mutable blockData: blockType list;
   mutable gravityFlag: int;
-  mutable playerData:playerType;
+  mutable playerData: playerType;
   mutable userscore: int;
 };;
 
@@ -187,6 +187,15 @@ let draw_string x y str =
   Graphics.set_text_size 30;
   Graphics.draw_string str;;
 
+let blocks1 = [];;
+let player = {player_vertices = []; player_color = 0};;
+let gameState = {winWidth=(-1); winHeight=(-1); 
+                  winBgColor=color_from_rgb 200 200 200;
+                  blockData=blocks1;
+                  playerData=player;
+                  reset=true;
+                  gravityFlag=0;
+                  userscore=2};;
 
 (********************************************
   Execute the program
@@ -195,10 +204,7 @@ let execute_prog prog =
   let stack = Array.make 32768 0
   and globals = Array.make prog.globals_size 0
   and random = Random.self_init ()
-
-  and blocks = []
-  (*and blocks2 = []*)
-  and player = {player_vertices = []; player_color = 0}; in
+  in
 
 
   let rec exec fp sp pc = try match prog.text.(pc) with
@@ -931,7 +937,9 @@ let execute_prog prog =
             | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
           else [] in
         
-        player = {player_vertices= make_coord_list (addr-1);player_color = color};
+        let player = {player_vertices= make_coord_list (addr-1);player_color = color} in
+        print_endline (String.concat " ptest " (List.map string_of_int player.player_vertices));
+        gameState.playerData <- player;
         exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
 
@@ -1215,9 +1223,11 @@ print_endline("Game End!");
   | Jsr(-5) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
   | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
-        let i = stack.(sp-7) in
-        print_endline ("Call generator" ^  " " ^ string_of_int (i+fp)) ;
-        stack.(sp)   <- pc + 1 ; exec fp (sp+1) i
+        gameState.winWidth = stack.(sp-3);
+        gameState.winHeight = stack.(sp-5);
+        stack.(sp)   <- pc + 1 ; 
+        let i = stack.(sp-7) in 
+        exec fp (sp+1) i
   | Jsr(-7) -> (* Push function to push object on top of stack into array *)
       let varsize = (match (stack.(sp-1)) with
                         1 -> 2
@@ -1428,7 +1438,7 @@ print_endline("Game End!");
             if (scope = -1) then (*LOCAL*)
               (
 
-                (*print_endline(string_of_int fp ^ " ! " ^ string_of_int stack.(fp+n-4)
+                (*print_endline("makecoordlist " ^ string_of_int fp ^ " ! " ^ string_of_int stack.(fp+n-4)
                 ^ " ! " ^ string_of_int stack.(fp+n-3)^ " ! " ^ string_of_int stack.(fp+n-2)
               ^ " ! " ^ string_of_int stack.(fp+n)^ " ! " ^ string_of_int stack.(fp+n-1));*)
                 match stack.(fp+n) with
@@ -1442,14 +1452,17 @@ print_endline("Game End!");
               | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
             else [] in
             (
-            {block_vertices= make_coord_list (addr-1); block_color=r*256*256+g*256+b;} :: addToBricks (i-13)
+              {block_vertices= make_coord_list (addr-1); block_color=r*256*256+g*256+b;} :: addToBricks (i-13)
             )
           ) else []
       in 
-      blocks = addToBricks (sp-1);    
+      let blocks1 = addToBricks (sp-1) in
 
-      (*print_endline (String.concat " " (List.map string_of_int ((List.hd blocks1).block_vertices)));
+      print_endline ("Blocks : " ^ (string_of_int (List.length (addToBricks (sp-1)))));
+      gameState.blockData <- blocks1;
 
+      print_endline (String.concat " test " (List.map string_of_int ((List.hd blocks1).block_vertices)));
+(*
         
       draw_polygon ((List.hd blocks1).block_vertices) ((List.hd blocks1).block_color);
 
