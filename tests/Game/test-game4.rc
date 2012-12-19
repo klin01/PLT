@@ -20,6 +20,7 @@ function $generate : Array Brick () {
 	Array int $c;
 	int $j;
 
+	$b : new Array int;
 	$br: new Array Brick;
 
 	$b : new Array int;
@@ -35,9 +36,9 @@ function $generate : Array Brick () {
 
 	for ($j:0; $j<4; $j+:1){
 		$b : $translateRect($c, $j*100, 0);
-		$br[$j] : new Brick (200,150,150,$b,$b[0],$b[1]);
+		$br[$j] : new Brick (200,150,150,$b,50,50);
 		$b : $translateRect($c, $j*100+75, 200);
-		$br[$j+4] : new Brick (200,150,150,$b,$b[0],$b[1]);
+		$br[$j+4] : new Brick (200,100,200,$b,50,50);
 	}
 
 	return $br;
