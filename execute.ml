@@ -202,7 +202,7 @@ let execute_prog prog =
                   winBgColor=color_from_rgb 200 200 200;
                   reset=true;
                   gravityFlag=0;
-                  user_score=2};
+                  userscore=2};
   in
 
 
@@ -985,7 +985,7 @@ let execute_prog prog =
             stack.(sp) <- nextIndex; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
           ) 
   | Jsr(-8) -> (* GetCurrentScore function to put current score on stack *)
-      stack.(sp) <- gameState.user_score; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
+      stack.(sp) <- gameState.userscore; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
   | Jsr(-9) -> (* GenerateRandomInt function to generate a random integer and put it on top of stack *)
       let seedtype = stack.(sp-1)
       and seed = stack.(sp-2) in
@@ -1099,7 +1099,7 @@ let execute_prog prog =
   | CloseWin -> (* Closes graphical display *)
       Graphics.clear_graph (); exec fp (sp) (pc+1)
   | StoreWindow ->
-      gameState.winWidth <- stack.(sp-3); gameState.winHeight <- stack.(sp-5); exec fp (sp) (pc+1) 
+      gameState.winWidth = stack.(sp-3); gameState.winHeight <- stack.(sp-5); exec fp (sp) (pc+1) 
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)
         print_endline ("checking collision");
 
@@ -1131,11 +1131,10 @@ let execute_prog prog =
       stack.(sp) <- (int_of_bool (t_playerCollided blocks1 || t_playerCollided blocks2) );
       stack.(sp+1) <- 1; 
       exec fp (sp+2) (pc+1)
-      let final_result = (t_playerCollided blocks1 || t_playerCollided blocks2) in*)
+      let final_result = (int_of_bool (t_playerCollided blocks1 || t_playerCollided blocks2) ) in*)
       stack.(sp-11) <- 1; stack.(sp-10) <- 1; exec fp (sp-9) (pc+1)
 
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
-      
       let max_y = find_max_y 0 player.player_vertices 
       and min_y = find_min_y winHeight player.player_vertices in
       let objectheight = (max_y - min_y) in
@@ -1153,9 +1152,6 @@ let execute_prog prog =
                   player.player_vertices <- 
                   (trans_allVertices_abs_y (gameState.winHeight - objectheight) player.player_vertices)
       | _     -> ());
-
-
-
       exec fp sp (pc+1)
   | DrawPlayer -> (* Draws the player on top of the stack *)
      ()
