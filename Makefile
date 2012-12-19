@@ -44,6 +44,7 @@ parser.ml parser.mli : parser.mly
 clean :
 	rm -rf *.cmo *.cmi retrocraft parser.mli parser.ml scanner.ml \
 	*.cmo *.cmi *.out *.diff *.a
+	@make clean -f MakefileGPC
 
 clean_runtests :
 	rm -rf *.cmo *.cmi runtests parser.mli parser.ml scanner.ml
