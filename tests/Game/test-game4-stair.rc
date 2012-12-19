@@ -1,0 +1,82 @@
+/* Create global Map object */
+Array int $c;
+
+function $getPolygonVerts : Array int (int $size, int $sx, int $sy)
+{
+	Array int $verts;
+
+	$verts : new Array int;
+
+	$verts[0] : $sx			; $verts[1] : $sy;
+	$verts[2] : $sx + $size	; $verts[3] : $sy;
+	$verts[4] : $sx + $size ; $verts[5] : $sy + $size;
+	$verts[6] : $sx + ($size / 2); $verts[7] : $sy + (2 * $size);
+	$verts[8] : $sx			; $verts[9] : $sy + $size;
+
+	return $verts;
+}
+
+function $generate : Array Brick () {
+	Array Brick $brickSet;
+	int $len;
+	int $size;
+	int $startX1; int $startY1;
+	int $startX2; int $startY2;
+	int $r1, int $g1, int $dist1;
+	int $r2, int $g2, int $dist2;
+	int $i;
+
+	$brickSet : new Array Brick;
+	$len : 5;
+	$size : 50;
+
+	$r1 : 130; $g1 : 130;
+	$r2 : 90; $g2 : 90;
+	$dist1 : 255 - $r1;
+	$dist2 : 255 - $r2;
+
+	for( $i : 0; $i < len; $i +: 1 )
+	{
+		$brickSet[$i] : new Brick {}
+	}
+
+	Brick $b1;
+
+	$b: new Array Brick;
+
+	$c : new Array int;
+	$c[0] : 250;
+	$c[1] : 50;
+	$c[2] : 300;
+	$c[3] : 100;
+	$c[4] : 250;
+	$c[5] : 100;
+
+	$b1 : new Brick(100,100,100,$c,250,50);
+
+	$b[0] : $b1;
+
+	return $b;
+}
+
+function $main : void () {
+	Map $myMap;
+	Player $p;
+	Array int $v;
+
+	$v : new Array int;
+
+	$v[0] : 50;
+	$v[1] : 50;
+	$v[2] : 100;
+	$v[3] : 100;
+	$v[4] : 50;
+	$v[5] : 100;
+
+	$p : new Player(100,100,100,$v,50);
+	$myMap : new Map(700,500,$generate);
+
+	$generate();
+
+	$Run($myMap, $p);
+}
