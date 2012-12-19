@@ -4,6 +4,8 @@ function $translateRect : Array int (Array int $arr, int $x, int $y) {
 	Array int $temp;
 	int $i;
 
+	$temp : new Array int;
+
 	for ($i:0; $i<8; $i+:2){
 		$temp[$i] : $arr[$i] + $x;
 		$temp[$i+1] : $arr[$i+1] + $y;
@@ -20,6 +22,7 @@ function $generate : Array Brick () {
 
 	$br: new Array Brick;
 
+	$b : new Array int;
 	$c : new Array int;
 	$c[0] : 100;
 	$c[1] : 100;
