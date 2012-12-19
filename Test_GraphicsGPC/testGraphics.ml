@@ -68,6 +68,7 @@ let trans_allVertices_abs_y aby vlist =
         trans_abs_y distant vlist;
 in
 
+(* Given the list of vertices *)
 let rec find_max_y current = function
     []           -> current
     | px::py::tl -> if (py > current) then (find_max_y py tl) else (find_max_y current tl); in
@@ -75,6 +76,15 @@ let rec find_max_y current = function
 let rec find_min_y current = function
     []           -> current
     | px::py::tl -> if (py < current) then (find_min_y py tl) else (find_min_y current tl); in
+
+let rec find_max_x current = function
+    []           -> current
+    | px::py::tl -> if (px > current) then (find_max_x px tl) else (find_max_x current tl); in
+
+let rec find_min_x current = function
+    []           -> current
+    | px::py::tl -> if (px < current) then (find_min_x px tl) else (find_min_x current tl); in
+
 
 (*(* Draw the player! *)
 let draw_player vlist color =
@@ -169,8 +179,6 @@ let t_key s c =
   let max_y = find_max_y 0 s.playerData.player_vertices 
   and min_y = find_min_y s.winHeight s.playerData.player_vertices in
   let objectheight = (max_y - (List.nth s.playerData.player_vertices 1)) in
-  
-    print_endline("objHeight: " ^ string_of_int objectheight);
 
     (match c with
       ' '   -> if max_y < s.winHeight then 
@@ -240,60 +248,56 @@ in
 let t_except s ex = ();
 in
 
-let t_playerCollided s () = false in (*
+let t_playerCollided s () =
 
   (* Get blockType block and return a GPC polygon *)
-  let makeGPCPolygon block =
-   let makeVertexArray = function
+  let makeGPCPolygon vlist =
+   let rec makeVertexArray = function
       []           -> [||]
-      | px::py::tl -> Array.append [|{Clip.x = px; Clip.y = py}|] tl in
-
-        Clip.make_gpcpolygon [|false|] (makeVertexArray block.block_vertices) in
+      | px::py::tl -> Array.append [|{Clip.x = (float_of_int px); Clip.y = (float_of_int py)}|] (makeVertexArray tl) in
+        Clip.make_gpcpolygon [|false|] [|(makeVertexArray vlist)|] in
 
   let checkCollision block =
-    let result = Clip.gpcml_clippolygon 
-                    Clip.Intersection 
-                    (makeGPCPolygon s.player) 
-                    block in
-      let isOverlapped = Clip.gpcml_isOverlapped result in
+(*
+    let block_min_x = find_min_x s.winWidth block.block_vertices
+    and block_max_x = find_max_x 0 block.block_vertices
+    and player_min_x = find_min_x s.winWidth s.playerData.player_vertices
+    and player_max_x = find_max_x 0 s.playerData.player_vertices
 
-  let collisionList = List.map checkCollision
+    and block_min_y = find_min_y s.winHeight block.block_vertices
+    and block_max_y = find_max_y 0 block.block_vertices
+    and player_min_y = find_min_y s.winHeight s.playerData.player_vertices
+    and player_max_y = find_max_y 0 s.playerData.player_vertices in
 
-
-  s.blocks
-
-
-  let check block =
-    let makeGPCPolygon a b = 
-    let object1 = 
-  let result list = List.fold_left (fun a b -> a || b) false list in
-    let collisionList = List.map check s.blockData in
-      (*print_endline (string_of_bool (result collisionList));*)
-      result collisionList;
-in
-
-(* Test for camlgpc. Create a rectangle and triangle and find their intersection (the region where they both exist). *)
-let rectangle =
-  Clip.gpc_polygon_of_box 0. 1. 0. 1.
-
-let triangle =
-  Clip.make_gpcpolygon
-    [|false|]
-      [|[|{Clip.x = 0.; Clip.y = 0.};
-          {Clip.x = 0.5; Clip.y = 1.5};
-          {Clip.x = 1.0; Clip.y = 0.}|]|]
-
-
-let result =
-  Clip.gpcml_clippolygon Clip.Intersection rectangle triangle
-
-let _ =
-  print_endline( string_of_int (Clip.gpcml_isOverlapped result));
-  Clip.gpcml_printpolygon result
-
+      if (player_max_x > block_min_x && player_min_x < block_min_x) then
+        let _result = Clip.gpcml_clippolygon 
+                      Clip.Intersection 
+                      (makeGPCPolygon s.playerData.player_vertices) 
+                      (makeGPCPolygon block.block_vertices) in
+        (Clip.gpcml_isOverlapped _result)
+      else 
+        (if (((player_max_y > block_min_y) && (player_min_y < block_min_y)) || 
+            ((block_max_y > player_min_y) && (block_min_y < player_min_y))) then
+        let _result = Clip.gpcml_clippolygon 
+                      Clip.Intersection 
+                      (makeGPCPolygon s.playerData.player_vertices) 
+                      (makeGPCPolygon block.block_vertices) in
+        (Clip.gpcml_isOverlapped _result))
+      in
 *)
+      let _result = Clip.gpcml_clippolygon 
+                      Clip.Intersection 
+                      (makeGPCPolygon s.playerData.player_vertices) 
+                      (makeGPCPolygon block.block_vertices) 
+                    in
+                      (Clip.gpcml_isOverlapped _result)
+      in
 
-
+        let result list = List.fold_left (fun a b -> a || b) false list in
+          let collisionList = List.map checkCollision s.blockData in
+            (*print_endline (string_of_bool (result collisionList));*)
+            result collisionList;
+in
 
 (*let i = ref 0; in*)
 
@@ -337,7 +341,44 @@ let block3 = { block_vertices=
                 400; 50];
                block_color=(color_from_rgb 20 120 20) }; in
 
-let blocks = [block1; block2; block3];
+let block4 = { block_vertices=
+                [800; 0;
+                850; 0;
+                850; 50;
+                800; 50];
+               block_color=(color_from_rgb 20 120 20) }; in
+
+let block5 = { block_vertices=
+                [800; 40;
+                850; 40;
+                850; 70;
+                800; 70];
+               block_color=(color_from_rgb 20 120 20) }; in
+
+let block6 = { block_vertices=
+                [700; 200;
+                750; 200;
+                750; 250;
+                700; 250];
+               block_color=(color_from_rgb 20 120 20) }; in
+
+let block7 = { block_vertices=
+                [1000; 40;
+                1050; 40;
+                1050; 70;
+                1000; 70];
+               block_color=(color_from_rgb 20 120 20) }; in
+
+let block8 = { block_vertices=
+                [1100; 200;
+                1150; 200;
+                1150; 250;
+                1100; 250];
+               block_color=(color_from_rgb 20 120 20) }; in
+
+
+
+let blocks = [block1; block2; block3; block4; block5; block6; block7; block8];
 in
 
 let player = { player_vertices=

@@ -3,7 +3,7 @@
 # and dllcamlpdf_stubs.so, libcamlpdf_stubs.a or similar 
 
 # OCaml and C source and interface files. Order matters.
-SOURCES = gpc.h gpc.c gpcml.c clip.ml clip.mli test.ml
+SOURCES = gpc.h gpc.c gpcml.c clip.ml clip.mli
 
 RESULT = camlgpc
 

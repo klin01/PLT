@@ -16,7 +16,7 @@ type gpc_polygon = int * int array * gpc_contour array
 val nullpoly : gpc_polygon
 
 (** Return true (1) if the result is overlapping **)
-val gpcml_isOverlapped : gpc_polygon -> int
+val gpcml_isOverlapped : gpc_polygon -> bool
 
 (** Debug printing of a polygon. *)
 val gpcml_printpolygon : gpc_polygon -> unit

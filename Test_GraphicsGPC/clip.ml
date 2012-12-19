@@ -63,7 +63,7 @@ let array_iter2 f a b =
     raise (Invalid_argument "Utility.array_iter2")
 
 let gpcml_isOverlapped (num_contours, holes, contours) =
-  if (num_contours > 0) then 1 else 0
+  if (num_contours > 0) then true else false
 
 let gpcml_printpolygon (num_contours, holes, contours) =
   Printf.printf "Contours: %i\n" num_contours;
