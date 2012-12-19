@@ -771,6 +771,27 @@ let execute_prog prog =
                   ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
                 ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ; *)
       
+    let draw_polygon vlist color =
+      Graphics.set_color color;
+      let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
+        (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );*)
+        Graphics.moveto x0 y0;
+        for i = 1 to ((List.length vlist) / 2) - 1 do
+          let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
+          (*print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y) )*)
+        done;
+        Graphics.lineto x0 y0;
+        (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
+        print_endline("");*)
+
+      let rec buildTupleArray = function
+        [] -> []
+        | px::py::tl -> (px,py)::(buildTupleArray tl)  
+      in
+      Graphics.fill_poly (Array.of_list (buildTupleArray vlist));
+    in
+
+
         let rec make_coord_list n = 
           if (scope = -1) then (*LOCAL*)
             (match stack.(fp+n) with
@@ -784,8 +805,10 @@ let execute_prog prog =
             | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
           else [] in
         let coords = make_coord_list (addr-1) in  
-        print_endline (String.concat " " (List.map string_of_int coords));
+        draw_polygon coords color;
 
+
+        Thread.join(Thread.create(Thread.delay)(120.0 /. 24.0));
 
        exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
@@ -909,7 +932,7 @@ let execute_prog prog =
   | OpenWin -> (* Opens graphical display *) 
       Graphics.open_graph ""; (* Thread.join(Thread.create(Thread.delay)(240.0 /. 24.0));*) exec fp (sp) (pc+1)
   | CloseWin -> (* Closes graphical display *)
-      Graphics.clear_graph (); exec fp (sp) (pc+1)
+      (*Graphics.clear_graph ();*) exec fp (sp) (pc+1)
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)
         print_endline ("checking collision");
         stack.(sp) <- 1; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)

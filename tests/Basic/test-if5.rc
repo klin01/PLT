@@ -1,0 +1,9 @@
+function $main : void ()
+{
+  if (false){
+  	$printint(42);
+  } else if (true) {
+  	$printint(8);
+  } else
+  	$printint(17); 
+}
