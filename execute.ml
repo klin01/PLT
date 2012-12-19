@@ -837,6 +837,7 @@ let execute_prog prog =
   | Jsr(-5) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
   | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
+        print_endline ("Call generator") ;
         let i = stack.(sp-7) in
         stack.(sp)   <- pc + 1 ; exec fp (sp+1) i
   | Jsr(-7) -> (* Push function to push object on top of stack into array *)
@@ -958,7 +959,6 @@ let execute_prog prog =
       (*Graphics.clear_graph ();*) exec fp (sp) (pc+1)
   | CheckCollision -> (* Put a litint 1 or 0 on top of stack depending on whether there is a collision of player and bricks *)
         print_endline ("checking collision");
-
         stack.(sp) <- 1; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
         exec fp sp (pc+1)
