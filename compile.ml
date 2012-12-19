@@ -131,7 +131,7 @@ let rec enumInitCommands stride n isLocal = function
       | "Brick" ->
         (Init (1, (n + 1), isLocal)) :: (* hd.varname ^ ".$y" *)
         (Init (1, (n + 3), isLocal)) :: (* hd.varname ^ ".$x" *)
-        (Init (1, (n + 5), isLocal)) :: (* hd.varname ^ ".$vertices" *)
+        (Init (-1, (n + 5), isLocal)) :: (* hd.varname ^ ".$vertices" *)
         (Init (1, (n + 7), isLocal)) :: (* hd.varname ^ ".$colorB" *)
         (Init (1, (n + 9), isLocal)) :: (* hd.varname ^ ".$colorG" *)
         (Init (1, (n + 11), isLocal)) :: (* hd.varname ^ ".$colorR" *)
@@ -140,7 +140,7 @@ let rec enumInitCommands stride n isLocal = function
           (* Brick size : 3 * 2 int (color), 1 * 2int for vertex array, 2 * 2 for x and y, 1 int for type (3) = 13 *) 
       | "Player" -> 
         (Init (1, (n + 1), isLocal)) :: (* hd.varname ^ ".$y" *)
-        (Init (1, (n + 3), isLocal)) :: (* hd.varname ^ ".$vertices" *)
+        (Init (-1, (n + 3), isLocal)) :: (* hd.varname ^ ".$vertices" *)
         (Init (1, (n + 5), isLocal)) :: (* hd.varname ^ ".$colorB" *)
         (Init (1, (n + 7), isLocal)) :: (* hd.varname ^ ".$colorG" *)
         (Init (1, (n + 9), isLocal)) :: (* hd.varname ^ ".$colorR" *)
@@ -148,7 +148,7 @@ let rec enumInitCommands stride n isLocal = function
         enumInitCommands stride (n+stride * 11) isLocal tl 
           (* Player size :  3 * 2 int (color), 1 * 2 int for vertex array, 1 * 2 int (y), 1 for type (4) = 11 *)
       | "Map" ->    
-        (Init (1, (n + 1), isLocal)) :: (* hd.varname ^ ".$generator" *)
+        (Init (-1, (n + 1), isLocal)) :: (* hd.varname ^ ".$generator" *)
         (Init (1, (n + 3), isLocal)) :: (* hd.varname ^ ".$height" *)
         (Init (1, (n + 5), isLocal)) :: (* hd.varname ^ ".$width" *)
         (Init (5, (n + 6), isLocal)) :: 
@@ -181,7 +181,7 @@ let rec enumInitCommands stride n isLocal = function
       | "Brick" ->  
         (Init (1, (n - 11), isLocal)) :: (* hd.varname ^ ".$y" *)
         (Init (1, (n - 9), isLocal)) :: (* hd.varname ^ ".$x" *)
-        (Init (1, (n - 7), isLocal)) :: (* hd.varname ^ ".$vertices" *)
+        (Init (-1, (n - 7), isLocal)) :: (* hd.varname ^ ".$vertices" *)
         (Init (1, (n - 5), isLocal)) :: (* hd.varname ^ ".$colorB" *)
         (Init (1, (n - 3), isLocal)) :: (* hd.varname ^ ".$colorG" *)
         (Init (1, (n - 1), isLocal)) :: (* hd.varname ^ ".$colorR" *)
@@ -189,14 +189,14 @@ let rec enumInitCommands stride n isLocal = function
         enumInitCommands stride (n+stride * 13) isLocal tl 
       | "Player" -> 
         (Init (1, (n - 9), isLocal)) :: (* hd.varname ^ ".$y" *)
-        (Init (1, (n - 7), isLocal)) :: (* hd.varname ^ ".$x" *)
+        (Init (-1, (n - 7), isLocal)) :: (* hd.varname ^ ".$vertices" *)
         (Init (1, (n - 5), isLocal)) :: (* hd.varname ^ ".$colorB" *)
         (Init (1, (n - 3), isLocal)) :: (* hd.varname ^ ".$colorG" *)
         (Init (1, (n - 1), isLocal)) :: (* hd.varname ^ ".$colorR" *)
         (Init (5, (n), isLocal)) :: 
         enumInitCommands stride (n+stride * 11) isLocal tl 
       | "Map" ->    
-        (Init (1, (n - 5), isLocal)) :: (* hd.varname ^ ".$generator" *)
+        (Init (-1, (n - 5), isLocal)) :: (* hd.varname ^ ".$generator" *)
         (Init (1, (n - 3), isLocal)) :: (* hd.varname ^ ".$height" *)
         (Init (1, (n - 1), isLocal)) :: (* hd.varname ^ ".$width" *)
         (Init (5, (n), isLocal)) :: 
@@ -418,6 +418,10 @@ let translate (globals, functions) =
                                                        with Not_found -> try[Litint (StringMap.find array_name env.global_index)] @ [Stra]
                                                        with Not_found -> raise (Failure ("Attempt to push onto undeclared array " ^ array_name ^ ".")))
                                                     )
+           else
+           if (fname = "$GenerateRandomInt") then
+              if (List.length actuals) <> 1 then raise(Failure("You must specify a single integer argument for the function $GenerateRandomInt.")) else
+              expr (List.hd actuals) @ [Jsr (-9)]
            else
            (List.concat (List.map expr (List.rev actuals))) @
            (try [Jsr (StringMap.find fname env.function_index)]   

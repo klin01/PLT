@@ -1,11 +1,16 @@
 Array string $global;
 int $x;
+Array int $bricks;
 
 function $main: void() {
 	Array int $local;
+	Brick $b;
+	Player $y;
 
 	//$local : new Array int;
-	$x : $GetCurrentScore();
+	$b : new Brick(0, 0, 0, $bricks, 1, 2);
+	$b.$vertices : $bricks;
+	$x : $GenerateRandomInt(100);
 	$printint($x);
 	//$Push($global, 0);
 	/*$Push($global, 5);

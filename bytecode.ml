@@ -42,19 +42,19 @@ let string_of_stmt = function
     Litint(i) -> "Litint " ^ string_of_int i
   | Litstr(i) -> "Litstr " ^ i
   | Drp -> "Drp"
-  | Bin(Ast.Add) -> "Add"
-  | Bin(Ast.Sub) -> "Sub"
-  | Bin(Ast.Mult) -> "Mul"
-  | Bin(Ast.Div) -> "Div"
-  | Bin(Ast.Mod) -> "Mod"
-  | Bin(Ast.Equal) -> "Eql"
-  | Bin(Ast.Neq) -> "Neq"
-  | Bin(Ast.Less) -> "Lt"
-  | Bin(Ast.Leq) -> "Leq"
-  | Bin(Ast.Greater) -> "Gt"
-  | Bin(Ast.Geq) -> "Geq"
-  | Bin(Ast.And) -> "And"
-  | Bin(Ast.Or) -> "Or"
+  | Bin(Ast.Add) -> "Bin Add"
+  | Bin(Ast.Sub) -> "Bin Sub"
+  | Bin(Ast.Mult) -> "Bin Mul"
+  | Bin(Ast.Div) -> "Bin Div"
+  | Bin(Ast.Mod) -> "Bin Mod"
+  | Bin(Ast.Equal) -> "Bin Eql"
+  | Bin(Ast.Neq) -> "Bin Neq"
+  | Bin(Ast.Less) -> "Bin Lt"
+  | Bin(Ast.Leq) -> "Bin Leq"
+  | Bin(Ast.Greater) -> "Bin Gt"
+  | Bin(Ast.Geq) -> "Bin Geq"
+  | Bin(Ast.And) -> "Bin And"
+  | Bin(Ast.Or) -> "Bin Or"
   | Lod(i) -> "Lod " ^ string_of_int i
   | Str(i) -> "Str " ^ string_of_int i
   | Lfp(i) -> "Lfp " ^ string_of_int i

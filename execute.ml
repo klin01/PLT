@@ -42,7 +42,8 @@ let getNextFreeIndex stack globals sp isLocal =
 (* Execute the program *)
 let execute_prog prog =
   let stack = Array.make 32768 0
-  and globals = Array.make prog.globals_size 0 
+  and globals = Array.make prog.globals_size 0
+  and random = Random.self_init ()
   and user_score = 2 in
   and blocks1 = ref [||]
   and blocks2 = ref [||]
@@ -77,8 +78,8 @@ let execute_prog prog =
     (* TODO: Are we putting type after the data onto the stack? *)
   | Drp ->
     let var_type_id = stack.(sp-1) in
-     
-      (match var_type_id with
+      ( print_endline (string_of_int pc);
+        match var_type_id with
           -1 -> exec fp (sp-2) (pc+1)
         | 1 -> exec fp (sp-2) (pc+1)
         | 2 -> exec fp (sp-40) (pc+1)
@@ -90,7 +91,7 @@ let execute_prog prog =
         | 8 -> exec fp (sp-array_def_size*13-1) (pc+1)
         | 9 -> exec fp (sp-array_def_size*11-1) (pc+1)
         | 10 -> exec fp (sp-array_def_size*7-1) (pc+1)
-        | _ -> raise(Failure("Unmatched type in Drp!!" ^ string_of_int var_type_id)))
+        | _ -> raise(Failure("Unmatched type in Drp. Attempt to drop type " ^ string_of_int var_type_id)))
       
   | Bin op -> 
       let op1 = stack.(sp-4) and op2 = stack.(sp-2) in     
@@ -101,7 +102,7 @@ let execute_prog prog =
       | Mult    -> op1 * op2
       | Div     -> op1 / op2
       | Mod     -> op1 mod op2
-      | Equal   -> boolean (op1 =  op2)
+      | Equal   -> boolean (op1 = op2)
       | Neq     -> boolean (op1 != op2)
       | Less    -> boolean (op1 <  op2)
       | Leq     -> boolean (op1 <= op2)
@@ -351,17 +352,18 @@ let execute_prog prog =
           raise(Failure("Attempt to access invalid address.")) 
         else stack.(sp-2))
       else i) in
-      let var_type_id = stack.(fp+i) in
+      let var_type_id = stack.(fp+var_address) in
       (
           match var_type_id with
           
             -1 -> (* negative int *)    
-              stack.(sp) <- stack.(fp+i-1); (* value *)
-              stack.(sp+1) <- stack.(fp+i); (* type *)
+              stack.(sp) <- stack.(fp+var_address-1); (* value *)
+              stack.(sp+1) <- stack.(fp+var_address); (* type *)
               exec fp (sp+2) (pc+1)
           | 1 -> (* int *)
-              stack.(sp) <- stack.(fp+i-1); (* value *)
-              stack.(sp+1) <- stack.(fp+i); (* type *)
+              print_endline "here";
+              stack.(sp) <- stack.(fp+var_address-1); (* value *)
+              stack.(sp+1) <- stack.(fp+var_address); (* type *)
               exec fp (sp+2) (pc+1)
           | 2 -> (* string *)
               for j=0 to 39 do
@@ -376,7 +378,6 @@ let execute_prog prog =
           | 4 -> (* Player *)
               for j=0 to 10 do
                 stack.(sp+j) <- stack.(fp+var_address-10+j);
-                print_endline (string_of_int j ^ " " ^ string_of_int stack.(sp+j));
               done;
               exec fp (sp+11) (pc+1)
           | 5 -> (* Map *)
@@ -413,10 +414,10 @@ let execute_prog prog =
               raise(Failure("Attempt to load uninitialized local variable."))  
           | _ -> raise(Failure("Type error: Attempt to load variable of unknown type.")))
       
-  | Sfp i   -> 
-      let localvartypeid = stack.(sp-i)
+  | Sfp i   ->
+      let localvartypeid = stack.(fp+i)
       and obj_id = stack.(sp-1) in
-      if (obj_id <> localvartypeid) then raise(Failure("Attempt to store mismatched variable type in local variable.")) else
+      if (obj_id <> localvartypeid) then (print_endline ((string_of_int localvartypeid) ^ ":" ^ (string_of_int obj_id));raise(Failure("Attempt to store mismatched variable type in local variable."))) else
       ( 
         match obj_id with
           -1 -> (* int *)
@@ -790,7 +791,8 @@ let execute_prog prog =
 
       let rec buildTupleArray = function
         [] -> []
-        | px::py::tl -> (px,py)::(buildTupleArray tl)  
+        | px::py::tl -> (px,py)::(buildTupleArray tl)
+        | _ :: [] -> raise(Failure("The vertices array provided does not contain a complete set of x,y coordinates.")) 
       in
       Graphics.fill_poly (Array.of_list (buildTupleArray vlist));
     in
@@ -852,6 +854,12 @@ let execute_prog prog =
           ) 
   | Jsr(-8) -> (* GetCurrentScore function to put current score on stack *)
       stack.(sp) <- user_score; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
+  | Jsr(-9) -> (* GenerateRandomInt function to generate a random integer and put it on top of stack *)
+      let seedtype = stack.(sp-1)
+      and seed = stack.(sp-2) in
+      if (seedtype <> 1) then raise(Failure("Type error: The function $GenerateRandomInt requires an integer parameter.")) else
+      let generated = (Random.int seed) in
+      stack.(sp) <- generated; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
   | Jsr i   -> stack.(sp)   <- pc + 1       ; exec fp (sp+1) i
   | Ent i   -> stack.(sp)   <- fp           ; exec sp (sp+i+1) (pc+1)
   | Rts i   -> 
@@ -942,7 +950,7 @@ let execute_prog prog =
       if (k <> 1) then
         (globals.(j) <- i; exec fp sp (pc+1))
       else
-        (stack.(sp + j) <- i; exec fp sp (pc+1))
+        (stack.(fp+j) <- i; exec fp sp (pc+1))
   (* Lodf and Strf *)
   | OpenWin -> (* Opens graphical display *) 
       Graphics.open_graph ""; Thread.join(Thread.create(Thread.delay)(240.0 /. 240.0)); exec fp (sp) (pc+1)
@@ -955,7 +963,29 @@ let execute_prog prog =
   | CheckUserInput -> (* Change player on top of stack according to keyboard input *)
         exec fp sp (pc+1)
   | DrawPlayer -> (* Draws the player on top of the stack *)
-        ()
+      let scope = stack.(sp-8)
+      and addr = stack.(sp-9) in
+
+      print_endline (string_of_int scope ^ " " ^ string_of_int addr);
+
+      print_endline ("draw " ^ string_of_int stack.(sp-1) ^ " " ^ string_of_int stack.(sp-2) ^ " " ^ string_of_int stack.(sp-3)
+                  ^ " " ^ string_of_int stack.(sp-4) ^ " " ^ string_of_int stack.(sp-5)
+                  ^ " " ^ string_of_int stack.(sp-6) ^ " " ^ string_of_int stack.(sp-7)
+                ^ " " ^ string_of_int stack.(sp-8) ^ " " ^ string_of_int stack.(sp-9)) ;
+      if (scope = -1) then (*LOCAL*)
+        let rec make_coord_list n = 
+          (match stack.(fp+n) with
+            0 -> []
+          | 1 -> 1 :: make_coord_list (n-2)
+          | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(fp+n))))
+        in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
+      else if (scope = 1) then (*GLOBAL*)
+        let rec make_coord_list n = 
+          (match globals.(n) with
+            0 -> []
+          | 1 -> 1 :: make_coord_list (n-2)
+          | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
+      in print_endline (String.concat " " (List.map string_of_int (make_coord_list addr)));
   | PrintScore -> (* Prints the user's current score *)
         ()
   | Nt ->
