@@ -13,12 +13,15 @@ exception End;;
 type blockType = {
   mutable block_vertices:int list;
   mutable block_color:int;
+  mutable block_translate_x:int;
+  mutable block_translate_y:int;
 };;
 
 type playerType = {
   mutable player_vertices:int list;
 
   mutable player_color:int;
+  mutable player_translate_y:int;
 };;
 
 type state = {
@@ -201,7 +204,7 @@ let draw_string x y str =
   Graphics.draw_string str;;
 
 let blocks1 = [];;
-let player = {player_vertices = []; player_color = 0};;
+let player = {player_vertices = []; player_color = 0; player_translate_y = 0};;
 let gameState = {winWidth=(-1); winHeight=(-1); 
                   winBgColor=color_from_rgb 200 200 200;
                   blockData=blocks1;
@@ -720,6 +723,7 @@ let execute_prog prog =
       let scope = -1
       and addr = (sp-9) 
       and color = color_from_rgb stack.(sp-3) stack.(sp-5) stack.(sp-7)
+      and trans_y = stack.(sp-210)
       in
         let rec make_coord_list n = 
           if (scope = -1) then (*LOCAL*)
@@ -734,9 +738,9 @@ let execute_prog prog =
             | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
           else [] in
         
-        let player = {player_vertices= make_coord_list (addr-1);player_color = color} in
-        (* Debugging for loading player from stack *)
-        (* print_endline (String.concat " " (List.map string_of_int player.player_vertices)); *)
+          (*print_endline ("translate_y: " ^ (string_of_int stack.(sp-210)) ^ " " ^ (string_of_int trans_y));*)
+
+        let player = {player_vertices= make_coord_list (addr-1);player_color = color; player_translate_y = trans_y} in
         gameState.playerData <- player;
         exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
@@ -752,13 +756,11 @@ let t_init s () =
   Graphics.set_color s.winBgColor;
   Graphics.fill_rect 0 0 s.winWidth s.winHeight;
   (*Graphics.set_color s.player_color;*)
+  s.playerData.player_vertices <- (trans_allVertices_y s.playerData.player_translate_y s.playerData.player_vertices);
   draw_polygon s.playerData.player_vertices s.playerData.player_color;
-  (*Graphics.set_color s.block1_color;*)
-  
-  (* Debugging for graphics
-  print_endline(string_of_int 0);
-  print_endline("size: " ^ string_of_int (List.length s.blockData));
-  List.iter (fun block -> (print_endline (printList block.block_vertices))) s.blockData; *)
+
+
+  List.iter (fun block -> (block.block_vertices <- (trans_allVertices_y block.block_translate_y block.block_vertices))) s.blockData;
 
   List.iter (fun block -> (draw_polygon block.block_vertices
                                           block.block_color)) s.blockData;
@@ -797,6 +799,7 @@ let t_key s c =
                else
                   s.playerData.player_vertices <- 
                   (trans_allVertices_abs_y (s.winHeight - objectheight) s.playerData.player_vertices)
+      |'p'   -> Thread.join(Thread.create(Thread.delay)(5.0));
       | _     -> ());
 in
 
@@ -862,7 +865,7 @@ let t_updateFrame s () =
           ((findMaxAmongAll 0 s.blockData) - (findMinAmongAll 100000 s.blockData))); in
 
     List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x find_wrap_length block.block_vertices))) s.blockData;*)
-    List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x (s.winWidth+s.winWidth) block.block_vertices))) s.blockData;
+    List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x (s.winWidth * 2) block.block_vertices))) s.blockData;
 
   (* End wrap map *)
 
@@ -870,6 +873,7 @@ let t_updateFrame s () =
   draw_string 10 (s.winHeight-20) ("Score: " ^ string_of_int gameState.userscore);
 
   draw_polygon s.playerData.player_vertices s.playerData.player_color;
+
 in
   
 
@@ -1075,13 +1079,13 @@ print_endline("Game End!");
         (stack.(fp+j) <- i; exec fp sp (pc+1))
   | ProcessBlocks -> (*Blocks are on the top of the stack*)
       let rec addToBricks i = 
-
         if (stack.(i-1) = 3) then
           (print_endline ((string_of_int stack.(i-1)) ^ " " ^ (string_of_int stack.(i-3)) ^ " " ^ (string_of_int stack.(i-5)) ^ " " ^ (string_of_int stack.(i-11)) ^ " ");
           let scope = -1
           and r = stack.(i-3)
           and g = stack.(i-5)
           and b = stack.(i-7)
+(*
           and addr = (i-8)  
           and xcoord = stack.(i-210)
           and ycoord = stack.(i-212) in    
@@ -1095,6 +1099,29 @@ print_endline("Game End!");
             else [] in
             (
               {block_vertices= make_coord_list (addr-1) 0; block_color=r*256*256+g*256+b;} :: addToBricks (i-212)
+*)
+          and addr = (i-9)  
+          and xcoord = stack.(i-210)
+          and ycoord = stack.(i-212) in    
+
+          (*print_endline ("translate_x, y: " ^ (string_of_int stack.(i-210)) ^ " " ^ (string_of_int stack.(i-212)));*)
+
+          let rec make_coord_list n = 
+            if (scope = -1) then (*LOCAL*)
+                match stack.(fp+n) with
+                 1 -> (stack.(fp+n-1)+xcoord)::((stack.(fp+n-3)+ycoord):: make_coord_list (n-4))
+                |  _ -> []
+                (*  0 -> []
+                | 1 -> (stack.(fp+n-1)+xcoord)::((stack.(fp+n-3)+ycoord):: make_coord_list (n-4))
+                | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(fp+n))))*)
+            else if (scope = 1) then (*GLOBAL*)
+              (match globals.(n) with
+                0 -> []
+              | 1 -> (globals.(n-1)+xcoord)::((globals.(n-3)+ycoord)::make_coord_list (n-4))
+              | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
+            else [] in
+            (
+              {block_vertices= make_coord_list (addr-1); block_color=r*256*256+g*256+b; block_translate_x=xcoord; block_translate_y=ycoord} :: addToBricks (i-212)
             )
           ) else []
       in 

@@ -13,10 +13,6 @@ function $generateBoxVerts: Array int (int $x, int $y, int $size)
 }
 
 function $generateThis: Array Brick () {
-  
-  Array int $bvert1;
-  Array int $bvert2;
-  Array int $bvert3;
 
   Brick $b1;
   Brick $b2;
@@ -25,19 +21,11 @@ function $generateThis: Array Brick () {
   Array Brick $output;
 
   int $i;
-
-  $bvert1 : new Array int;
-  $bvert2 : new Array int;
-  $bvert3 : new Array int;
   $output : new Array Brick;
 
-  $bvert1 : $generateBoxVerts(200, 100, 50);
-  $bvert2 : $generateBoxVerts(200, 300, 50);
-  $bvert3 : $generateBoxVerts(400, 500, 100);
-
-  $b1 : new Brick(255, 0, 0, $bvert1, 110, 220);
-  $b2 : new Brick(0, 255, 0, $bvert2, 33, 44);
-  $b3 : new Brick(0, 0, 255, $bvert3, 0, 100);
+  $b1 : new Brick(255, 0, 0, $generateBoxVerts(200, 100, 50), 0, 0);
+  $b2 : new Brick(0, 255, 0, $generateBoxVerts(200, 300, 50), 0, 0);
+  $b3 : new Brick(0, 0, 255, $generateBoxVerts(400, 500, 100), 0, 0);
 
   $output[0] : $b1;
   $output[1] : $b2;
@@ -59,7 +47,7 @@ function $main : void () {
   $pvert[4] : 50; $pvert[5] : 30;
 
   $gameMap: new Map(1024, 768, $generateThis);
-  $me : new Player(123, 123, 123, $pvert, 300);
+  $me : new Player(123, 123, 123, $pvert, 30);
 
   $Run($gameMap, $me);
 
