@@ -328,27 +328,26 @@ let translate (globals, functions) =
             if (List.length actualVars) <> 2 then raise(Failure("The function run expects 2 parameters.")) else
             let loadMap = [List.hd actualVars]
             and loadPlayer = [List.nth actualVars 1] in
-            loadMap @ (expr (Call("$CallGenerator", [List.nth actuals 0]))) @ [ProcessBlocks] @ loadPlayer @ (expr (Call("$DrawPlayer", [List.nth actuals 1]))) @ [Jsr (-2)]
+            (expr (Call("$CallGenerator", [List.nth actuals 0]))) @ [ProcessBlocks] @ (expr (Call("$DrawPlayer", [List.nth actuals 1]))) @ [Jsr (-2)]
           else
           if (fname = "$Push") then
-            let actualBytes = (List.concat (List.map expr (List.rev actuals))) in
-            [List.nth (List.tl actualBytes) 0] 
-              @ (match (List.nth (List.tl actualBytes) 0) with
-                    Lod x -> [Litint 0] @ [Litint x]
-                 |  Lfp x -> [Litint 1] @ [Litint x]
-                 |  _ -> raise(Failure("Invalid array specified for Push function."))) 
-              @ [(List.hd actualBytes)] @ [Jsr (-7)] 
-              @ (let array_name = (match actuals with
-                                   hd :: tl -> (match hd with
-                                                    Id(x) -> x                                                                                                            
-                                                  | _ -> raise(Failure("The first argument of $Push must be a reference to an array.")))
-                                 | [] -> raise(Failure("Run must be applied to two arguments."))
-                                ) in
-                (try [Litint (StringMap.find array_name env.local_index)] @ [Sfpa]
-                 with Not_found -> try[Litint (StringMap.find array_name env.global_index)] @ [Stra]
-                 with Not_found -> raise (Failure ("Attempt to push onto undeclared array " ^ array_name ^ ".")))
-              )
-             else
+            if (List.length actuals) <> 2 then raise(Failure("Push requires exactly 2 arguments")) else
+            let actualBytes = (List.map expr (List.rev actuals)) in
+            (List.hd actualBytes) @ (match (List.hd (List.rev (List.hd (List.rev actualBytes)))) with
+                                                      Lod x -> [Litint 0] @ [Litint x]
+                                                   |  Lfp x -> [Litint 1] @ [Litint x]
+                                                   |  _ -> raise(Failure("Invalid array specified for Push function."))) 
+            @ [Jsr (-7)] @ (let array_name = (match actuals with
+                                                                         hd :: tl -> (match hd with
+                                                                                          Id(x) -> x                                                                                                            
+                                                                                        | _ -> raise(Failure("The first argument of $Push must be a reference to an array.")))
+                                                                       | [] -> raise(Failure("Run must be applied to two arguments."))
+                                                                      ) in
+                                                      (try [Litint (StringMap.find array_name env.local_index)] @ [Sfpa]
+                                                       with Not_found -> try[Litint (StringMap.find array_name env.global_index)] @ [Stra]
+                                                       with Not_found -> raise (Failure ("Attempt to push onto undeclared array " ^ array_name ^ ".")))
+                                                    )
+           else
            if (fname = "$GenerateRandomInt") then
               if (List.length actuals) <> 1 then raise(Failure("You must specify a single integer argument for the function $GenerateRandomInt.")) else
               expr (List.hd actuals) @ [Jsr (-9)]

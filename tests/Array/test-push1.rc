@@ -13,7 +13,7 @@ function $main: void() {
 
 	$Push($globalint, 6);
 	$Push($globalint, 7);
-	$Push($globalint, 8)
+	$Push($globalint, 8);
 	$Push($globalstring, "test9");
 	$Push($globalstring, "test10");
 	$Push($globalstring, "test11");
@@ -32,4 +32,5 @@ function $main: void() {
 	$printstring($globalstring[0]);
 	$printstring($globalstring[1]);
 	$printstring($globalstring[2]);
+	
 }

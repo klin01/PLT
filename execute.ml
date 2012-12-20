@@ -238,9 +238,8 @@ let execute_prog prog =
   | Drp ->
     let var_type_id = stack.(sp-1) in
       (
-        match var_type_id with
-          -1 -> exec fp (sp-2) (pc+1)
-        | 1 -> exec fp (sp-2) (pc+1)
+        match var_type_id with 
+          1 -> exec fp (sp-2) (pc+1)
         | 2 -> exec fp (sp-40) (pc+1)
         | 3 -> exec fp (sp-212) (pc+1)
         | 4 -> exec fp (sp-210) (pc+1)
@@ -963,13 +962,15 @@ print_endline("Game End!");
   | Jsr(-5) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
   | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
+        (*(print_endline ((string_of_int stack.(sp-7)) ^ " w h " ^ (string_of_int stack.(sp-5))) );*)
         gameState.winWidth <- stack.(sp-3);
         gameState.winHeight <- stack.(sp-5);
         stack.(sp)   <- pc + 1 ; 
         let i = stack.(sp-7) in 
         exec fp (sp+1) i
   | Jsr(-7) -> (* Push function to push object on top of stack into array *)
-      let varsize = (match (stack.(sp-1)) with
+      let array_address = stack.(sp-2) in 
+      let varsize = (match (stack.(sp-5)) with
                         1 -> 2
                      |  2 -> 40
                      |  3 -> 212
@@ -977,10 +978,10 @@ print_endline("Game End!");
                      |  5 -> 7
                      |  _ -> raise(Failure("Unable to push object of unknown type onto array."))
                     ) in
-        let isLocal = (stack.(sp-4-varsize)) in
-        let nextIndex = (getNextFreeIndex stack globals (if isLocal <> 1 then (stack.(sp-2-varsize)) else (fp+(stack.(sp-2-varsize)))) isLocal) in
+        let isLocal = (stack.(sp-4)) in
+        let nextIndex = (getNextFreeIndex stack globals (if isLocal <> 1 then (array_address) else (fp + array_address)) isLocal) in
           (if nextIndex > 100 then raise(Failure("Unable to push value onto full array.")) else
-            stack.(sp) <- nextIndex; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
+            stack.(sp-4) <- nextIndex; stack.(sp-3) <- 1; exec fp (sp-2) (pc+1)
           ) 
   | Jsr(-8) -> (* GetCurrentScore function to put current score on stack *)
       (*stack.(sp) <- gameState.userscore; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)*)
@@ -990,7 +991,7 @@ print_endline("Game End!");
       and seed = stack.(sp-2) in
       if (seedtype <> 1) then raise(Failure("Type error: The function $GenerateRandomInt requires an integer parameter.")) else
       let generated = (Random.int seed) in
-      stack.(sp) <- generated; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1)
+      stack.(sp-2) <- generated; stack.(sp-1) <- 1; exec fp (sp) (pc+1)
   | Jsr(-10) -> (* ArrayCount function to put number of elements in array on stack *)
         let arraycount = (countArray stack globals sp)
         and arrayType = stack.(sp-1) in
@@ -1168,29 +1169,24 @@ print_endline("Game End!");
       let rec addToBricks i = 
 
         if (stack.(i-1) = 3) then
-          (
+          (print_endline ((string_of_int stack.(i-1)) ^ " " ^ (string_of_int stack.(i-3)) ^ " " ^ (string_of_int stack.(i-5)) ^ " " ^ (string_of_int stack.(i-11)) ^ " ");
           let scope = -1
           and r = stack.(i-3)
           and g = stack.(i-5)
           and b = stack.(i-7)
-          and addr = (i-9)  
-          and xcoord = stack.(i-11)
-          and ycoord = stack.(i-13) in    
-          let rec make_coord_list n = 
-            if (scope = -1) then (*LOCAL*)
+          and addr = (i-8)  
+          and xcoord = stack.(i-210)
+          and ycoord = stack.(i-212) in    
+          let rec make_coord_list n counter = 
+            if (counter <= 100) then (*LOCAL*)
               (
-                match stack.(fp+n) with
+                match stack.(n) with
                   0 -> []
-                | 1 -> (stack.(fp+n-1)+xcoord)::((stack.(fp+n-3)+ycoord):: make_coord_list (n-4))
-                | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(fp+n))))
-            else if (scope = 1) then (*GLOBAL*)
-              (match globals.(n) with
-                0 -> []
-              | 1 -> (globals.(n-1)+xcoord)::((globals.(n-3)+ycoord)::make_coord_list (n-4))
-              | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
+                | 1 -> (stack.(n-1)+xcoord)::((stack.(n-3)+ycoord):: make_coord_list (n-4) (counter+1))
+                | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(n))))
             else [] in
             (
-              {block_vertices= make_coord_list (addr-1); block_color=r*256*256+g*256+b;} :: addToBricks (i-212)
+              {block_vertices= make_coord_list (addr-1) 0; block_color=r*256*256+g*256+b;} :: addToBricks (i-212)
             )
           ) else []
       in 
