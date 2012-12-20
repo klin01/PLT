@@ -90,15 +90,11 @@ let getNextFreeIndex stack globals sp isLocal =
 let draw_polygon vlist color =
   Graphics.set_color color;
   let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
-    (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0));*)
     Graphics.moveto x0 y0;
     for i = 1 to ((List.length vlist) / 2) - 1 do
       let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
-      (*print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y)*)
     done;
     Graphics.lineto x0 y0;
-    (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
-    print_endline("");*)
 
   let rec buildTupleArray = function
     [] -> []
@@ -737,8 +733,6 @@ let execute_prog prog =
             | 1 -> globals.(n-1) :: make_coord_list (n-2)
             | _ -> raise(Failure("cant resolve " ^ string_of_int globals.(n))))
           else [] in
-        
-          (*print_endline ("translate_y: " ^ (string_of_int stack.(sp-210)) ^ " " ^ (string_of_int trans_y));*)
 
         let player = {player_vertices= make_coord_list (addr-1);player_color = color; player_translate_y = trans_y} in
         gameState.playerData <- player;
@@ -845,31 +839,8 @@ let t_updateFrame s () =
 
 
   (* Wrap map *)
-(*  s.reset <- true;
-  let rec wrapAround = function
-      [] -> []
-      | px::py::tl -> if (px > 0) then s.reset <- false; (px)::(py::(wrapAround tl))
-  in
-  List.iter (fun block -> ( block.block_vertices <- (wrapAround block.block_vertices))) s.blockData;
-  if (s.reset = true) then
-    (*let find_wrap_length = (if List.length s.blockData <= 1 then s.winWidth else 
-         let rec findMinAmongAll current = function 
-        []  -> current
-        | hd::tl  -> if (find_min_x hd) < current then (findMinAmongAll (find_min_x hd) tl) else (findMinAmongAll current tl) in
-
-        let rec findMaxAmongAll current = function 
-        []  -> current
-        | hd::tl  -> if (find_max_x hd) > current then (findMaxAmongAll (find_max_x hd) tl) else (findMaxAmongAll current tl) in
-
-        
-          ((findMaxAmongAll 0 s.blockData) - (findMinAmongAll 100000 s.blockData))); in
-
-    List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x find_wrap_length block.block_vertices))) s.blockData;*)
-    List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x (s.winWidth * 2) block.block_vertices))) s.blockData;
-*)
     List.iter (fun block ->
               let block_max_x = (find_max_x 0 block.block_vertices) in
-                (*(print_endline("max x1: " ^ (string_of_int block_max_x) ));*)
                 if (block_max_x = 0) then (
                   ( block.block_vertices <- (trans_allVertices_abs_x (3*s.winWidth/2) block.block_vertices)))) s.blockData;
 
@@ -908,7 +879,6 @@ let t_playerCollided s () =
 
         let result list = List.fold_left (fun a b -> a || b) false list in
           let collisionList = List.map checkCollision s.blockData in
-            (*print_endline (string_of_bool (result collisionList));*)
             result collisionList;
 in
 
@@ -938,8 +908,6 @@ let slate () =
     skel (t_init gameState) (t_end gameState)
          (t_key gameState) (t_updateFrame gameState) 
          (t_except gameState) (t_playerCollided gameState); 
-    (* Debugging for graphics
-    print_endline(string_of_int 7);*)
 in
 
 slate ();
@@ -1086,40 +1054,19 @@ print_endline("Game End!");
   | ProcessBlocks -> (*Blocks are on the top of the stack*)
       let rec addToBricks i = 
         if (stack.(i-1) = 3) then
-          (print_endline ((string_of_int stack.(i-1)) ^ " " ^ (string_of_int stack.(i-3)) ^ " " ^ (string_of_int stack.(i-5)) ^ " " ^ (string_of_int stack.(i-11)) ^ " ");
           let scope = -1
           and r = stack.(i-3)
           and g = stack.(i-5)
           and b = stack.(i-7)
-(*
-          and addr = (i-8)  
-          and xcoord = stack.(i-210)
-          and ycoord = stack.(i-212) in    
-          let rec make_coord_list n counter = 
-            if (counter <= 100) then (*LOCAL*)
-              (
-                match stack.(n) with
-                  0 -> []
-                | 1 -> (stack.(n-1)+xcoord)::((stack.(n-3)+ycoord):: make_coord_list (n-4) (counter+1))
-                | _ -> raise(Failure("Brick vertex type must be int. Invalid type " ^ string_of_int stack.(n))))
-            else [] in
-            (
-              {block_vertices= make_coord_list (addr-1) 0; block_color=r*256*256+g*256+b;} :: addToBricks (i-212)
-*)
           and addr = (i-9)  
           and xcoord = stack.(i-210)
           and ycoord = stack.(i-212) in    
-
-          (*print_endline ("translate_x, y: " ^ (string_of_int stack.(i-210)) ^ " " ^ (string_of_int stack.(i-212)));*)
 
           let rec make_coord_list n = 
             if (scope = -1) then (*LOCAL*)
                 match stack.(fp+n) with
                  1 -> (stack.(fp+n-1)+xcoord)::((stack.(fp+n-3)+ycoord):: make_coord_list (n-4))
                 |  _ -> []
-                (*  0 -> []
-                | 1 -> (stack.(fp+n-1)+xcoord)::((stack.(fp+n-3)+ycoord):: make_coord_list (n-4))
-                | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(fp+n))))*)
             else if (scope = 1) then (*GLOBAL*)
               (match globals.(n) with
                 0 -> []
@@ -1129,7 +1076,7 @@ print_endline("Game End!");
             (
               {block_vertices= make_coord_list (addr-1); block_color=r*256*256+g*256+b; block_translate_x=xcoord; block_translate_y=ycoord} :: addToBricks (i-212)
             )
-          ) else []
+          else []
       in 
       let blocks1 = addToBricks (sp-1) in
       gameState.blockData <- blocks1;

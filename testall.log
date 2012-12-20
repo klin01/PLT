@@ -93,8 +93,7 @@
 ###### Testing test-string
 ./testall.sh: line 68: [1: not found
 ./retrocraft -c < tests/Basic/test-string.rc > tests/Basic/test-string.reference
-Fatal error: exception Parsing.Parse_error
-###### FAILED
+###### SUCCESS
 
 ###### Testing test-var1
 ./testall.sh: line 68: [1: not found
@@ -181,12 +180,6 @@ Fatal error: exception Parsing.Parse_error
 ./retrocraft -c < tests/Array/test-brick8.rc > tests/Array/test-brick8.reference
 ###### SUCCESS
 
-###### Testing test-map
-./testall.sh: line 68: [1: not found
-./retrocraft -c < tests/Array/test-map.rc > tests/Array/test-map.reference
-Fatal error: exception Parsing.Parse_error
-###### FAILED
-
 ###### Testing test-map1
 ./testall.sh: line 68: [1: not found
 ./retrocraft -c < tests/Array/test-map1.rc > tests/Array/test-map1.reference
@@ -196,12 +189,6 @@ Fatal error: exception Parsing.Parse_error
 ./testall.sh: line 68: [1: not found
 ./retrocraft -c < tests/Array/test-map2.rc > tests/Array/test-map2.reference
 ###### SUCCESS
-
-###### Testing test-map3
-./testall.sh: line 68: [1: not found
-./retrocraft -c < tests/Array/test-map3.rc > tests/Array/test-map3.reference
-Fatal error: exception Failure("Undefined function: $DrawPlayer")
-###### FAILED
 
 ###### Testing test-player1
 ./testall.sh: line 68: [1: not found
