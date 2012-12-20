@@ -1,0 +1,3 @@
+Func w array input, return array
+Should print -3 8
+Execution error: Failure("Attempt to store mismatched variable type in local variable.") at PC 43. Check the bytecode output with -b option.

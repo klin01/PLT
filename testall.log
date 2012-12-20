@@ -40,6 +40,11 @@
 ./retrocraft -c < tests/Basic/test-func3.rc > tests/Basic/test-func3.reference
 ###### SUCCESS
 
+###### Testing test-func4
+./testall.sh: line 68: [1: not found
+./retrocraft -c < tests/Basic/test-func4.rc > tests/Basic/test-func4.reference
+###### SUCCESS
+
 ###### Testing test-gcd
 ./testall.sh: line 68: [1: not found
 ./retrocraft -c < tests/Basic/test-gcd.rc > tests/Basic/test-gcd.reference
@@ -88,7 +93,8 @@
 ###### Testing test-string
 ./testall.sh: line 68: [1: not found
 ./retrocraft -c < tests/Basic/test-string.rc > tests/Basic/test-string.reference
-###### SUCCESS
+Fatal error: exception Parsing.Parse_error
+###### FAILED
 
 ###### Testing test-var1
 ./testall.sh: line 68: [1: not found
@@ -178,7 +184,8 @@
 ###### Testing test-map
 ./testall.sh: line 68: [1: not found
 ./retrocraft -c < tests/Array/test-map.rc > tests/Array/test-map.reference
-###### SUCCESS
+Fatal error: exception Parsing.Parse_error
+###### FAILED
 
 ###### Testing test-map1
 ./testall.sh: line 68: [1: not found
@@ -189,6 +196,12 @@
 ./testall.sh: line 68: [1: not found
 ./retrocraft -c < tests/Array/test-map2.rc > tests/Array/test-map2.reference
 ###### SUCCESS
+
+###### Testing test-map3
+./testall.sh: line 68: [1: not found
+./retrocraft -c < tests/Array/test-map3.rc > tests/Array/test-map3.reference
+Fatal error: exception Failure("Undefined function: $DrawPlayer")
+###### FAILED
 
 ###### Testing test-player1
 ./testall.sh: line 68: [1: not found
@@ -218,5 +231,4 @@
 ###### Testing test-push1
 ./testall.sh: line 68: [1: not found
 ./retrocraft -c < tests/Array/test-push1.rc > tests/Array/test-push1.reference
-Fatal error: exception Parsing.Parse_error
-###### FAILED
+###### SUCCESS

@@ -1,6 +1,6 @@
 /* Create global Map object */
 
-function $generate : Array Brick () {
+function $generate : () {
 	Array int $c;
     Array Brick $b;
 	Brick $b1;
@@ -24,7 +24,7 @@ function $generate : Array Brick () {
 	return $b;
 }
 
-function $main : void () {
+function $main : () {
 	Map $myMap;
 	Player $p;
 	Array int $v;

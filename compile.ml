@@ -328,7 +328,7 @@ let translate (globals, functions) =
             if (List.length actualVars) <> 2 then raise(Failure("The function run expects 2 parameters.")) else
             let loadMap = [List.hd actualVars]
             and loadPlayer = [List.nth actualVars 1] in
-            (expr (Call("$CallGenerator", [List.nth actuals 0]))) @ [ProcessBlocks] @ (expr (Call("$DrawPlayer", [List.nth actuals 1]))) @ [Jsr (-2)]
+            (expr (Call("$CallGenerator", [List.nth actuals 0]))) @ [ProcessBlocks] @ (expr (Call("$LoadPlayer", [List.nth actuals 1]))) @ [Jsr (-2)]
           else
           if (fname = "$Push") then
             if (List.length actuals) <> 2 then raise(Failure("Push requires exactly 2 arguments")) else

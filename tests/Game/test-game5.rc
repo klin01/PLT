@@ -6,7 +6,7 @@ This code sample demonstrates the use of nested for loops in generating bricks a
 Array int $vertices;
 Array Brick $b;
 
-function $generate : Array Brick () {
+function $generate : () {
 	int $i; int $j;
 	Brick $b1;
 
@@ -22,11 +22,11 @@ function $generate : Array Brick () {
 	return $b;
 }
 
-function $generateRandomColor : int () {
+function $generateRandomColor : () {
 	return $GenerateRandomInt(255);
 }
 
-function $main : void () {
+function $main : () {
 	Map $myMap;
 	Player $p;
 	Array int $pv;

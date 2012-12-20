@@ -3,19 +3,11 @@
 This code sample demonstrates the use of nested for loops in generating bricks as well as the use of function calling instead of setting variables and using them. It also demonstrates the use of the built in function, $Push which appends an item to the end of an array. */
 
 /* Create global Map object */
-<<<<<<< HEAD
 Array int $vertices;
 Array Brick $b;
 
-function $generate : Array Brick () {
+function $generate : () {
 	int $i; int $j;
-=======
-Array int $c;
-
-function $generate : Array Brick () {
-	Array Brick $b;
-	
->>>>>>> Allowed original translation specified in Brick and Player.
 	Brick $b1;
 
 	for ($i : 0; $i < 20; $i +: 1) {
@@ -30,31 +22,19 @@ function $generate : Array Brick () {
 	return $b;
 }
 
-function $generateRandomColor : int () {
+function $generateRandomColor : () {
 	return $GenerateRandomInt(255);
 }
 
-function $main : void () {
+function $main : () {
 	Map $myMap;
 	Player $p;
 	Array int $pv;
 	int $i;
-
-<<<<<<< HEAD
 	for($i : 0; $i < 5; $i +: 1) {
 		$Push($pv, $GenerateRandomInt(60));
 		$Push($pv, $GenerateRandomInt(60));
 	}
-=======
-	
-
-	$v[0] : 50;
-	$v[1] : 50;
-	$v[2] : 100;
-	$v[3] : 100;
-	$v[4] : 50;
-	$v[5] : 100;
->>>>>>> Allowed original translation specified in Brick and Player.
 
 	$p : new Player($generateRandomColor(), $generateRandomColor(), $generateRandomColor(),$pv,$GenerateRandomInt(700));
 	$myMap : new Map(1000,700,$generate);

@@ -1,6 +1,6 @@
 /* Create basic game with stair like brick obstacles */
 
-function $translateRect : Array int (Array int $arr, int $x, int $y) {
+function $translateRect : (Array int $arr, int $x, int $y) {
 	Array int $temp;
 	int $i;
 
@@ -14,7 +14,7 @@ function $translateRect : Array int (Array int $arr, int $x, int $y) {
 	return $temp;
 }
 
-function $generate : Array Brick () {
+function $generate : () {
 	Array Brick $br;
 	Array int $b;
 	Array int $c;
@@ -41,7 +41,7 @@ function $generate : Array Brick () {
 	return $br;
 }
 
-function $main : void () {
+function $main : () {
 	Map $myMap;
 	Player $p;
 	Array int $v;
