@@ -35,7 +35,6 @@ type func_decl = {
     formals : var_decl list;           (* Function parameters *)
     locals : var_decl list;            (* Function local variables *)
     body : stmt list;                  (* Function body statements *)
-    rettype : string;                  (* Return type *)
 }
 
 type program = var_decl list * func_decl list

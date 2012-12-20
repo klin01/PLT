@@ -24,13 +24,6 @@ type bstmt =
   | Make of int           (* Shift stack pointer by 1 for Player, Map, Brick; Adds vartype_id to first space in arrays *)
   | Init of int * int * int (* Puts vartype_id into address of variable; used for type checking *)
   | Litf of int           (* Knows to load a function address and offset it if necessary *)
-  (*| OpenWin               (* Opens a display window *)
-  | CloseWin              (* Closes the display window *)
-  | StoreWindow           (* Store Width and Height or the window *)
-  | DrawPlayer            (* Draws a player object on top of the stack *)
-  | CheckCollision        (* Checks if the player object has collided with anyone *)
-  | CheckUserInput        (* Checks for user input and modifies player on stack *)*)
-  
   | ProcessBlocks
   | PrintScore            (* Prints the user's current score on the top left *)
   | Hlt                   (* Terminate *)
@@ -75,12 +68,6 @@ let string_of_stmt = function
   | Sfpa -> "Sfpa"
   | Loda -> "Loda"
   | Stra -> "Stra"
-(*| CheckCollision -> "CheckCollision"
-  | CheckUserInput -> "CheckUserInput"
-  | DrawPlayer -> "DrawPlayer"
-  | StoreWindow -> "StoreWindow"
-  | OpenWin -> "OpenWin"
-  | CloseWin -> "CloseWin" *)
   | PrintScore -> "PrintScore"
   | ProcessBlocks -> "ProcessBlocks"
   | Nt -> "Not"

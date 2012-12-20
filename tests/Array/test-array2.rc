@@ -1,5 +1,7 @@
+/* This is a simple test of accessing and setting values to indexes of a global array. */
+
 Array int $myInt;
-function $main : void ()
+function $main : ()
 {
 	int $i;
 

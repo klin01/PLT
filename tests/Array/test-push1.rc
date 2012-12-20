@@ -1,10 +1,12 @@
+/* This tests the ability to push items onto arrays. */
+
 Array string $globalstring;
 Array int $globalint;
 
-function $main: void() {
+function $main: () {
 	Array int $localint;
 	Array string $localstring;
-	
+
 	$Push($localint, 1);
 	$Push($localint, 2);
 	$Push($localstring, "test3");

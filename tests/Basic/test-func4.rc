@@ -1,9 +1,10 @@
-//test-function
+//The test of a simple function call.
 
-function $test : int () {
-	return 5;
+function $test : () {
+	return "test";
 }
 
-function $main : void () {
-	$printint($test());
+function $main : () {
+	$printstring("Expected output: test");
+	$printstring($test());
 }

@@ -1,4 +1,6 @@
-function $main : void ()
+/* This is a simple test of local array indexes and printing them. */
+
+function $main : ()
 {
 	Array int $myInt;
 	int $i;

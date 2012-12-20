@@ -53,12 +53,12 @@ types:
 
 /* Handle functions */
 fdecl:
-   FUNC ID ASSIGN types LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   FUNC ID ASSIGN LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
      { { fname = $2; 
-         formals = $6; 
-         locals = List.rev $9; 
-         body = List.rev $10; 
-         rettype = $4 } }
+         formals = $5; 
+         locals = List.rev $8; 
+         body = List.rev $9
+     } }
 
 formals_opt:
     /* nothing */ { [] }

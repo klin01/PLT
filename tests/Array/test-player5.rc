@@ -1,4 +1,4 @@
-function $retPlayerArray : Array Player (int $total)
+function $retPlayerArray : (int $total)
 {
 	Array Player $retArray;
 	Array int $vertices;
@@ -14,19 +14,21 @@ function $retPlayerArray : Array Player (int $total)
 	$retArray : new Array Player;
 
 
-	for ($i : 0; $i < $total; $i +: 1){
+	for ($i : 0; $i < $total; $i +: 1) {
 		$p1 : new Player (255,255,255, $vertices, 0);
 		$retArray[$i] : $p1;
 	}
+
 	return $retArray;
 }
 
-function $main : void ()
+function $main : ()
 {	
 	Array Player $playerArray;
 	Player $p;
-
-	int $i; int $total;
+	int $i; 
+	int $total;
+	
 	$total : 30;
 
 	$playerArray: $retPlayerArray($total);

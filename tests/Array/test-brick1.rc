@@ -1,7 +1,9 @@
+/* This tests Brick objects and accessing and setting their attributes. */
+
 Brick $b1;
 Array int $vertices;
 
-function $main : void ()
+function $main : ()
 {
 	$vertices : new Array int;
 	$vertices[0] : 567;
