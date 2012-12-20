@@ -41,7 +41,5 @@ function $main : void () {
 	$p : new Player(100,100,100,$v,50);
 	$myMap : new Map(700,500,$generate);
 
-	$generate();
-
 	$Run($myMap, $p);
 }

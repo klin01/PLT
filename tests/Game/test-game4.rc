@@ -1,4 +1,4 @@
-/* Create basic game */
+/* Create basic game with stair like brick obstacles */
 
 function $translateRect : Array int (Array int $arr, int $x, int $y) {
 	Array int $temp;
@@ -23,22 +23,19 @@ function $generate : Array Brick () {
 	$b : new Array int;
 	$br: new Array Brick;
 
-	$b : new Array int;
 	$c : new Array int;
-	$c[0] : 100;
+	$c[0] : 250;
 	$c[1] : 100;
-	$c[2] : 200;
+	$c[2] : 350;
 	$c[3] : 100;
-	$c[4] : 200;
+	$c[4] : 350;
 	$c[5] : 200;
-	$c[6] : 100;
-	$c[7] : 200;
+	$c[6] : 250;
+	$c[7] : 200  ;
 
-	for ($j:0; $j<4; $j+:1){
-		$b : $translateRect($c, $j*100, 0);
+	for ($j:0; $j<5; $j+:1){
+		$b : $translateRect($c, $j*100+100, $j*50);
 		$br[$j] : new Brick (200,150,150,$b,50,50);
-		$b : $translateRect($c, $j*100+75, 200);
-		$br[$j+4] : new Brick (200,100,200,$b,50,50);
 	}
 
 	return $br;
@@ -51,15 +48,15 @@ function $main : void () {
 
 	$v : new Array int;
 
-	$v[6] : 150;
-	$v[7] : 200;
-	$v[2] : 100;
-	$v[3] : 150;
-	$v[4] : 200;
-	$v[5] : 150;
-	$v[0] : 125;
+	$v[0] : 75;
 	$v[1] : 100;
-	$v[8] : 175;
+	$v[2] : 50;
+	$v[3] : 150;
+	$v[4] : 150;
+	$v[5] : 150;
+	$v[6] : 100;
+	$v[7] : 200;
+	$v[8] : 125;
 	$v[9] : 100;
 
 	$p : new Player(200,100,100,$v,50);
