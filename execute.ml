@@ -845,7 +845,7 @@ let t_updateFrame s () =
 
 
   (* Wrap map *)
-  s.reset <- true;
+(*  s.reset <- true;
   let rec wrapAround = function
       [] -> []
       | px::py::tl -> if (px > 0) then s.reset <- false; (px)::(py::(wrapAround tl))
@@ -866,6 +866,12 @@ let t_updateFrame s () =
 
     List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x find_wrap_length block.block_vertices))) s.blockData;*)
     List.iter (fun block -> ( block.block_vertices <- (trans_allVertices_x (s.winWidth * 2) block.block_vertices))) s.blockData;
+*)
+    List.iter (fun block ->
+              let block_max_x = (find_max_x 0 block.block_vertices) in
+                (*(print_endline("max x1: " ^ (string_of_int block_max_x) ));*)
+                if (block_max_x = 0) then (
+                  ( block.block_vertices <- (trans_allVertices_abs_x (3*s.winWidth/2) block.block_vertices)))) s.blockData;
 
   (* End wrap map *)
 
