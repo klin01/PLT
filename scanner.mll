@@ -1,25 +1,26 @@
 { open Parser }
 
 rule token = parse
-[' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
-| "/*" { multicomment lexbuf } (* Double Comments *)
-| "//" { singlecomment lexbuf } (* Single Comments *)
-| '(' { LPAREN } | ')' { RPAREN } (* punctuation *)
+[' ' '\t' '\r' '\n'] { token lexbuf } 		(* Whitespace *)
+| "/*" { multicomment lexbuf } 				(* Double Comments *)
+| "//" { singlecomment lexbuf } 			(* Single Comments *)
+| '(' { LPAREN } | ')' { RPAREN } 			(* Punctuation *)
 | '{' { LBRACE } | '}' { RBRACE }
 | '[' { LBRACK } | ']' { RBRACK }
 | ';' { SEMI } | ',' { COMMA } | '.' { REF }
-| "+:" { SHORTADD } | "-:" { SHORTMINUS }
+| "+:" { SHORTADD } | "-:" { SHORTMINUS }	(* Arithmetic *)
 | "*:" { SHORTTIMES } | "/:" { SHORTDIVIDE }
 | '+' { PLUS } | '-' { MINUS }
 | '*' { TIMES } | '/' { DIVIDE }
 | ':' { ASSIGN } | '=' { EQ }
 | '%' { MOD }
-| "!=" { NEQ } | '<' { LT }
+| "!=" { NEQ } | '<' { LT }					(* Comparison *)
 | "<=" { LEQ } | '>' { GT }
-| ">=" { GEQ } | "if" { IF } (* keywords *)
+| ">=" { GEQ } 				
 | "&&" { AND } | "||" { OR } | '!' { NOT }
-| "else" { ELSE } | "for" { FOR }
-| "while" { WHILE } | "return" { RETURN }
+| "if" { IF } | "else" { ELSE }				(* Keywords & types *) 
+| "for" { FOR } | "while" { WHILE } 
+| "return" { RETURN }
 | "void" { TYPE("void") }
 | "int" { TYPE("int") }
 | "string" { TYPE("string") } 
@@ -28,12 +29,13 @@ rule token = parse
 | "Player" { PLAYER }
 | "Brick" { BRICK }
 | "function" { FUNC }
-| "true" { LITERALINT(1) } | "false" { LITERALINT(0) }
-| ('-')?['0'-'9']+ as lxm { LITERALINT(int_of_string lxm) } (* +/- integers *)
-(*| ['0'-'9']*'.'['0'-'9']+ as lxm { LITERALFLOAT(float_of_string lxm) } (* floats *)*)
-(*| ("'\\''" | '\''[^'\'''\t''\r''\n']'\'') as chr { LITERALCHAR((String.sub chr 1 ((String.length chr) - 2 )).[0]) }*)
-| '"'([^'"'] | '\\''"')*'"' as str { LITERALSTRING(String.sub str 1 ((String.length str) - 2 )) }
 | "new" { NEW }
+| "true" { LITERALINT(1) } | "false" { LITERALINT(0) }
+  	(* +/- integers *)
+| ('-')?['0'-'9']+ as lxm { LITERALINT(int_of_string lxm) }
+	(* Literal strings *)
+| '"'([^'"'] | '\\''"')*'"' as str { LITERALSTRING(String.sub str 1 ((String.length str) - 2 )) }
+	(* Identifiers *)
 | '$'['a'-'z' 'A'-'Z']+['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF } (* End-of-file *)
 | _ as charac { raise (Failure("illegal character " ^ Char.escaped charac)) }

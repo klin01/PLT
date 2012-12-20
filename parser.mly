@@ -5,15 +5,14 @@
 %token EQ NEQ LT LEQ GT GEQ
 %token RETURN IF ELSE FOR WHILE INT
 %token AND OR NOT
-
 %token NEW FUNC ARRAY BRICK MAP PLAYER
 %token <string> TYPE
 %token <int> LITERALINT
 %token <string> LITERALSTRING
-/* Should I define LITERAL for FLOAT, STRING, etc too? */
 %token <string> ID
 %token EOF
 
+/* Define associativity of tokens */
 %nonassoc NOELSE
 %nonassoc ELSE
 %right ASSIGN
@@ -26,19 +25,22 @@
 %left TIMES DIVIDE MOD
 %left REF INVOKE
 
+/* Enters at 'program' */
 %start program
 %type <Ast.program> program
 
 %%
 
+/* Program type defined in the Ast is of the form: 
+   var_decl list * func_decl list 
+   So if you see a vdecl, add to var_decl list
+   If you see a fdecl, add to the func_decl list */
 program:
    /* nothing */ { [], [] }
  | program vdecl { ($2 :: fst $1), snd $1 }
  | program fdecl { fst $1, ($2 :: snd $1) }
 
-/*
-TODO: Allow vdecl_list to mix with body?
-*/
+/* Type declaration must be made separately from initialization */
 types:
    TYPE         { $1 }
  | BRICK        { "Brick" }
@@ -49,6 +51,7 @@ types:
  | ARRAY PLAYER { "ArrayPlayer" }
  | ARRAY MAP    { "ArrayMap" }
 
+/* Handle functions */
 fdecl:
    FUNC ID ASSIGN types LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
      { { fname = $2; 
@@ -68,6 +71,7 @@ formal_list:
 formal_decl:
     types ID         { { vartype= $1; varname= $2; } }
 
+/* Handle variable declarations */
 vdecl_list:
     /* nothing */    { [] }
   | vdecl_list vdecl { $2 :: $1 }
@@ -75,6 +79,7 @@ vdecl_list:
 vdecl:
     types ID SEMI    { { vartype= $1; varname= $2; } } 
 
+/* Handle statements */
 stmt_list:
     /* nothing */    { [] }
   | stmt_list stmt   { $2 :: $1 }
@@ -91,6 +96,7 @@ stmt:
                                   { For($3, $5, $7, $9) }
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
 
+/* Handle expressions */
 expr_opt:
     /* nothing */ { Noexpr }
   | expr          { $1 }
@@ -116,29 +122,31 @@ expr:
   | expr AND expr         { Binop($1, And, $3) }
   | expr OR  expr         { Binop($1, Or,  $3) }
   | NOT expr              { Not($2) }
-  | NEW BRICK LPAREN 
-    expr COMMA expr COMMA expr COMMA expr COMMA expr COMMA expr RPAREN
+  | NEW BRICK LPAREN expr COMMA expr COMMA expr COMMA expr COMMA expr COMMA expr RPAREN
                           /* r, g, b, varray, x, y */
                           { Brick($4, $6, $8, $10, $12, $14) }
   | NEW MAP LPAREN expr COMMA expr COMMA ID RPAREN 
+                          /* width, height, brick generating function */
                           { Map($4, $6, $8) }
   | NEW PLAYER LPAREN expr COMMA expr COMMA expr COMMA expr COMMA expr RPAREN 
+                          /* r, g, b, varray, y */
                           { Player($4, $6, $8, $10, $12) }
   | NEW ARRAY TYPE        { Array($3) }
   | NEW ARRAY BRICK       { Array("Brick") }
   | NEW ARRAY PLAYER      { Array("Player") }
   | NEW ARRAY MAP         { Array("Map") }
-  | ID                                      { Id($1) }
-  | ID REF ID                               { Id($1 ^ "." ^ $3) }
-  | ID ASSIGN expr                          { Assign($1, $3) }
-  | ID REF ID ASSIGN expr                   { Assign(($1 ^ "." ^ $3), $5) } /* Assignment for regular cases and the special case: reference = &obj */
-  | ID LBRACK expr RBRACK                         { AAccess($1, $3) }
-  | ID LBRACK expr RBRACK ASSIGN expr             { AAssign($1, $3, $6) }
-  | ID REF ID LBRACK expr RBRACK                  { AAccess(($1 ^ "." ^ $3), $5) }        /* Array w/in a struct: $brick1.vertices[0] */
-  | ID REF ID LBRACK expr RBRACK ASSIGN expr      { AAssign(($1 ^ "." ^ $3), $5, $8) }
-  | ID LPAREN actuals_opt RPAREN      { Call($1, $3) }
-  | LPAREN expr RPAREN                { $2 }
+  | ID                                        { Id($1) }
+  | ID REF ID                                 { Id($1 ^ "." ^ $3) }
+  | ID ASSIGN expr                            { Assign($1, $3) }
+  | ID REF ID ASSIGN expr                     { Assign(($1 ^ "." ^ $3), $5) }
+  | ID LBRACK expr RBRACK                     { AAccess($1, $3) } /* Handle arrays */
+  | ID LBRACK expr RBRACK ASSIGN expr         { AAssign($1, $3, $6) }
+  | ID REF ID LBRACK expr RBRACK              { AAccess(($1 ^ "." ^ $3), $5) } 
+  | ID REF ID LBRACK expr RBRACK ASSIGN expr  { AAssign(($1 ^ "." ^ $3), $5, $8) }
+  | ID LPAREN actuals_opt RPAREN              { Call($1, $3) }
+  | LPAREN expr RPAREN                        { $2 }
 
+/* Handle actual values passed to functions */
 actuals_opt:
     /* nothing */ { [] }
   | actuals_list  { List.rev $1 }

@@ -1,21 +1,20 @@
 module StringMap = Map.Make(String)
 
 type bstmt =
-    Litint of int         (* Push a int literal *)
+    Litint of int         (* Push an int literal *)
   | Litstr of string      (* Push a string literal *)  
   | Drp                   (* Discard a value *)
-  | Bin of Ast.op         (* Perform arithmetic on top of stack *)
+  | Bin of Ast.op         (* Perform arithmetic on two values at the top of the stack *)
   | Lod of int            (* Fetch global variable *)
   | Str of int            (* Store global variable *)
-  | Loda                  (* Load global array variable *)
-  | Stra                  (* Stores global array variable *)
+  | Loda                  (* Load value from global array.
+                             Expects array index and array address to be on the top of the stack *)
+  | Stra                  (* Stores value to global array *)
   | Lfp of int            (* Load frame pointer relative *)
   | Sfp of int            (* Store frame pointer relative *)
   | Lfpa                  (* This is the start index of this array variable. Index is evaluated and 
                              put on top of stack in an int structure. *)
   | Sfpa                  (* Stores frame pointer of array *)
-  | Lref                  (* Loads a value onto the stack from an address *)
-  | Sref                  (* Saves a value from the top of the stack into an address *)
   | Jsr of int            (* Call function by absolute address *)
   | Ent of int            (* Push FP, FP -> SP, SP += i *)
   | Rts of int            (* Restore FP, SP, consume formals, push result *)
@@ -23,15 +22,16 @@ type bstmt =
   | Bne of int            (* Branch relative if top-of-stack is non-zero *)
   | Bra of int            (* Branch relative *)
   | Make of int           (* Shift stack pointer by 1 for Player, Map, Brick; Adds vartype_id to first space in arrays *)
-  | Init of int * int * int
-  | Litf of int
-  | OpenWin               (* Opens a display window *)
+  | Init of int * int * int (* Puts vartype_id into address of variable; used for type checking *)
+  | Litf of int           (* Knows to load a function address and offset it if necessary *)
+  (*| OpenWin               (* Opens a display window *)
   | CloseWin              (* Closes the display window *)
   | StoreWindow           (* Store Width and Height or the window *)
   | DrawPlayer            (* Draws a player object on top of the stack *)
-  | ProcessBlocks
   | CheckCollision        (* Checks if the player object has collided with anyone *)
-  | CheckUserInput        (* Checks for user input and modifies player on stack *)
+  | CheckUserInput        (* Checks for user input and modifies player on stack *)*)
+  
+  | ProcessBlocks
   | PrintScore            (* Prints the user's current score on the top left *)
   | Hlt                   (* Terminate *)
   | Nt                    (* Negate 1 or 0 on top of stack *)
@@ -75,16 +75,14 @@ let string_of_stmt = function
   | Sfpa -> "Sfpa"
   | Loda -> "Loda"
   | Stra -> "Stra"
-  | Lref -> "Lref"
-  | Sref -> "Sref"
-  | CheckCollision -> "CheckCollision"
+(*| CheckCollision -> "CheckCollision"
   | CheckUserInput -> "CheckUserInput"
   | DrawPlayer -> "DrawPlayer"
-  | PrintScore -> "PrintScore"
   | StoreWindow -> "StoreWindow"
-  | ProcessBlocks -> "ProcessBlocks"
   | OpenWin -> "OpenWin"
-  | CloseWin -> "CloseWin"
+  | CloseWin -> "CloseWin" *)
+  | PrintScore -> "PrintScore"
+  | ProcessBlocks -> "ProcessBlocks"
   | Nt -> "Not"
   | Hlt    -> "Hlt"
 

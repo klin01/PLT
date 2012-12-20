@@ -2,7 +2,6 @@ open Ast
 open Bytecode
 
 let array_def_size = 100
-let a = 1
 
 (* Symbol table: Information about all the names in scope *)
 type env = {
@@ -10,7 +9,6 @@ type env = {
     global_index   : int StringMap.t; (* "Address" for global variables *)
     local_index    : int StringMap.t; (* FP offset for args, locals *)
   }
-
 
 (*
   Variable type map:
@@ -27,16 +25,6 @@ type env = {
   function      : 11
 *)
 
-(*
-  Storage convention for references:
-  Local:
-  -1
-  <address>
-  Global:
-  1
-  <address>
- *)
-
 let string_split s =
   let rec f str lst =
     try
@@ -50,6 +38,8 @@ let string_split s =
     with Not_found -> str :: lst
   in f s [];;
 
+(* Given a list of variable declarations, return a list of tuples of the form:
+    (space in memory, variable name) *)
 (* val enum : int -> 'a list -> (int * 'a) list *)
 let rec enum stride n = function
     [] -> []
@@ -118,6 +108,9 @@ let rec enum stride n = function
       | "ArrayMap" ->    (n, hd.varname) :: enum stride (n+stride * 7 * array_def_size - 1) tl
       | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
 
+
+(* Given a list of variables, generate the byte code which will initialize all
+    the types of those variables (by loading a variable id) *)
 let rec enumInitCommands stride n isLocal = function
     [] -> []
   | hd::tl -> 
@@ -219,11 +212,13 @@ let rec enumInitCommands stride n isLocal = function
         enumInitCommands stride (n+stride * 7 * array_def_size - 1) isLocal tl
       | _ -> raise(Failure ("Undefined type with variable" ^ hd.varname))
 
+(* Enumerate function pointers *)
 (* val enum : int -> 'a list -> (int * 'a) list *)
 let rec enum_func stride n = function
     [] -> []
   | hd::tl -> (n, hd) :: enum_func stride (n+stride) tl
 
+(* Calculate total size of a variable list *)
 let total_varsize a vlist = 
    List.fold_left (fun a b -> a + (match b.vartype with
                     "int" -> 2  
@@ -239,6 +234,7 @@ let total_varsize a vlist =
                   |  _ -> raise(Failure("Error in total_varsize"))
                   )) 0 vlist
 
+(* Given a list of tuples of, create a StringMap for easier look up *)
 (* val string_map_pairs StringMap 'a -> (int * 'a) list -> StringMap 'a *)
 let string_map_pairs map pairs =
   List.fold_left (fun m (i, n) -> StringMap.add n i m) map pairs
@@ -278,6 +274,7 @@ let translate (globals, functions) =
     let env = { env with local_index = string_map_pairs
       StringMap.empty (local_offsets @ formal_offsets) } in
 
+    (* Evaluate items from the AST into bytecode instructions *)
     let rec expr = function
         LiteralInt i -> [Litint i] 
       | LiteralString i -> [Litstr i]
@@ -291,18 +288,14 @@ let translate (globals, functions) =
           @ (expr varray)
           @ expr b @ expr g @ expr r
           @ [Litint 3] @ [Make 3]
-
       | Player (r, g, b, varray, y) ->
           expr y @ (expr varray)
           @ expr b @ expr g @ expr r
           @ [Litint 4] @ [Make 4]
-
       | Map (width, height, generator) ->
-          (*(StringMap.iter (fun a b -> print_endline (string_of_int b)) env.function_index);*)
-          (try [Litf (StringMap.find generator function_indexes)]
-           with Not_found -> raise (Failure ("undeclared function " ^ generator))) 
-          @ expr height @ expr width @ [Litint 5] @ [Make 5]
-
+        (try [Litf (StringMap.find generator function_indexes)]
+         with Not_found -> raise (Failure ("undeclared function " ^ generator))) 
+        @ expr height @ expr width @ [Litint 5] @ [Make 5]
       | Array (array_type) -> (* Push an empty array onto stack with type identifier on top *)
           (match array_type with
                 "int" -> [Make 6]
@@ -323,8 +316,7 @@ let translate (globals, functions) =
           with Not_found -> try [Litint (StringMap.find a env.global_index)] @ [Stra]
           with Not_found -> raise (Failure ("AAssign: undeclared array " ^ a)))
       | Binop (e1, op, e2) -> expr e1 @ expr e2 @ [Bin op]
-      | Not(e) -> 
-        expr e @ [Nt]
+      | Not(e) -> expr e @ [Nt]
       | Assign (s, e) ->
            expr e @
           (try [Sfp (StringMap.find s env.local_index)]
@@ -340,21 +332,23 @@ let translate (globals, functions) =
           else
           if (fname = "$Push") then
             let actualBytes = (List.concat (List.map expr (List.rev actuals))) in
-            [List.nth (List.tl actualBytes) 0] @ (match (List.nth (List.tl actualBytes) 0) with
-                                                      Lod x -> [Litint 0] @ [Litint x]
-                                                   |  Lfp x -> [Litint 1] @ [Litint x]
-                                                   |  _ -> raise(Failure("Invalid array specified for Push function."))) 
-            @ [(List.hd actualBytes)] @ [Jsr (-7)] @ (let array_name = (match actuals with
-                                                                         hd :: tl -> (match hd with
-                                                                                          Id(x) -> x                                                                                                            
-                                                                                        | _ -> raise(Failure("The first argument of $Push must be a reference to an array.")))
-                                                                       | [] -> raise(Failure("Run must be applied to two arguments."))
-                                                                      ) in
-                                                      (try [Litint (StringMap.find array_name env.local_index)] @ [Sfpa]
-                                                       with Not_found -> try[Litint (StringMap.find array_name env.global_index)] @ [Stra]
-                                                       with Not_found -> raise (Failure ("Attempt to push onto undeclared array " ^ array_name ^ ".")))
-                                                    )
-           else
+            [List.nth (List.tl actualBytes) 0] 
+              @ (match (List.nth (List.tl actualBytes) 0) with
+                    Lod x -> [Litint 0] @ [Litint x]
+                 |  Lfp x -> [Litint 1] @ [Litint x]
+                 |  _ -> raise(Failure("Invalid array specified for Push function."))) 
+              @ [(List.hd actualBytes)] @ [Jsr (-7)] 
+              @ (let array_name = (match actuals with
+                                   hd :: tl -> (match hd with
+                                                    Id(x) -> x                                                                                                            
+                                                  | _ -> raise(Failure("The first argument of $Push must be a reference to an array.")))
+                                 | [] -> raise(Failure("Run must be applied to two arguments."))
+                                ) in
+                (try [Litint (StringMap.find array_name env.local_index)] @ [Sfpa]
+                 with Not_found -> try[Litint (StringMap.find array_name env.global_index)] @ [Stra]
+                 with Not_found -> raise (Failure ("Attempt to push onto undeclared array " ^ array_name ^ ".")))
+              )
+             else
            if (fname = "$GenerateRandomInt") then
               if (List.length actuals) <> 1 then raise(Failure("You must specify a single integer argument for the function $GenerateRandomInt.")) else
               expr (List.hd actuals) @ [Jsr (-9)]
@@ -362,7 +356,7 @@ let translate (globals, functions) =
            (
              (List.concat (List.map expr (List.rev actuals))) @
              (try [Jsr (StringMap.find fname env.function_index)]   
-              with Not_found -> raise (Failure ("undefined function " ^ fname)))
+              with Not_found -> raise (Failure ("Undefined function: " ^ fname)))
            )
       | Noexpr -> []
 
