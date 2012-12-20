@@ -1,6 +1,6 @@
 Array int $sum;
 
-function $plusArray : void (Array int $a1, Array int $a2) {
+function $plusArray : (Array int $a1, Array int $a2) {
 	int $i;
 	$sum : new Array int;
 	for ($i : 0; $i < 2; $i+:1) {
@@ -8,7 +8,7 @@ function $plusArray : void (Array int $a1, Array int $a2) {
 	}
 }
 
-function $main : void ()
+function $main : ()
 {
 	Array int $c;
 	Array int $d;

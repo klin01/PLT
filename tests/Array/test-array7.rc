@@ -1,4 +1,4 @@
-function $plusArray : int (Array int $a1, Array int $a2, int $size) {
+function $plusArray : (Array int $a1, Array int $a2, int $size) {
 	int $i;
 	Array int $sum;
 
@@ -10,7 +10,7 @@ function $plusArray : int (Array int $a1, Array int $a2, int $size) {
 	}
 }
 
-function $main : void ()
+function $main : ()
 {
 	Array int $c;
 	Array int $d;
@@ -29,7 +29,7 @@ function $main : void ()
 
 	$result : $plusArray($c,$d, 2);	
 
-$printint( $d[0] );	
+	$printint( $d[0] );	
 
 	$printint( $result[0] );		
 	$printint( $result[1] );		

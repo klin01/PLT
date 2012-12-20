@@ -2,7 +2,7 @@ Array int $vertices;
 Brick $b1;
 Brick $b;
 
-function $retBrickArray : Array Brick ()
+function $retBrickArray : ()
 {
 	Array Brick $retArray;
 	int $i;
@@ -31,7 +31,7 @@ function $retBrickArray : Array Brick ()
 	return $retArray;
 }
 
-function $main : void ()
+function $main : ()
 {	
 	Array Brick $brickArray;
 	int $i; int $total;

@@ -6,7 +6,7 @@ Array int $vertices2;
 Brick $b1;
 Brick $b2;
 
-function $main : void ()
+function $main : ()
 {
 	$vertices : new Array int;
 	$vertices2 : new Array int;

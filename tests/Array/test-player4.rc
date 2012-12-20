@@ -1,6 +1,6 @@
 Array Player $playerArr;
 
-function $printAllPlayers : void ()
+function $printAllPlayers : ()
 {
 	int $i;
 	Player $p3;
@@ -15,7 +15,7 @@ function $printAllPlayers : void ()
 }
 
 
-function $main : void ()
+function $main : ()
 {
 	Player $p1;
 	Player $p2;

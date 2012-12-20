@@ -1,5 +1,5 @@
 Array int $myInt;
-function $main : void ()
+function $main : ()
 {
 	int $i;
 	

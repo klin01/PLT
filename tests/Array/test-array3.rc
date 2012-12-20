@@ -1,4 +1,4 @@
-function $main : void ()
+function $main : ()
 {
 	Array int $myInt;
 	int $i;

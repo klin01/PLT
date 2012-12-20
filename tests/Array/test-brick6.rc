@@ -1,6 +1,6 @@
 Array Brick $brickArray;
 
-function $printAllBricks : void (int $total) {
+function $printAllBricks : (int $total) {
 	int $i;
 	Brick $b;
 
@@ -16,7 +16,7 @@ function $printAllBricks : void (int $total) {
 }
 
 
-function $main : void ()
+function $main : ()
 {
 	Brick $b1;
 	Array int $vertices;

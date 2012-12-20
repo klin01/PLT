@@ -2,11 +2,11 @@
 
 Map $myMap;
 
-function $generate : void () {
+function $generate : () {
 	$printstring("Generate!");
 }
 
-function $main : void ()
+function $main : ()
 {
 	$myMap : new Map(700,500,$generate);
 

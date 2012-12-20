@@ -1,7 +1,7 @@
 /* Create local Brick object from previously initialized array. 
  	Assign new values to vertices array with '.' referencing.*/
 
-function $main : void ()
+function $main : ()
 {
 	Array int $vertices;
 	Brick $b1;

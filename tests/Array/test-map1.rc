@@ -1,10 +1,10 @@
 /* Create local Map object */
 
-function $generate : void () {
+function $generate : () {
 	$printstring("Generate!");
 }
 
-function $main : void ()
+function $main : ()
 {
 	Map $myMap;
 

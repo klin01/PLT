@@ -1,6 +1,6 @@
 Array int $playervertices;
 
-function $generateThis : Array Brick ()
+function $generateThis : ()
 {
 	Array Brick $retArray;
 	Array int $brickvs;
@@ -44,7 +44,7 @@ function $generateThis : Array Brick ()
 	return $retArray;
 }
 
-function $buildPlayerVertices : void ($vertices)
+function $buildPlayerVertices : ($vertices)
 {
 	int $i;
 	int $j;
@@ -56,7 +56,7 @@ function $buildPlayerVertices : void ($vertices)
 	}
 }
 
-function $main : void ()
+function $main : ()
 {	
 	Map $m;
 	Player $player;

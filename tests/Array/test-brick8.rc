@@ -1,4 +1,4 @@
-function $retBrick : Brick () {
+function $retBrick : () {
 	Brick $b;
 	Array int $vertices;
 	$vertices : new Array int;
@@ -16,7 +16,7 @@ function $retBrick : Brick () {
 }
 
 
-function $main : void ()
+function $main : ()
 {
 	Brick $b;
 	Array int $vertices;
