@@ -1,4 +1,4 @@
-function $gcd : int (int $a, int $b) {
+function $gcd : (int $a, int $b) {
 
 	while ($a != $b) 
 	{
@@ -10,7 +10,7 @@ function $gcd : int (int $a, int $b) {
   	return $a;
 }
 
-function $main : void ()
+function $main : ()
 {
 	$printstring("Should print 2, 3, and 11");
   	$printint( $gcd(2,14) );

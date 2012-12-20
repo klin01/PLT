@@ -1,23 +1,23 @@
 int $a;
 int $b;
 
-function $printa : void ()
+function $printa : ()
 {
   $printint( $a );
 }
 
-function $printb : void ()
+function $printb : ()
 {
   $printint( $b );
 }
 
-function $incab : void ()
+function $incab : ()
 {
   $a : $a + 1;
   $b : $b + 1;
 }
 
-function $main : void ()
+function $main : ()
 {
   $printstring("Should print 43 22, then 44 23");
   $a : 43;

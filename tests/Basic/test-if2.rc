@@ -1,4 +1,4 @@
-function $main : void ()
+function $main : ()
 {
   $printstring("Test if else. Should print 8 9 17");
   if (1) $printint(8); else $printint(42);

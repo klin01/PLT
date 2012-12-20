@@ -1,9 +1,9 @@
-function $add : int (int $a, int $b)
+function $add : (int $a, int $b)
 {
   return $a + $b;
 }
 
-function $main : void ()
+function $main : ()
 {
   int $a;
 

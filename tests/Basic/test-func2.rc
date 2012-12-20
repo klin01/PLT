@@ -1,11 +1,11 @@
 /* Bug noticed by Pin-Chin Huang */
 
-function $fun : int (int $x, int $y)
+function $fun : (int $x, int $y)
 {
   return 0;
 }
 
-function $main : void ()
+function $main : ()
 {
   int $i;
   $i : 1;

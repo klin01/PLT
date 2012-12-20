@@ -1,5 +1,5 @@
 
-function $func : void (int $a)
+function $func : (int $a)
 {
 	$printstring("func");
 	$printint($a);
@@ -10,7 +10,7 @@ function $func : void (int $a)
 }
 
 
-function $main : void ()
+function $main : ()
 {
 	$printstring("Should be 42");
 	$printint(39 + 3);

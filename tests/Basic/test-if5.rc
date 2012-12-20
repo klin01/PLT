@@ -1,4 +1,4 @@
-function $main : void ()
+function $main : ()
 {
   if (false){
   	$printint(42);

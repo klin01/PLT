@@ -1,4 +1,4 @@
-function $retString : string () {
+function $retString : () {
 		string $str;
 		$str : "hello world";
 		return $str;
