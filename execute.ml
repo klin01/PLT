@@ -5,6 +5,11 @@ open Thread
 exception IllegalMove;;
 exception End;;
 
+(********************************************
+  Structs to help organize player, block
+  and brick data.
+*********************************************)
+
 type blockType = {
   mutable block_vertices:int list;
   mutable block_color:int;
@@ -12,6 +17,7 @@ type blockType = {
 
 type playerType = {
   mutable player_vertices:int list;
+
   mutable player_color:int;
 };;
 
@@ -26,12 +32,15 @@ type state = {
   mutable userscore: int;
 };;
 
+(********************************************
+  Various helper functions
+*********************************************)
+
 let rec printList = function
   []  ->  ""
   | hd::tl -> (string_of_int hd) ^ printList tl;; 
 
 let array_def_size = 100
-(*let global_score = 0*)
 
 let explode s =
   let rec f acc = function
@@ -78,15 +87,15 @@ let getNextFreeIndex stack globals sp isLocal =
 let draw_polygon vlist color =
   Graphics.set_color color;
   let x0 = (List.nth vlist 0) and y0 = (List.nth vlist 1) in
-    print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
+    (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0));*)
     Graphics.moveto x0 y0;
     for i = 1 to ((List.length vlist) / 2) - 1 do
       let x = (List.nth vlist (2*i)) and y = (List.nth vlist (2*i + 1)) in Graphics.lineto x y;
-      print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y) )
+      (*print_endline( "x, y" ^ (string_of_int x) ^ " " ^ (string_of_int y)*)
     done;
     Graphics.lineto x0 y0;
-    print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
-    print_endline("");
+    (*print_endline( "x0, y0" ^ (string_of_int x0) ^ " " ^ (string_of_int y0) );
+    print_endline("");*)
 
   let rec buildTupleArray = function
     [] -> []
@@ -204,19 +213,17 @@ let gameState = {winWidth=(-1); winHeight=(-1);
 (********************************************
   Execute the program
 *********************************************)
+
 let execute_prog prog =
   let stack = Array.make 160000 0
   and globals = Array.make prog.globals_size 0
   and random = Random.self_init ()
   in
 
-
   let rec exec fp sp pc = try match prog.text.(pc) with
-    Litint i  -> 
+    Litint i  -> (* Load int literal *)
     stack.(sp) <- i ; stack.(sp+1) <- 1; exec fp (sp+2) (pc+1) 
-  | Litstr str -> 
-    (*let trimmed = trim str in
-     let split_trim = Str.split(Str.regexp "\"") trimmed  in *)
+  | Litstr str -> (* Load string literal *)
       let ascii_list = List.rev (List.map Char.code (explode str)) in
         let length = List.length ascii_list in
           if (length > 38) then raise(Failure("The maximum string length allowed is 38.")) else
@@ -233,9 +240,7 @@ let execute_prog prog =
                   else (stack.(sp+38) <- length; stack.(sp+39) <- 2; fill_string diff) 
                 in
                   push_elements ascii_list 0
-
-    (* TODO: Are we putting type after the data onto the stack? *)
-  | Drp ->
+  | Drp -> (* Drop value/object on top of the stack *)
     let var_type_id = stack.(sp-1) in
       (
         match var_type_id with 
@@ -250,7 +255,7 @@ let execute_prog prog =
         | 9 -> exec fp (sp-array_def_size*210-1) (pc+1)
         | 10 -> exec fp (sp-array_def_size*7-1) (pc+1)
         | _ -> raise(Failure("Unmatched type in Drp. Attempt to drop type " ^ string_of_int var_type_id)))
-  | Bin op -> 
+  | Bin op -> (* Perform the operation op on the two values on top of the stack *)
       let op1 = stack.(sp-4) 
       and op1type = stack.(sp-3)
       and op2 = stack.(sp-2)
@@ -327,7 +332,7 @@ let execute_prog prog =
               exec fp (sp+701) (pc+1)
           | _ -> raise(Failure("Type error: Attempt to load unknown type!"))
         ) 
-  | Str i -> (* Store a global variable variable *)
+  | Str i -> (* Store a global variable *)
     let globaltypeid = globals.(i)
     and var_type_id = stack.(sp-1) in
     if (globaltypeid <> var_type_id) then raise(Failure("Attempt to set global variable to mismatched type.")) else
@@ -385,11 +390,11 @@ let execute_prog prog =
       | 0 -> raise(Failure("Unable to store uninitialized variable."))
       | _ -> raise(Failure("Type error: Unable to store variable of unknown type."))
     )
-  | Loda -> (* Load an index of a global array, first element on stack is address of array, next element is index of array *)
+  | Loda -> (* Load a value from a global array, first element on stack is address of array, next element is index of array *)
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer!")) else
-    let i = stack.(sp-2) (* address of array being accessed *)
-    and elem_index = stack.(sp-4) in (* index of array to access *)
+    let i = stack.(sp-2) (* Address of array being accessed *)
+    and elem_index = stack.(sp-4) in (* Index of array to access *)
     let var_type_id = globals.(i) in
     let cnst_offset = 4 in
     let elem_size = 
@@ -431,7 +436,7 @@ let execute_prog prog =
           exec fp (sp+elem_size-cnst_offset) (pc+1)
       | _ -> raise(Failure("Type error: Global variable accessed is of unknown type."))
     )
-  | Stra -> (* Store a value into global array index, top of stack is array address, next is array index, then value to store *)
+  | Stra -> (* Store a value into global array, top of stack is array address, next is array index, then value to store *)
     if (stack.(sp-1) <> 1) then raise(Failure("Invalid array address.")) else
     if (stack.(sp-3) <> 1) then raise(Failure("Type error: Array index must be an integer.")) else
     let array_address = stack.(sp-2)
@@ -712,7 +717,6 @@ let execute_prog prog =
       | _ -> raise(Failure("Type error: Attempt to store value into array of unknown type."))
     )
   | Jsr(-1) -> (* DrawPlayer *) 
-      print_endline ("You've just drawn something!") ;
       let scope = -1
       and addr = (sp-9) 
       and color = color_from_rgb stack.(sp-3) stack.(sp-5) stack.(sp-7)
@@ -731,7 +735,8 @@ let execute_prog prog =
           else [] in
         
         let player = {player_vertices= make_coord_list (addr-1);player_color = color} in
-        print_endline (String.concat " ptest " (List.map string_of_int player.player_vertices));
+        (* Debugging for loading player from stack *)
+        (* print_endline (String.concat " " (List.map string_of_int player.player_vertices)); *)
         gameState.playerData <- player;
         exec fp sp (pc+1)
   | Jsr(-2) -> (* Run *)
@@ -750,31 +755,31 @@ let t_init s () =
   draw_polygon s.playerData.player_vertices s.playerData.player_color;
   (*Graphics.set_color s.block1_color;*)
   
+  (* Debugging for graphics
   print_endline(string_of_int 0);
-
   print_endline("size: " ^ string_of_int (List.length s.blockData));
-
-  List.iter (fun block -> (print_endline (printList block.block_vertices))) s.blockData;
+  List.iter (fun block -> (print_endline (printList block.block_vertices))) s.blockData; *)
 
   List.iter (fun block -> (draw_polygon block.block_vertices
                                           block.block_color)) s.blockData;
+  (* Debugging for graphics
   print_endline(string_of_int 1);
-
-  (*draw_rectangle s.block1_x s.block1_y s.block1_size s.block1_color;*)
+  draw_rectangle s.block1_x s.block1_y s.block1_size s.block1_color;*)
 in
 
 (* s is state *)
 let t_end s () =
-  print_endline(string_of_int 2);
+  (* Debugging for graphics
+  print_endline(string_of_int 2);*)
   Graphics.close_graph ();
   Graphics.set_color s.winBgColor;
 in
 
 (* c is keyboad input (char) *)
 let t_key s c =
+  (* Debugging for graphics
   print_endline(string_of_int 3);
-  (*draw_player s.player_x s.player_y s.player_size s.player_color;*)
-  
+  draw_player s.player_x s.player_y s.player_size s.player_color;*)
   
   let max_y = find_max_y 0 s.playerData.player_vertices 
   and min_y = find_min_y s.winHeight s.playerData.player_vertices in
@@ -786,25 +791,19 @@ let t_key s c =
                (
                   if (s.gravityFlag < 2) then
                       s.gravityFlag <- 2;
-                        
                   s.playerData.player_vertices <- (trans_allVertices_y s.gravityFlag s.playerData.player_vertices);
                   s.gravityFlag <- (s.gravityFlag + 3);
                )
                else
                   s.playerData.player_vertices <- 
                   (trans_allVertices_abs_y (s.winHeight - objectheight) s.playerData.player_vertices)
-      (*|'z'   -> if min_y > 0 then 
-                  s.playerData.player_vertices <- 
-                  (trans_allVertices_y (-15) s.playerData.player_vertices)
-                else
-                  s.playerData.player_vertices <- 
-                  (trans_allVertices_abs_y 0 s.playerData.player_vertices)*)
       | _     -> ());
 in
 
 
 let t_updateFrame s () =
-  print_endline(string_of_int 4);
+  (* Debugging for graphics
+  print_endline(string_of_int 4); *)
   Graphics.clear_graph ();
   Graphics.set_color s.winBgColor;
   Graphics.fill_rect 0 0 s.winWidth s.winHeight;
@@ -878,8 +877,8 @@ let t_except s ex = ();
 in
 
 let t_playerCollided s () =
-
-  print_endline(string_of_int 5);
+  (* Debugging for graphics
+  print_endline(string_of_int 5);*)
   (* Get blockType block and return a GPC polygon *)
   let makeGPCPolygon vlist =
    let rec makeVertexArray = function
@@ -906,7 +905,8 @@ in
 (*let i = ref 0; in*)
 
 let skel f_init f_end f_key f_updateFrame f_except f_playerCollided = 
-  print_endline(string_of_int 6);
+  (* Debugging for graphics
+  print_endline(string_of_int 6);*)
   f_init ();
   try 
       while not (f_playerCollided ()) do
@@ -928,26 +928,13 @@ let slate () =
     skel (t_init gameState) (t_end gameState)
          (t_key gameState) (t_updateFrame gameState) 
          (t_except gameState) (t_playerCollided gameState); 
-    print_endline(string_of_int 7);
+    (* Debugging for graphics
+    print_endline(string_of_int 7);*)
 in
 
 slate ();
 print_endline("Game End!");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-      (*print_endline "You've just started running your program!" ; exec fp sp (pc+1)*)
   | Jsr(-3) -> (* printint *)
       if (stack.(sp-1) <> 1) then raise(Failure("The function $printint must take an integer value.")) else
       print_endline (string_of_int stack.(sp-2)) ; exec fp sp (pc+1)
@@ -961,8 +948,7 @@ print_endline("Game End!");
                   exec fp sp (pc+1)          
   | Jsr(-5) -> (* dumpstack *)
       Array.iter print_endline (Array.map string_of_int stack); 
-  | Jsr(-6) -> (* CallGenerator function of map on top of stack *)
-        (*(print_endline ((string_of_int stack.(sp-7)) ^ " w h " ^ (string_of_int stack.(sp-5))) );*)
+  | Jsr(-6) -> (* Jump to CallGenerator function of the map on top of stack *)
         gameState.winWidth <- stack.(sp-3);
         gameState.winHeight <- stack.(sp-5);
         stack.(sp)   <- pc + 1 ; 
@@ -1001,9 +987,7 @@ print_endline("Game End!");
   | Ent i   -> stack.(sp)   <- fp           ; exec sp (sp+i+1) (pc+1)
   | Rts i   -> 
     let new_fp = stack.(fp) and new_pc = stack.(fp-1) and base = fp-i-1 in 
-    (
-      print_endline(string_of_int new_fp ^ " " ^ string_of_int new_pc ^ " " ^ string_of_int base);
-      let obj_id = stack.(sp-1) in
+    ( let obj_id = stack.(sp-1) in
       match obj_id with
         1 -> (* int *) 
               (stack.(base+1) <- stack.(sp-1);  (* Construct an int on top of stack*)
@@ -1064,7 +1048,7 @@ print_endline("Game End!");
             done;
             exec new_fp (base+701) new_pc)
 
-      | _ -> raise(Failure("Unmatched type in Rts!!"));
+      | _ -> raise(Failure("Unmatched type in Rts: " ^ string_of_int obj_id));
       );
   | Beq i   -> exec fp (sp-1) (pc + if stack.(sp-2) =  0 then i else 1)
   | Bne i   -> exec fp (sp-2) (pc + if stack.(sp-2) != 0 then i else 1)
@@ -1107,7 +1091,7 @@ print_endline("Game End!");
                 match stack.(n) with
                   0 -> []
                 | 1 -> (stack.(n-1)+xcoord)::((stack.(n-3)+ycoord):: make_coord_list (n-4) (counter+1))
-                | _ -> raise(Failure("cant resolve " ^ string_of_int stack.(n))))
+                | _ -> raise(Failure("Brick vertex type must be int. Invalid type " ^ string_of_int stack.(n))))
             else [] in
             (
               {block_vertices= make_coord_list (addr-1) 0; block_color=r*256*256+g*256+b;} :: addToBricks (i-212)
@@ -1115,28 +1099,13 @@ print_endline("Game End!");
           ) else []
       in 
       let blocks1 = addToBricks (sp-1) in
-
-      print_endline ("Blocks : " ^ (string_of_int (List.length (addToBricks (sp-1)))));
       gameState.blockData <- blocks1;
 
-      print_endline (String.concat " test " (List.map string_of_int ((List.hd blocks1).block_vertices)));
-(*
-        
-      draw_polygon ((List.hd blocks1).block_vertices) ((List.hd blocks1).block_color);
-
-      Thread.join(Thread.create(Thread.delay)(3.0)); *)
+      (* Debugging code for loading blocks
+      print_endline ("Blocks : " ^ (string_of_int (List.length (addToBricks (sp-1)))));
+      print_endline (String.concat " " (List.map string_of_int ((List.hd blocks1).block_vertices)));
+      *)
       exec fp sp (pc+1)
-
-  | PrintScore -> (* Prints the user's current score *)
-
-(*
-      print_endline("Score: " ^ string_of_int gameState.userscore);
-      draw_string 0 stack.(sp-4) (string_of_int gameState.userscore);
-
-      gameState.userscore = gameState.userscore + 1;
-*)
-      exec fp sp (pc+1)
-
   | Nt ->
     if (stack.(sp-1) <> 1) then 
       raise(Failure("Cannot apply 'Not' to non-int")) else

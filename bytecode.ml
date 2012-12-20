@@ -23,9 +23,8 @@ type bstmt =
   | Bra of int            (* Branch relative *)
   | Make of int           (* Shift stack pointer by 1 for Player, Map, Brick; Adds vartype_id to first space in arrays *)
   | Init of int * int * int (* Puts vartype_id into address of variable; used for type checking *)
-  | Litf of int           (* Knows to load a function address and offset it if necessary *)
+  | Litf of int           (* Knows to load a function address and offset it if necessary *)  
   | ProcessBlocks
-  | PrintScore            (* Prints the user's current score on the top left *)
   | Hlt                   (* Terminate *)
   | Nt                    (* Negate 1 or 0 on top of stack *)
 
@@ -68,7 +67,6 @@ let string_of_stmt = function
   | Sfpa -> "Sfpa"
   | Loda -> "Loda"
   | Stra -> "Stra"
-  | PrintScore -> "PrintScore"
   | ProcessBlocks -> "ProcessBlocks"
   | Nt -> "Not"
   | Hlt    -> "Hlt"

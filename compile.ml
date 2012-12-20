@@ -248,7 +248,7 @@ let translate (globals, functions) =
   let global_indexes = string_map_pairs StringMap.empty (enum 1 0 globals) in
   let globalinits = enumInitCommands 1 0 0 globals in
   (* Assign indexes to function names *)
-  let built_in_functions = StringMap.add "$DrawPlayer" (-1) StringMap.empty in
+  let built_in_functions = StringMap.add "$LoadPlayer" (-1) StringMap.empty in
   let built_in_functions = StringMap.add "$Run" (-2) built_in_functions in
   let built_in_functions = StringMap.add "$printint" (-3) built_in_functions in
   let built_in_functions = StringMap.add "$printstring" (-4) built_in_functions in
